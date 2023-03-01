@@ -1,7 +1,7 @@
-import { Agent } from "https";
-import { get } from "axios";
-import { load } from "cheerio";
-import { EmbedBuilder, CategoryChannel } from "discord.js";
+const { Agent } = require("https");
+const { get } = require("axios");
+const { load } = require("cheerio");
+const { EmbedBuilder, CategoryChannel } = require("discord.js");
 const link = "https://www.bcv.org.ve/";
 const httpsAgent = new Agent({
     rejectUnauthorized: false,
@@ -11,7 +11,7 @@ const botAvatar =
 const twitterPhoto =
     "https://pbs.twimg.com/profile_images/927966724753944577/SAw5bHeo_400x400.jpg";
 
-export default async (hoy, client) => {
+module.exports = async (hoy, client) => {
     try {
         const hora = hoy.getHours();
         const minutos = hoy.getMinutes();
