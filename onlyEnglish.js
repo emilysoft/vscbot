@@ -2,8 +2,8 @@ module.exports = (message, client, vscLog) => {
   const englishChannelId = "891123662818783252";
   if (message.channelId != englishChannelId) return;
   //if(message.author.bot) return
-  var args = message.content.split("");
-  var args2 = message.content.split(" ");
+  let args = message.content.split("");
+  let args2 = message.content.split(" ");
   if (
     args.includes("ñ") ||
     args.includes("Ñ") ||
