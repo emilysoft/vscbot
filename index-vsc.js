@@ -10,10 +10,10 @@ const client = new Client({
         GatewayIntentBits.GuildVoiceStates,
     ],
 });
-
 const loadEvents = require("./handler/loadEvents");
 const loadCommands = require("./handler/loadCommands");
 loadCommands(client);
 loadEvents(client);
 
-client.login(token);
+//client.login(token);
+

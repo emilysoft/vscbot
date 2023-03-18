@@ -1,2 +1,3 @@
 node_modules
-modules/media/globos/*.png
+commands/fun/globos/media/attachment
+commands/fun/globos/media/result

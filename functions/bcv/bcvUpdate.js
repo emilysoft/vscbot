@@ -2,6 +2,7 @@ const { Agent } = require("https");
 const { get } = require("axios");
 const { load } = require("cheerio");
 const { EmbedBuilder, CategoryChannel } = require("discord.js");
+const errorLogger = require("../loggers/errorLogger");
 const link = "https://www.bcv.org.ve/";
 const httpsAgent = new Agent({
     rejectUnauthorized: false,
@@ -40,7 +41,7 @@ module.exports = async (hoy, client) => {
                 channel.send({ embeds: [exampleEmbed] });
             });
         }
-    } catch (e) {
-        console.log(e);
+    } catch (err) {
+        errorLogger(err, message.client, "error");
     }
 };

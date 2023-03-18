@@ -4,7 +4,7 @@ module.exports = async (message, targetChannel) => {
         if (message.channel.isThread()) return;
         await message.react("👍")
         await message.react("👎")
-    } catch (e) {
-        errorLogger(e, message, client, "error");
+    } catch (err) {
+        errorLogger(err, message, client, "error");
     }
 };

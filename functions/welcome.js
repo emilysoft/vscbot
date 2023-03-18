@@ -10,7 +10,7 @@ module.exports = async (message) => {
                 .reply("<@&1049626515849084988>")
                 .then((msg) => msg.delete());
         }
-    } catch (e) {
-        errorLogger(e, message.client, "error");
+    } catch (err) {
+        errorLogger(err, message.client, "error");
     }
 };

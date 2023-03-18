@@ -11,7 +11,7 @@ module.exports = async (client, text)  => {
             setPresence(client, text);
         }, 300000);
     }
-    catch (e) {
-        errorLogger(e, client, 'error')
+    catch (err) {
+        errorLogger(err, client, 'error')
     }
 };

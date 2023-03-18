@@ -28,7 +28,7 @@ module.exports = async (error, client, type) => {
             (channel) => channel.id === logChannelId
         );
         await channel.send({ embeds: [exampleEmbed] });
-    } catch (e) {
-        console.error(e);
+    } catch (err) {
+        console.error(err);
     }
 };

@@ -22,7 +22,7 @@ module.exports = async (client, invite) => {
             (channel) => channel.id === logChannelId
         );
         await channel.send({ embeds: [exampleEmbed] });
-    } catch (e) {
-        errorLogger(e, client, 'error')
+    } catch (err) {
+        errorLogger(err, client, 'error')
     }
 };

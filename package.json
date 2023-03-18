@@ -2,9 +2,9 @@
   "name": "discord-bot",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "index-vsc.js",
   "scripts": {
-    "start": "nodemon index.js"
+    "start": "nodemon index-vsc.js"
   },
   "keywords": [],
   "author": "",
