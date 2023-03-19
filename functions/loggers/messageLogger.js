@@ -16,7 +16,7 @@ module.exports = async (message, type) => {
     const minutes = now.getMinutes();
 
     const authorID = message.author.id;
-    const channelName = message.channe.name;
+    const channelName = message.channel.name;
     const userName = message.author.username;
     let messageContent;
     if (message.content == "") {

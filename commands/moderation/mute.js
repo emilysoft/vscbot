@@ -27,21 +27,37 @@ module.exports = {
                 return;
             }
             let mutedUsers = [];
-            for (id of ids) {
-                message.guild.members.cache
-                    .get(id)
-                    .roles.add(muted, "")
-                    .then(() => {
-                        console.log("muteado exitosamente");
-                        mutedUsers.push(`\n<@${id}> ha sido muteado.`);
-                    })
-                    .catch((e) => {
-                        mutedUsers.push(
-                            `\n<@${id}> error al intentar mutearlo.`
-                        );
+            //            .then(member => {
+            //                member.forEach(element => {
+            //                    console.log(element.user.username)
+            //                });
+            //            })
+            var members;
+            await message.guild.members.fetch({ user: ids }).then((members) => {
+                for (id of ids) {
+                    members.forEach((member) => {
+                        if (member.id === id) {
+                            member.roles
+                                .add(muted, "")
+                                .then(() => {
+                                    console.log(
+                                        `${member.user.username} muteado exitosamente`
+                                    );
+                                    mutedUsers.push(
+                                        `\n<@${id}> ha sido muteado.`
+                                    );
+                                })
+                                .catch((e) => {
+                                    mutedUsers.push(
+                                        `\n<@${id}> error al intentar mutearlo.`
+                                    );
+                                });
+                        }
                     });
-            }
-            await message.channel.send(...mutedUsers);
+                }
+                console.log(mutedUsers);
+            });
+            //                message.channel.send({content:mutedUsers.join(" ")});
         } catch (err) {
             errorLogger(err, message.client, "error");
         }

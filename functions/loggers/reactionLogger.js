@@ -8,13 +8,19 @@ module.exports = (messageReaction, user, type) => {
         throw new Error("Error al especificar el tipo de evento");
     }
     today = new Date();
+    const now = new Date();
+    const date = now.getDate();
+    const month = now.getMonth() + 1;
+    const year = now.getFullYear();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+
+    const authorID = user.id;
+    const channelName = messageReaction.message.channel.name;
+    const userName = user.username;
+    const emoji = messageReaction.emoji;
+
     console.log(
-        `[${today.getDate()}/${
-            today.getMonth() + 1
-        }/${today.getFullYear()}][${today.getHours()}:${today.getMinutes()}][${
-            user.id
-        }][${messageReaction.message.channel.name}][${
-            messageReaction.emoji
-        }] ${typeMessage} por ${user.username}`
+        `[REACTION][${date}/${month}/${year}][${hours}:${minutes}][${authorID}][${channelName}][${emoji}] ${typeMessage} por ${userName}`
     );
 };

@@ -15,5 +15,4 @@ const loadCommands = require("./handler/loadCommands");
 loadCommands(client);
 loadEvents(client);
 
-//client.login(token);
-
+client.login(token);

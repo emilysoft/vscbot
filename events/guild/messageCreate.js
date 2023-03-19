@@ -41,7 +41,7 @@ module.exports = {
             recomendationReactions(message, "1010377354020929536");
             recomendationReactions(message, "1013280756757430364");
             recomendationReactions(message, "942934915396288542");
-            messageLogger("create");
+            messageLogger(message, "create");
 
             //  neetAdviser(message);
 
@@ -55,7 +55,9 @@ module.exports = {
                 //                    message.member.roles.add(role, `Asignación de rol`)
                 //                }
                 if (message.content.startsWith(">mute")) {
-                    mute.run(message);
+                    if(message.author.id == OWNER_ID) {
+                        mute.execute(message);
+                    }
                 }
                 if (
                     message.content.startsWith(">ban") &&

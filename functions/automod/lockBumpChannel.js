@@ -52,6 +52,6 @@ module.exports = async (hoy, client) => {
         }
         //  }
     } catch (err) {
-        errorLogger(err, message.client, "error");
+        errorLogger(err, client, "error");
     }
 };

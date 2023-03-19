@@ -10,6 +10,7 @@ module.exports = {
     name: Events.MessageUpdate,
     async execute(message, oldM) {
         try {
+            client = message.client;
             antiWalltexts(message, client, ignoredChannels, backupChannel);
             removePhoneNumbers(message);
             banDiscordInvite(message, client);
