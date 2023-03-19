@@ -22,6 +22,11 @@ const removePhoneNumbers = require("../../functions/automod/messageCreate/remove
 const errorLogger = require("../../functions/loggers/errorLogger");
 
 let today;
+const nsfwChannels = {
+    aportes: "1013280756757430364",
+    aportes2D: "942934915396288542",
+    LGBT: "1053118780705874040"
+}
 module.exports = {
     name: Events.MessageCreate,
     async execute(message) {
@@ -37,10 +42,11 @@ module.exports = {
             antiCrypto(message, client);
             welcome(message);
             bumpReminder(message, bumpChannelId);
+            
             recomendationReactions(message, "813553405695361105");
-            recomendationReactions(message, "1010377354020929536");
-            recomendationReactions(message, "1013280756757430364");
-            recomendationReactions(message, "942934915396288542");
+            recomendationReactions(message, nsfwChannels.aportes, 'nsfw');
+            recomendationReactions(message, nsfwChannels.aportes2D, 'nsfw');
+            recomendationReactions(message, nsfwChannels.LGBT, 'nsfw');
             messageLogger(message, "create");
 
             //  neetAdviser(message);
