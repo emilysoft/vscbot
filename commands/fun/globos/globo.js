@@ -1,13 +1,13 @@
 const path = require("node:path");
 const errorLogger = require("../../../functions/loggers/errorLogger");
-const jimp = require("./jimp");
+const Jimp = require("jimp");
 module.exports = {
     name: "globo",
     description: "Crea un globo encima de una imagen adjuntada.",
     aliases: ["globo", "gb"],
     async run(message) {
         try {
-            message.delete();
+//            message.delete();
             if (message.attachments.size == 1) {
                 message.attachments.each((image) => {
                     if (image.size < 1000000) {

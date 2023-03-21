@@ -1,7 +1,7 @@
 const { Events } = require("discord.js");
 const antiCrypto = require("../../functions/automod/messageCreate/antiCrypto");
 const mute = require("../../commands/moderation/mute");
-const bcv = require("../../functions/bcv/bcv");
+//const bcv = require("../../functions/bcv/bcv");
 const welcome = require("../../functions/welcome");
 const help = require("../../commands/info/help");
 const banDIscordInvite = require("../../functions/automod/messageCreate/banDiscordInvite");
@@ -70,9 +70,9 @@ module.exports = {
                     message.author.id == OWNER_ID
                 ) {
                 }
-                if (message.content.startsWith(">bcv")) {
-                    bcv(message, true);
-                }
+//                if (message.content.startsWith(">bcv")) {
+//                    bcv(message, true);
+//                }
                 if (message.content.startsWith(">help")) {
                     help(message, client);
                 }

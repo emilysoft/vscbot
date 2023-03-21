@@ -2,7 +2,7 @@ const path = require("node:path");
 const { Events } = require("discord.js");
 const notifier = require("node-notifier");
 const vcConnection = require("../../functions/vcConnection");
-const bcvUpdate = require("../../functions/bcv/bcvUpdate");
+//const bcvUpdate = require("../../functions/bcv/bcvUpdate");
 const lockBumpChannel = require("../../functions/automod/lockBumpChannel");
 const staffSleeping = require("../../functions/automod/staffSleeping");
 const timer = require("../../functions/timer");
@@ -25,7 +25,7 @@ module.exports = {
             hoy = new Date();
             staffSleeping(hoy, client);
             timer(hoy, client);
-            bcvUpdate(hoy, client);
+            //bcvUpdate(hoy, client);
             lockBumpChannel(hoy, client);
         }, 60000);
 

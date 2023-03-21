@@ -2,7 +2,7 @@ const https = require("https");
 const Axios = require("axios");
 const cheerio = require("cheerio");
 const { EmbedBuilder } = require("discord.js");
-const errorLogger = require("../loggers/errorLogger");
+const errorLogger = require("./loggers/errorLogger");
 const link = "https://www.bcv.org.ve/";
 const httpsAgent = new https.Agent({
     rejectUnauthorized: false,

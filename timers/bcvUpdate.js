@@ -2,7 +2,7 @@ const { Agent } = require("https");
 const { get } = require("axios");
 const { load } = require("cheerio");
 const { EmbedBuilder, CategoryChannel } = require("discord.js");
-const errorLogger = require("../loggers/errorLogger");
+const errorLogger = require("../functions/loggers/errorLogger");
 const link = "https://www.bcv.org.ve/";
 const httpsAgent = new Agent({
     rejectUnauthorized: false,
