@@ -25,8 +25,8 @@ let today;
 const nsfwChannels = {
     aportes: "1013280756757430364",
     aportes2D: "942934915396288542",
-    LGBT: "1053118780705874040"
-}
+    LGBT: "1053118780705874040",
+};
 module.exports = {
     name: Events.MessageCreate,
     async execute(message) {
@@ -42,11 +42,11 @@ module.exports = {
             antiCrypto(message, client);
             welcome(message);
             bumpReminder(message, bumpChannelId);
-            
+
             recomendationReactions(message, "813553405695361105");
-            recomendationReactions(message, nsfwChannels.aportes, 'nsfw');
-            recomendationReactions(message, nsfwChannels.aportes2D, 'nsfw');
-            recomendationReactions(message, nsfwChannels.LGBT, 'nsfw');
+            recomendationReactions(message, nsfwChannels.aportes, "nsfw");
+            recomendationReactions(message, nsfwChannels.aportes2D, "nsfw");
+            recomendationReactions(message, nsfwChannels.LGBT, "nsfw");
             messageLogger(message, "create");
 
             //  neetAdviser(message);
@@ -61,34 +61,15 @@ module.exports = {
                 //                    message.member.roles.add(role, `Asignación de rol`)
                 //                }
                 if (message.content.startsWith(">mute")) {
-                    if(message.author.id == OWNER_ID) {
+                    if (message.author.id == OWNER_ID) {
                         mute.execute(message);
                     }
-                }
-                if (
-                    message.content.startsWith(">ban") &&
-                    message.author.id == OWNER_ID
-                ) {
                 }
                 if (message.content.startsWith(">bcv")) {
                     bcv(message, true);
                 }
                 if (message.content.startsWith(">help")) {
                     help(message, client);
-                }
-                if (
-                    message.content.startsWith(">nsfw") &&
-                    message.author.id == OWNER_ID
-                ) {
-                    nsfw.forEach((e) => {
-                        message.channel.send(e);
-                    });
-                }
-                if (
-                    message.content.startsWith(">save") &&
-                    message.author.id == OWNER_ID
-                ) {
-                    message.channel.send("<:gawr_hola:918317399755874314>");
                 }
                 //                if (message.content.startsWith(">unignore")) {
                 //                    console.log("ejecutando unignore");
@@ -136,16 +117,24 @@ module.exports = {
                             "Canal bloqueado hasta que se me canten los huevos"
                         );
                 }
-                if (
-                    message.content.startsWith(">say") &&
-                    (
-                        message.author.id == OWNER_ID ||
-                        message.author.id == '690796358579257424'
-                    )
-                ) {
-                    message.delete();
-                    let args = message.content.substring(1).split(/ +/);
-                    message.channel.send(args.slice(1).join(" "));
+                if (message.content.startsWith(">say")) {
+                    const authorID = message.author.id;
+                    if (
+                        authorID == OWNER_ID ||
+                        authorID == "690796358579257424"
+                    ) {
+                        const args = message.content
+                            .substring(1)
+                            .split(/ +/)
+                            .slice(1)
+                            .join(" ");
+                        if (!args) {
+                            message.reply("Especifique algo");
+                            return;
+                        }
+                        message.delete();
+                        message.channel.send(args);
+                    }
                 }
             }
             if (message.content.startsWith("!suckmode")) {
