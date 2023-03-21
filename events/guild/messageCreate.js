@@ -70,9 +70,9 @@ module.exports = {
                     message.author.id == OWNER_ID
                 ) {
                 }
-//                if (message.content.startsWith(">bcv")) {
-//                    bcv(message, true);
-//                }
+                if (message.content.startsWith(">bcv")) {
+                    bcv(message, true);
+                }
                 if (message.content.startsWith(">help")) {
                     help(message, client);
                 }
@@ -138,7 +138,10 @@ module.exports = {
                 }
                 if (
                     message.content.startsWith(">say") &&
-                    message.author.id == OWNER_ID
+                    (
+                        message.author.id == OWNER_ID ||
+                        message.author.id == '690796358579257424'
+                    )
                 ) {
                     message.delete();
                     let args = message.content.substring(1).split(/ +/);
