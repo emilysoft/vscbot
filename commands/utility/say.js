@@ -1,5 +1,5 @@
 module.exports = {
-    name: "say",
+    aame: "say",
     async execute(message) {
 
     },

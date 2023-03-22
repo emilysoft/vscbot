@@ -12,19 +12,8 @@ const botAvatar =
 const twitterPhoto =
     "https://pbs.twimg.com/profile_images/927966724753944577/SAw5bHeo_400x400.jpg";
 
-module.exports = async (message, reply) => {
+module.exports = async (client) => {
     try {
-        if (reply) {
-            message.channel.send("Cargando...").then(async (msg) => {
-                const obj = await getData();
-                msg.edit({ content: "", embeds: [obj] });
-            });
-        } else {
-            const obj = await getData();
-            message.channel
-                .send({ embeds: [obj] })
-        }
-        async function getData() {
             const { data } = await Axios.get(link, { httpsAgent });
             const $ = cheerio.load(data);
             const dolar = $("#dolar div.col-sm-6.col-xs-6.centrado");
@@ -32,7 +21,7 @@ module.exports = async (message, reply) => {
             const fecha = $(
                 "div.pull-right.dinpro.center span.date-display-single"
             );
-            const exampleEmbed = new EmbedBuilder()
+            const embed = new EmbedBuilder()
                 .setColor("#ADD8E6")
                 .setTitle(`Banco Central de Venezuela`)
                 .setAuthor({ name: "Bot sin Contexto", iconURL: botAvatar })
@@ -42,9 +31,8 @@ module.exports = async (message, reply) => {
                     💶 Euro Bs: ${euro.text().substring(0, 6)}\n\
                     🗓️ Fecha Valor: ${fecha.text()}️\n\
                     🌐 **[@BCV_ORG_VE](https://twitter.com/BCV_ORG_VE)**`);
-            return exampleEmbed;
-        }
+            return embed;
     } catch (err) {
-        errorLogger(err, message.client, "error");
+        errorLogger(err, client, "error");
     }
 };

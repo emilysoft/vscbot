@@ -1,7 +1,6 @@
 const { Events } = require("discord.js");
 const antiCrypto = require("../../functions/automod/messageCreate/antiCrypto");
 const mute = require("../../commands/moderation/mute");
-//const bcv = require("../../functions/bcv/bcv");
 const welcome = require("../../functions/welcome");
 const help = require("../../commands/info/help");
 const banDIscordInvite = require("../../functions/automod/messageCreate/banDiscordInvite");
@@ -12,6 +11,7 @@ const bumpChannelId = "813796911994896397";
 const antiWalltexts = require("../../functions/automod/messageCreate/walltext");
 const messageLogger = require("../../functions/loggers/messageLogger");
 //const neetAdviser = require(../functions/neetAdviser");
+const bcv = require('../../commands/utility/bcv') 
 const {
     prefix,
     ignoredChannels,
@@ -20,6 +20,7 @@ const {
 } = require("../../config.json");
 const removePhoneNumbers = require("../../functions/automod/messageCreate/removePhoneNumbers");
 const errorLogger = require("../../functions/loggers/errorLogger");
+const { updateMorning } = require("../../timers/bcvUpdate");
 
 let today;
 const nsfwChannels = {
@@ -42,7 +43,7 @@ module.exports = {
             antiCrypto(message, client);
             welcome(message);
             bumpReminder(message, bumpChannelId);
-
+            updateMorning(message)
             recomendationReactions(message, "813553405695361105");
             recomendationReactions(message, nsfwChannels.aportes, "nsfw");
             recomendationReactions(message, nsfwChannels.aportes2D, "nsfw");
@@ -66,7 +67,7 @@ module.exports = {
                     }
                 }
                 if (message.content.startsWith(">bcv")) {
-                    bcv(message, true);
+                    bcv.execute(message);
                 }
                 if (message.content.startsWith(">help")) {
                     help(message, client);
