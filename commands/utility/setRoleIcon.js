@@ -5,6 +5,7 @@ const path = require("node:path");
 const { OWNERS_ID } = require("../../config.json");
 module.exports = {
     name: "seticon",
+    data: "",
     async execute(message) {
         try {
             const AUTHOR_ID = message.author.id;
@@ -38,22 +39,19 @@ module.exports = {
                                     );
                             })
                             .then(async () => {
-                                //await message.guild.roles
-                                //.fetch(targetRole)
-                                //.then(async (role) => {
                                 await role
                                     .setIcon(
                                         path.join(
                                             __dirname,
                                             `./icons/${message.id}.png`
-                                        )
+                                        ),
+                                        "Set new icon"
                                     )
                                     .then(() => {
                                         message.channel.send(
                                             `Icon colocado exitosamente.`
                                         );
                                     });
-                                //});
                             });
                     } else {
                         message.channel.send(

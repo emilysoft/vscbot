@@ -5,8 +5,8 @@ const targetChannelId = "813796911994896397";
 module.exports = async (hoy, client) => {
     try {
         async function getChannel() {
-            let vsc = await client.guilds.cache.get(vscID);
-            let targetChannel = await vsc.channels.cache.find(
+            const vsc = await client.guilds.cache.get(vscID);
+            const targetChannel = await vsc.channels.cache.find(
                 (channel) => channel.id === targetChannelId
             );
             while (typeof targetChannel == "undefined") {
@@ -17,8 +17,8 @@ module.exports = async (hoy, client) => {
             return targetChannel;
         }
         async function openChannel() {
-            let everyone = await vsc.roles.cache.find((r) => r.id === vscID);
-            let channel = getChannel();
+            const everyone = await vsc.roles.cache.find((r) => r.id === vscID);
+            const channel = getChannel();
             channel.permissionOverwrites
                 .edit(everyone, { SendMessages: true })
                 .then(() => {
@@ -29,8 +29,8 @@ module.exports = async (hoy, client) => {
                 });
         }
         async function closeChannel() {
-            let everyone = await vsc.roles.cache.find((r) => r.id === vscID);
-            let channel = getChannel();
+            const everyone = await vsc.roles.cache.find((r) => r.id === vscID);
+            const channel = getChannel();
             channel.permissionOverwrites
                 .edit(everyone, { SendMessages: false })
                 .then(() => {

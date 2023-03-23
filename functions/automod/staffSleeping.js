@@ -51,61 +51,62 @@ module.exports = async (hoy, client) => {
             console.log("activando sleep mode: slowmode de 3 segundos...");
             await general
                 .setRateLimitPerUser(3, "sleep mode on")
-                .then(() => console.log("slowmode de 3 segundos activado"))
+                .then(() => console.log("slowmode de 3 segundos activado"));
 
             console.log(
                 "activando sleep mode: cambiando permisos para los level 10..."
             );
             await general.permissionOverwrites
                 .edit(level10, permisosDenegados)
-                .then(() => console.log("permisos lvl10 denegados"))
+                .then(() => console.log("permisos lvl10 denegados"));
             console.log(
                 "activando sleep mode:  cambiando permisos para los level 5..."
             );
             await general.permissionOverwrites
                 .edit(level5, permisosDenegados)
-                .then(() => console.log("permisos lvl5 denegados"))
+                .then(() => console.log("permisos lvl5 denegados"));
             console.log(
                 "activando sleep mode:  cambiando permisos para los boc..."
             );
             await general.permissionOverwrites
                 .edit(boc, permisosDenegados)
-                .then(() => console.log("permisos boc denegados"))
+                .then(() => console.log("permisos boc denegados"));
             console.log(
                 "activando sleep mode:  cambiando permisos para los socios..."
             );
             await general.permissionOverwrites
                 .edit(socio, permisosDenegados)
-                .then(() => console.log("permisos socios denegados"))
+                .then(() => console.log("permisos socios denegados"));
             console.log(
                 "activando sleep mode:  cambiando permisos para los del billete"
             );
             await general.permissionOverwrites
                 .edit(billete, permisosDenegados)
-                .then(() => console.log("permisos billete denegados"))
+                .then(() => console.log("permisos billete denegados"));
             console.log(
                 "activando sleep mode:  cambiando permisos para la moderacion"
             );
             await general.permissionOverwrites
                 .edit(moderacion, permisosDenegados)
-                .then(() => console.log("permisos moderacion denegados"))
+                .then(() => console.log("permisos moderacion denegados"));
             console.log(
                 "activando sleep mode:  cambiando permisos para la notsobot"
             );
             await general.permissionOverwrites
                 .edit(notsobot, { ViewChannel: false, SendMessages: false })
-                .then(() => console.log("permisos notsobot denegados"))
+                .then(() => console.log("permisos notsobot denegados"));
             console.log(
                 "activando sleep mode:  cambiando permisos para la everyone"
             );
             await general.permissionOverwrites
                 .edit("813538324320092161", { UseApplicationCommands: false })
-                .then(() => console.log("permisos everyone denegados"))
+                .then(() => console.log("permisos everyone denegados"));
             console.log("Avisando a los usuarios");
-            await general
-                .send(
-                    "https://cdn.discordapp.com/attachments/1024260771326197781/1066244806415753286/images.jpg"
-                )
+            await general.send({
+                files: [
+                    "https://cdn.discordapp.com/attachments/1024260771326197781/1066244806415753286/images.jpg",
+                ],
+            });
             console.log("cambiando permisos del everyone");
             await everyone
                 .setPermissions([
@@ -128,7 +129,7 @@ module.exports = async (hoy, client) => {
                                 console.log(
                                     `${member.user.username} expulsado del vc de ${channel.name}`
                                 )
-                            )
+                            );
                     });
                 }
             });
@@ -172,55 +173,55 @@ module.exports = async (hoy, client) => {
             console.log("desactivando sleep mode: slowmode de 3 segundos ");
             await general
                 .setRateLimitPerUser(0, "sleep mode off")
-                .then(() => console.log("slowmode desactivado"))
+                .then(() => console.log("slowmode desactivado"));
             console.log(
                 "desactivando sleep mode: cambiando permisos para los level 10... "
             );
             await general.permissionOverwrites
                 .edit(level10, permisosPermitidos)
-                .then(() => console.log("permisos lvl10 restablecido"))
+                .then(() => console.log("permisos lvl10 restablecido"));
             console.log(
                 "desactivando sleep mode:  cambiando permisos para los level 5..."
             );
             await general.permissionOverwrites
                 .edit(level5, permisosPermitidos)
-                .then(() => console.log("permisos lvl5 restablecido"))
+                .then(() => console.log("permisos lvl5 restablecido"));
             console.log(
                 "desactivando sleep mode:  cambiando permisos para los boc..."
             );
             await general.permissionOverwrites
                 .edit(boc, permisosPermitidos)
-                .then(() => console.log("permisos boc restablecido"))
+                .then(() => console.log("permisos boc restablecido"));
             console.log(
                 "desactivando sleep mode:  cambiando permisos para los socios..."
             );
             await general.permissionOverwrites
                 .edit(socio, permisosPermitidos)
-                .then(() => console.log("permisos socios restablecido"))
+                .then(() => console.log("permisos socios restablecido"));
             console.log(
                 "desactivando sleep mode:  cambiando permisos para los del billete..."
             );
             await general.permissionOverwrites
                 .edit(billete, permisosPermitidos)
-                .then(() => console.log("permisos elbillete restablecido"))
+                .then(() => console.log("permisos elbillete restablecido"));
             console.log(
                 "desactivando sleep mode:  cambiando permisos para la moderacion..."
             );
             await general.permissionOverwrites
                 .edit(moderacion, permisosPermitidos)
-                .then(() => console.log("permisos moderacion restablecido"))
+                .then(() => console.log("permisos moderacion restablecido"));
             console.log(
                 "desactivando sleep mode:  cambiando permisos para la notsobot"
             );
             await general.permissionOverwrites
                 .edit(notsobot, { ViewChannel: true, SendMessages: true })
-                .then(() => console.log("permisos notsobot restablecidos"))
+                .then(() => console.log("permisos notsobot restablecidos"));
             console.log(
                 "desactivando sleep mode:  cambiando permisos para la everyone"
             );
             await general.permissionOverwrites
                 .edit("813538324320092161", { UseApplicationCommands: true })
-                .then(() => console.log("permisos everyone activados"))
+                .then(() => console.log("permisos everyone activados"));
 
             console.log("cambiando permisos del everyone");
             await everyone
@@ -242,11 +243,11 @@ module.exports = async (hoy, client) => {
                     PermissionsBitField.Flags.ChangeNickname,
                 ])
                 .then(() => console.log("permisos cambiados"));
-            await general
-                .send(
-                    //"https://cdn.discordapp.com/attachments/1024260771326197781/1066244806415753286/images.jpg"
-                    "https://cdn.discordapp.com/attachments/813567370135339058/855822348887392256/BOM_DIA1-T_j6WPnFhII.mp4"
-                )
+            await general.send({
+                files: [
+                    "https://cdn.discordapp.com/attachments/813567370135339058/855822348887392256/BOM_DIA1-T_j6WPnFhII.mp4",
+                ],
+            });
         } catch (err) {
             console.log(err);
         }

@@ -5,7 +5,7 @@ module.exports = {
     name: "globo",
     description: "Crea un globo encima de una imagen adjuntada.",
     aliases: ["globo", "gb"],
-    async run(message) {
+    async execute(message) {
         try {
             message.delete();
             if (message.attachments.size == 1) {

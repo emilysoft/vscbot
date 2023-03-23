@@ -6,7 +6,7 @@ module.exports = {
     name: "mute",
     data: new SlashCommandBuilder()
         .setName("mute")
-        .setDescription("Replies with Pong!"),
+        .setDescription("Mutea uno o más usuarios."),
     desactivated: true,
     description: "Mutea uno o más usuarios.",
     async execute(message) {
