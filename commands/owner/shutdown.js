@@ -1,19 +1,24 @@
-const OWNER_ID = require("../../config.json").OWNER_ID;
+const { OWNERS_ID } = require("../../config.json");
 const { SlashCommandBuilder } = require("discord.js");
+const errorLogger = require("../../functions/loggers/errorLogger");
 module.exports = {
     name: "shutdown",
     description: "Shut's down the bot",
-    desactivated: true,
+    desactivated: false,
     data: new SlashCommandBuilder()
         .setName("shutdown")
         .setDescription("shutdown the bot"),
     async execute(client, message, args) {
-        if (!OWNER_ID)
-            return message.channel.send("This command is developer Only");
+        try {
 
-        message.channel.send("Shutting down...").then((m) => {
-            client.destroy();
-        });
-        await message.channel.send("The Bot has been ShutDown");
+            if(!OWNERS_ID.some(id => id === message.author.id)) 
+
+            message.channel.send("Shutting down...").then((m) => {
+                client.destroy();
+            });
+            await message.channel.send("The Bot has been ShutDown");
+        } catch (err) {
+            errorLogger(err, client, "error");
+        }
     },
 };

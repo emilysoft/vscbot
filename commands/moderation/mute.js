@@ -1,7 +1,7 @@
 const errorLogger = require("../../functions/loggers/errorLogger");
 const getIds = require("../../functions/getIds");
 const { SlashCommandBuilder } = require("discord.js");
-
+const { OWNERS_ID } = require("../../config.json")
 module.exports = {
     name: "mute",
     data: new SlashCommandBuilder()
@@ -11,6 +11,7 @@ module.exports = {
     description: "Mutea uno o más usuarios.",
     async execute(message) {
         try {
+            if(!OWNERS_ID.some(id => id === message.author.id)) return
             const muted = message.guild.roles.cache.find(
                 (role) => role.name === "Muted"
             );
@@ -32,7 +33,6 @@ module.exports = {
             //                    console.log(element.user.username)
             //                });
             //            })
-            var members;
             await message.guild.members.fetch({ user: ids }).then((members) => {
                 for (id of ids) {
                     members.forEach((member) => {

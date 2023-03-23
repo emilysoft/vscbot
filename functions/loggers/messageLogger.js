@@ -20,7 +20,7 @@ module.exports = async (message, type) => {
     const userName = message.author.username;
     let messageContent;
     if (message.content == "") {
-        if (message.attachments.length > 0) {
+        if (message.attachments.size > 0) {
             messageContent = message.attachments;
         } else {
             messageContent = "maybe a embed";

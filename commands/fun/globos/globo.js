@@ -7,10 +7,10 @@ module.exports = {
     aliases: ["globo", "gb"],
     async run(message) {
         try {
-//            message.delete();
+            message.delete();
             if (message.attachments.size == 1) {
                 message.attachments.each((image) => {
-                    if (image.size < 1000000) {
+                    if (image.size < 2000000) {
                         if (
                             image.contentType == "image/jpeg" ||
                             image.contentType == "image/png" ||
@@ -67,7 +67,7 @@ module.exports = {
                             console.log(
                                 `envia una imagen ${message.author.id}`
                             );
-                            message.reply("Envia una imagen.").then((msg) => {
+                            message.channel.send(`<@${message.author.id}> Envia una imagen.`).then((msg) => {
                                 setTimeout(() => {
                                     msg.delete();
                                 }, 10000);
@@ -78,7 +78,7 @@ module.exports = {
                             `tu imagen excede el limite de peso ${message.author.id}`
                         );
                         message
-                            .reply("Tu imagen excede el limite de peso de 1MB.")
+                            .channel.send(`<@${message.author.id}> Tu imagen excede el limite de peso de 1MB.`)
                             .then((msg) => {
                                 setTimeout(() => {
                                     msg.delete();
@@ -96,8 +96,8 @@ module.exports = {
                         }, 10000);
                     });
             } else {
-                console.log(`Envia una imagen a la vez. ${message.author.id}`);
-                message.reply("Envia una imagen a la vez.").then((msg) => {
+                console.log(`<@${message.author.id}> Envia una imagen a la vez. ${message.author.id}`);
+                message.channel.send("Envia una imagen a la vez.").then((msg) => {
                     setTimeout(() => {
                         msg.delete();
                     }, 10000);

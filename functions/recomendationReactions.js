@@ -2,7 +2,7 @@ module.exports = async (message, targetChannel, nsfw) => {
     try {
         if (message.channelId != targetChannel) return;
         if (message.channel.isThread()) return;
-        if (message.attachments.length == 0) return;
+        if (message.attachments.size == 0) return;
         if (nsfw) await message.react("🔥");
         else await message.react("👍");
 

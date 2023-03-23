@@ -1,4 +1,4 @@
-vscLog = require("../loggers/automodLogger);
+vscLog = require("../loggers/automodLogger");
 module.exports = (message, client, targetChannel) => {
   if (message.channelId != targetChannel) return;
   if (message.author.id == "302249242469335060") return;

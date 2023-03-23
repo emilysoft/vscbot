@@ -21,6 +21,8 @@ const {
 const removePhoneNumbers = require("../../functions/automod/messageCreate/removePhoneNumbers");
 const errorLogger = require("../../functions/loggers/errorLogger");
 const { updateMorning } = require("../../timers/bcvUpdate");
+const shutdown = require("../../commands/owner/shutdown");
+const setRoleIcon = require("../../commands/utility/setRoleIcon");
 
 let today;
 const nsfwChannels = {
@@ -66,8 +68,14 @@ module.exports = {
                         mute.execute(message);
                     }
                 }
+                if (message.content.startsWith(">seticon")) {
+                    setRoleIcon.execute(message);
+                }
                 if (message.content.startsWith(">bcv")) {
                     bcv.execute(message);
+                }
+                if(message.content.startsWith(">shutdown")) {
+                    shutdown.execute(message.client, message)
                 }
                 if (message.content.startsWith(">help")) {
                     help(message, client);
