@@ -11,12 +11,12 @@ const bumpChannelId = "813796911994896397";
 const antiWalltexts = require("../../functions/automod/messageCreate/walltext");
 const messageLogger = require("../../functions/loggers/messageLogger");
 //const neetAdviser = require(../functions/neetAdviser");
-const bcv = require('../../commands/utility/bcv') 
+const bcv = require("../../commands/utility/bcv");
 const {
     prefix,
     ignoredChannels,
     backupChannel,
-    OWNER_ID,
+    OWNERS_ID,
 } = require("../../config.json");
 const removePhoneNumbers = require("../../functions/automod/messageCreate/removePhoneNumbers");
 const errorLogger = require("../../functions/loggers/errorLogger");
@@ -45,7 +45,7 @@ module.exports = {
             antiCrypto(message, client);
             welcome(message);
             bumpReminder(message, bumpChannelId);
-            updateMorning(message)
+            updateMorning(message);
             recomendationReactions(message, "813553405695361105");
             recomendationReactions(message, nsfwChannels.aportes, "nsfw");
             recomendationReactions(message, nsfwChannels.aportes2D, "nsfw");
@@ -64,9 +64,7 @@ module.exports = {
                 //                    message.member.roles.add(role, `Asignación de rol`)
                 //                }
                 if (message.content.startsWith(">mute")) {
-                    if (message.author.id == OWNER_ID) {
-                        mute.execute(message);
-                    }
+                    mute.execute(message);
                 }
                 if (message.content.startsWith(">seticon")) {
                     setRoleIcon.execute(message);
@@ -74,8 +72,8 @@ module.exports = {
                 if (message.content.startsWith(">bcv")) {
                     bcv.execute(message);
                 }
-                if(message.content.startsWith(">shutdown")) {
-                    shutdown.execute(message.client, message)
+                if (message.content.startsWith(">shutdown")) {
+                    shutdown.execute(message.client, message);
                 }
                 if (message.content.startsWith(">help")) {
                     help(message, client);
@@ -128,22 +126,18 @@ module.exports = {
                 }
                 if (message.content.startsWith(">say")) {
                     const authorID = message.author.id;
-                    if (
-                        authorID == OWNER_ID ||
-                        authorID == "690796358579257424"
-                    ) {
-                        const args = message.content
-                            .substring(1)
-                            .split(/ +/)
-                            .slice(1)
-                            .join(" ");
-                        if (!args) {
-                            message.reply("Especifique algo");
-                            return;
-                        }
-                        message.delete();
-                        message.channel.send(args);
+                    if (!OWNERS_ID.some((id) => id === authorID)) return;
+                    const args = message.content
+                        .substring(1)
+                        .split(/ +/)
+                        .slice(1)
+                        .join(" ");
+                    if (!args) {
+                        message.reply("Especifique algo");
+                        return;
                     }
+                    message.delete();
+                    message.channel.send(args);
                 }
             }
             if (message.content.startsWith("!suckmode")) {
