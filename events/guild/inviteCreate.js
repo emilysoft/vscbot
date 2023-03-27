@@ -1,14 +1,14 @@
 const { Events } = require("discord.js");
+const { EMBED_COLOR } = require("../../config.json");
 module.exports = {
     name: Events.InviteCreate,
     async execute(invite) {
         try {
             if (invite.inviter.bot) return;
             const logChannelId = "1018749794736414720";
-            const botAvatar =
-                "https://cdn.discordapp.com/attachments/948782010955104376/1018753972091232336/c821a559d8df0079beb33abf9c6eeeda.png";
+            const botAvatar = invite.client.user.displayAvatarURL(); 
             const exampleEmbed = new EmbedBuilder()
-                .setColor("#ADD8E6")
+                .setColor(EMBED_COLOR)
                 .setTitle(`Invitación creada`)
                 .setAuthor({ name: invite.inviter.tag, iconURL: invite.avatar })
                 .setDescription(

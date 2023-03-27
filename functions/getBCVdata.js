@@ -2,18 +2,19 @@ const https = require("https");
 const Axios = require("axios");
 const cheerio = require("cheerio");
 const { EmbedBuilder } = require("discord.js");
+const { EMBED_COLOR } = require("../config.json");
 const errorLogger = require("./loggers/errorLogger");
 const link = "https://www.bcv.org.ve/";
 const httpsAgent = new https.Agent({
     rejectUnauthorized: false,
 });
-const botAvatar =
-    "https://cdn.discordapp.com/avatars/883827073049845801/c821a559d8df0079beb33abf9c6eeeda.png?size=96&quality=lossless";
+
 const twitterPhoto =
     "https://pbs.twimg.com/profile_images/927966724753944577/SAw5bHeo_400x400.jpg";
 
 module.exports = async (client) => {
     try {
+            const botAvatar = client.user.displayAvatarURL(); 
             const { data } = await Axios.get(link, { httpsAgent });
             const $ = cheerio.load(data);
             const dolar = $("#dolar div.col-sm-6.col-xs-6.centrado");
@@ -22,7 +23,7 @@ module.exports = async (client) => {
                 "div.pull-right.dinpro.center span.date-display-single"
             );
             const embed = new EmbedBuilder()
-                .setColor("#ADD8E6")
+                .setColor(EMBED_COLOR)
                 .setTitle(`Banco Central de Venezuela`)
                 .setAuthor({ name: "Bot sin Contexto", iconURL: botAvatar })
                 .setThumbnail(twitterPhoto).setDescription(`💵 Dólar Bs: ${dolar

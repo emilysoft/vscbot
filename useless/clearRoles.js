@@ -59,7 +59,7 @@ const guildId = "813538324320092161";
 
 module.exports = async (client) => {
   let guild = await client.guilds.cache.get(guildId);
-  let role = guild.roles.cache.find((c) => c.id === "813541495968759822");
+  letrol = guild.roles.cache.find((c) => c.id === "813541495968759822");
   try {
     //        await guild.channels.cache.find(channel => {
     channels.forEach((channelId) => {

@@ -1,6 +1,7 @@
 const mysql = require("mysql");
 const config = require("../../database/config");
 const { MessageEmbed } = require("discord.js");
+const { EMBED_COLOR } = require("../../config.json");
 const botAvatar =
   "https://cdn.discordapp.com/attachments/847580112118743071/938042216209874944/c821a559d8df0079beb33abf9c6eeeda.png";
 module.exports = (dcMessage, client, action) => {

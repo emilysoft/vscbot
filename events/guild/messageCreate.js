@@ -1,26 +1,18 @@
 const { Events } = require("discord.js");
-const antiCrypto = require("../../functions/automod/messageCreate/antiCrypto");
-const mute = require("../../commands/moderation/mute");
-const welcome = require("../../functions/welcome");
-const help = require("../../commands/info/help");
-const banDiscordInvite = require("../../functions/automod/messageCreate/banDiscordInvite");
-const globo = require("../../commands/fun/globos/globo");
-const recomendationReactions = require("../../functions/recomendationReactions");
-const bumpReminder = require("../../functions/automod/bumpReminder");
-const bumpChannelId = "813796911994896397";
 const antiWalltexts = require("../../functions/automod/messageCreate/walltext");
 const messageLogger = require("../../functions/loggers/messageLogger");
-const say = require("../../commands/utility/say");
-//const neetAdviser = require(../functions/neetAdviser");
-const bcv = require("../../commands/utility/bcv");
-const { prefix, ignoredChannels, backupChannel } = require("../../config.json");
+const antiCrypto = require("../../functions/automod/messageCreate/antiCrypto");
+const welcome = require("../../functions/welcome");
+const banDiscordInvite = require("../../functions/automod/messageCreate/banDiscordInvite");
+const recomendationReactions = require("../../functions/recomendationReactions");
+const bumpReminder = require("../../functions/automod/bumpReminder");
 const removePhoneNumbers = require("../../functions/automod/messageCreate/removePhoneNumbers");
 const errorLogger = require("../../functions/loggers/errorLogger");
+const bumpChannelId = "813796911994896397";
+//const neetAdviser = require(../functions/neetAdviser");
+const { prefix, ignoredChannels, backupChannel } = require("../../config.json");
 const { updateMorning } = require("../../timers/bcvUpdate");
-const shutdown = require("../../commands/owner/shutdown");
-const setRoleIcon = require("../../commands/utility/setRoleIcon");
-const idToMention = require("../../commands/utility/idToMention");
-const getRandomCats = require("../../commands/fun/getRandomCats");
+
 const nsfwChannels = {
     aportes: "1013280756757430364",
     aportes2D: "942934915396288542",
@@ -53,37 +45,18 @@ module.exports = {
 
             //comandos
             if (message.content.startsWith(prefix)) {
-                if (message.content.startsWith(">mute")) {
-                    mute.execute(message);
-                }
-                if (message.content.startsWith(">say")) {
-                    say.execute(message);
-                }
-                if (message.content.startsWith(">seticon")) {
-                    setRoleIcon.execute(message);
-                }
-                if (message.content.startsWith(">bcv")) {
-                    bcv.execute(message);
-                }
-                if (message.content.startsWith(">shutdown")) {
-                    shutdown.execute(message.client, message);
-                }
-                if (message.content.startsWith(">help")) {
-                    help.execute(message, client);
-                }
-                if (message.content.startsWith(">gb")) {
-                    globo.execute(message);
-                }
-                if (message.content.startsWith(">getmention")) {
-                    idToMention.execute(message);
-                }
-                if (message.content.startsWith(">cats")) {
-                    getRandomCats.execute(message);
-                }
+                const commands = message.client.messageCommands;
+                const arg = message.content
+                    .substring(1)
+                    .split(/ +/)
+                    .slice(0, 1)
+                    .join("")
+                    .toLowerCase();
+                if (commands.has(arg)) commands.get(arg)(message);
             }
         } catch (err) {
             errorLogger(err, message.client, "error");
-            console.error(e);
+            console.error(err);
         }
     },
 };

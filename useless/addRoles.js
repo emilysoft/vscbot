@@ -10,7 +10,7 @@ module.exports = (message) => {
             let usuario = message.guild.members.cache.get(user);
             if (usuario == undefined) {
                 message.channel
-                    .send(`Error al asignar el role al id ${user}.`)
+                    .send(`Error al asignar elrol al id ${user}.`)
                     .catch((e) => {
                         console.error(e);
                     });
@@ -20,17 +20,17 @@ module.exports = (message) => {
                 .add(role, `Asignación de rol`)
                 .then(() => {
                     message.channel.send(
-                        `Role asignado a <@${user}> exitosamente`
+                        `Rol asignado a <@${user}> exitosamente`
                     );
                 })
                 .catch((e) => {
                     message.channel.send(
-                        `Error al asignar el role al id ${user}.`
+                        `Error al asignar elrol al id ${user}.`
                     );
                     console.error(e);
                 });
         });
     } else {
-        console.error("role no encontrado");
+        console.error("Rol no encontrado");
     }
 };

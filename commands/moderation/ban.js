@@ -1,5 +1,6 @@
 const discord = module.require("discord.js");
 const { SlashCommandBuilder } = require("discord.js")
+const { EMBED_COLOR } = require("../../config.json");
 module.exports = {
     name: "ban",
     category: "moderation",
@@ -7,9 +8,11 @@ module.exports = {
     usage: "ban <@user> <reason>",
     userPerms: ["BanMembers"],
     botPerms: ["EmbedLinks", "BanMembers"],
-    desactivated: true,
+    slashCommand: false,
+    messageCommand: false,
     data: new SlashCommandBuilder()
         .setName("ban")
+        .addNumberOption(option => option.setName("id").setDescription("ingrese una id"))
         .setDescription("Ban anyone with one shot"),
     async execute(client, message, args) {
         let reason = args.slice(1).join(" ");
@@ -39,7 +42,7 @@ module.exports = {
             .setDescription(
                 `Banned ${target} (${target.id})\nReason: ${reason}`
             )
-            .setColor("#ff2050")
+            .setColor(EMBED_COLOR)
             .setThumbnail(target.avatarURL)
             .setFooter(`Banned by ${message.author.tag}`);
 

@@ -10,8 +10,11 @@ const client = new Client({
         GatewayIntentBits.GuildVoiceStates,
     ],
 });
-const loadEvents = require("./handler/loadEvents");
-const loadCommands = require("./handler/loadCommands");
+const loadEvents = require("./handlers/loadEvents");
+const loadSlashCommands = require("./handlers/loadSlashCommands");
+const loadCommands = require("./handlers/loadCommands");
+
+loadSlashCommands(client)
 loadCommands(client);
 loadEvents(client);
 

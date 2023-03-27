@@ -18,7 +18,7 @@ module.exports = {
             wait: true,
         });
 
-        setPresence(client, "Pókemon Showdown!");
+        setPresence(client, "/help");
         vcConnection(client);
         // timers
         setInterval(() => {

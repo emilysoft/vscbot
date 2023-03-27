@@ -1,65 +1,84 @@
 const errorLogger = require("../../functions/loggers/errorLogger");
 const getIds = require("../../functions/getIds");
 const { SlashCommandBuilder } = require("discord.js");
-const { OWNERS_ID } = require("../../config.json")
+const { OWNERS_ID } = require("../../config.json");
 module.exports = {
     name: "mute",
     data: new SlashCommandBuilder()
         .setName("mute")
-        .setDescription("Mutea uno o más usuarios."),
-    desactivated: true,
+        .setDescription("Mutea uno o más usuarios.")
+        .addUserOption((option) =>
+            option.setName("id").setDescription("ingrese una id")
+        ),
+    slashCommand: false,
+    messageCommand: true,
     description: "Mutea uno o más usuarios.",
-    async execute(message) {
+    async execute(interaction) {
         try {
-            if(!OWNERS_ID.some(id => id === message.author.id)) return
-            const muted = message.guild.roles.cache.find(
-                (role) => role.name === "Muted"
-            );
-            if (!muted) {
-                await message.channel.send("No existe un rol llamado Muted.");
-                return;
-            }
-
-            const ids = getIds(message.content);
-            if (ids.length == 0) {
-                await message.channel.send(
-                    "Especifique uno más miembros a mutear."
-                );
-                return;
-            }
-            let mutedUsers = [];
-            //            .then(member => {
-            //                member.forEach(element => {
-            //                    console.log(element.user.username)
-            //                });
-            //            })
-            await message.guild.members.fetch({ user: ids }).then((members) => {
-                for (id of ids) {
-                    members.forEach((member) => {
-                        if (member.id === id) {
-                            member.roles
-                                .add(muted, "")
-                                .then(() => {
-                                    console.log(
-                                        `${member.user.username} muteado exitosamente`
-                                    );
-                                    mutedUsers.push(
-                                        `\n<@${id}> ha sido muteado.`
-                                    );
-                                })
-                                .catch((e) => {
-                                    mutedUsers.push(
-                                        `\n<@${id}> error al intentar mutearlo.`
-                                    );
-                                });
-                        }
-                    });
-                }
-                console.log(mutedUsers);
-            });
-            //                message.channel.send({content:mutedUsers.join(" ")});
+            mute(interaction);
         } catch (err) {
-            errorLogger(err, message.client, "error");
+            if (err.code == "CommandInteractionOptionNotFound") {
+                interaction.reply({
+                    content: "Introduzca los datos requeridos",
+                    ephemeral: true,
+                });
+            } else {
+                errorLogger(err, interaction.client, "error")
+            }
         }
     },
+    async run(message) {
+        mute(message);
+    },
 };
+
+async function mute(interaction) {
+    try {
+        if (!OWNERS_ID.some((id) => id === message.author.id)) return;
+        const muted = message.guild.roles.cache.find(
+            (role) => role.name === "Muted"
+        );
+        if (!muted) {
+            await interaction.reply({
+                content: "No existe un rol llamado Muted.",
+                allowedMentions: { repliedUser: false },
+            });
+            return;
+        }
+
+        const ids = getIds(message.content);
+        if (ids.length == 0) {
+            await interaction.reply({
+                content:
+                    "Especifique uno más miembros a mutear. (ID o mención)",
+                allowedMentions: { repliedUser: false },
+            });
+            return;
+        }
+        let mutedUsers = [];
+        await interaction.guild.members.fetch({ user: ids }).then((members) => {
+            for (id of ids) {
+                members.forEach((member) => {
+                    if (member.id === id) {
+                        member.roles
+                            .add(muted, "")
+                            .then(() => {
+                                console.log(
+                                    `${member.user.username} muteado exitosamente`
+                                );
+                                mutedUsers.push(`\n<@${id}> ha sido muteado.`);
+                            })
+                            .catch(() => {
+                                mutedUsers.push(
+                                    `\n<@${id}> error al intentar mutearlo.`
+                                );
+                            });
+                    }
+                });
+            }
+            console.log(mutedUsers);
+        });
+    } catch (err) {
+        errorLogger(err, message.client, "error");
+    }
+}

@@ -1,11 +1,12 @@
 const { Events } = require('discord.js');
+const commandSlashLogger = require('../../functions/loggers/commandSlashLogger');
 const errorLogger = require('../../functions/loggers/errorLogger');
 
 module.exports = {
 	name: Events.InteractionCreate,
 	async execute(interaction) {
 		if (!interaction.isChatInputCommand()) return;
-
+		commandSlashLogger(interaction)
 		const command = interaction.client.commands.get(interaction.commandName);
 
 		if (!command) {

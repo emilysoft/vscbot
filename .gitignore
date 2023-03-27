@@ -1,5 +1,4 @@
 node_modules
-commands/fun/globos/media/attachment
-commands/fun/globos/media/result
+commands/fun/media/
 **.swp
 commands/utility/icons

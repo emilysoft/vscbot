@@ -15,6 +15,10 @@ module.exports = {
             removePhoneNumbers(message);
             banDiscordInvite(message, client);
             antiCrypto(message, client);
+
+            if (message.content.startsWith(">cats")) {
+                getRandomCats.execute(message);
+            }
         } catch (err) {
             errorLogger(err, message.client, "error");
         }

@@ -8,7 +8,8 @@ module.exports = {
     name: "botservers",
     description: "Check what Servers the bot is in!",
     botPerms: ["UseExternalEmojis"],
-    desactivated: true,
+    slashCommand: false,
+    messageCommand: false,
     data: new SlashCommandBuilder()
         .setName("botservers")
         .setDescription("Check what Servers the bot is in!"),

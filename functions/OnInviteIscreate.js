@@ -1,13 +1,13 @@
 const { EmbedBuilder } = require("discord.js");
-const errorLogger = require('./loggers/errorLogger')
+const { EMBED_COLOR } = require("../../config.json");
+const errorLogger = require("./loggers/errorLogger");
 module.exports = async (client, invite) => {
     try {
         if (invite.inviter.bot) return;
         const logChannelId = "1018749794736414720";
-        const botAvatar =
-            "https://cdn.discordapp.com/attachments/948782010955104376/1018753972091232336/c821a559d8df0079beb33abf9c6eeeda.png";
+        const botAvatar = client.user.displayAvatarURL();
         const exampleEmbed = new EmbedBuilder()
-            .setColor("#ADD8E6")
+            .setColor(EMBED_COLOR)
             .setTitle(`Invitación creada`)
             .setAuthor({ name: invite.inviter.tag, iconURL: invite.avatar })
             .setDescription(
@@ -23,6 +23,6 @@ module.exports = async (client, invite) => {
         );
         await channel.send({ embeds: [exampleEmbed] });
     } catch (err) {
-        errorLogger(err, client, 'error')
+        errorLogger(err, client, "error");
     }
 };

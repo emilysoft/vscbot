@@ -28,7 +28,7 @@ module.exports = (message, client) => {
 //                        }, 5000);
 //                    });
 //            } else {
-//                throw new Error("hubo un error al encontrar el role");
+//                throw new Error("hubo un error al encontrar elrol");
 //            }
 
             message.member.ban({ reason: "Discord Invite spamming" });

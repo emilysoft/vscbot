@@ -12,8 +12,7 @@ module.exports = async (error, client, type) => {
             throw new Error('Error en especificar el type de error')
         }
         const logChannelId = "1085335051732009113";
-        const botAvatar =
-            "https://cdn.discordapp.com/avatars/883827073049845801/c821a559d8df0079beb33abf9c6eeeda.png?size=96&quality=lossless";
+        const botAvatar = client.user.displayAvatarURL(); 
         const exampleEmbed = new EmbedBuilder()
             .setColor(errorColor)
             .setTitle(`${error.code}`)

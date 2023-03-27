@@ -1,17 +1,39 @@
-const { SlashCommandBuilder } = require('discord.js');
-
+const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
+const { EMBED_COLOR } = require("../../config.json");
 module.exports = {
-    name: "avatar",
-    aliases: ["av"],
+    name: "ping",
     category: "Utility",
-    usage: "avatar/avatar @user",
-    description: "Gives avatar for message author or mentioned user.",
-    botPerms: ["EmbedLinks", "ManageMessages"],
-    desactivated: false,
-	data: new SlashCommandBuilder()
-		.setName('ping')
-		.setDescription('Replies with Pong!'),
-	async execute(interaction) {
-		await interaction.reply('Pong!');
-	},
+    description: "Muestra mi ping",
+    slashCommand: true,
+    messageCommand: true,
+    data: new SlashCommandBuilder()
+        .setName("ping")
+        .setDescription("Muestra mi ping"),
+    async execute(interaction) {
+        ping(interaction);
+    },
+    async run(message) {
+        ping(message);
+    },
+};
+
+function ping(interaction) {
+    const botAvatar = interaction.client.user.displayAvatarURL(); 
+    let embed = new EmbedBuilder()
+        .setColor(EMBED_COLOR)
+        .setTitle("Ping!")
+        .addFields([
+            {
+                name: "API Latency",
+                value: Math.round(interaction.client.ws.ping) + "ms",
+            },
+        ])
+        .setFooter({
+            text: interaction.client.user.username,
+            iconURL: botAvatar,
+        });
+    interaction.reply({
+        embeds: [embed],
+        allowedMentions: { repliedUser: false },
+    });
 }
