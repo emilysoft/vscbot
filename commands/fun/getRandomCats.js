@@ -5,7 +5,7 @@ module.exports = {
     name: "cats",
     data: new SlashCommandBuilder()
         .setName("cats")
-        .setDescription("obtiene un gato random"),
+        .setDescription("Obtienes un gato random"),
     description: "obtiene un gato random",
     messageCommand: true,
     slashCommand: true,
