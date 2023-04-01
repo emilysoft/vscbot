@@ -1,5 +1,3 @@
-const path = require("path");
-const notifier = require("node-notifier");
 const errorLogger = require("../loggers/errorLogger");
 module.exports = (message, targetChannelId) => {
     try {
@@ -8,22 +6,22 @@ module.exports = (message, targetChannelId) => {
             message.channelId == targetChannelId
         ) {
             let now = new Date();
-            //comprueba si son las 8
-            if (now.getHours() >= 8 && now.getHours() < 20) {
-                setTimeout(() => {
-                    message.channel
-                        .send(
-                            "Ya puedes bumpear de nuevo **/bump** <@&1015669369218539641>"
-                        )
-                    //notifier.notify({
-                    //message: "Ya puedes bumpear de nuevo",
-                    //icon: path.join(__dirname, 'logo.png'),
-                    //wait: true
-                    //});
-                }, 7200000);
-            }
+            let hour = now.getHours();
+            let day = now.getDate();
+
+            // de domingo a viernes de 8pm a 10pm
+            if (day < 6 && hour >= 8 && hour < 20) bump(message);
+            // los sábados
+            else if (hour >= 8 && hour < 15) bump(message);
         }
     } catch (err) {
         errorLogger(err, message.client, "error");
     }
 };
+function bump(message) {
+    setTimeout(() => {
+        message.channel.send(
+            "Ya puedes bumpear de nuevo **/bump** <@&1015669369218539641>"
+        );
+    }, 2 * 60 * 60 * 1000);
+}

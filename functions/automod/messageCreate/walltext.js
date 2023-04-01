@@ -1,7 +1,7 @@
 const errorLogger = require("../../loggers/errorLogger");
 
 vscLog = require("../../loggers/automodLogger");
-module.exports = (message, client, ignoredChannels, backupChannel) => {
+module.exports = async (message, client, ignoredChannels, backupChannel) => {
     try {
         const chiste2 = `Borré tu mensaje porque es muy largo, usa <#853387980335874078>`;
         const botsChannel = client.channels.cache.find(
@@ -15,7 +15,10 @@ module.exports = (message, client, ignoredChannels, backupChannel) => {
         };
 
         if (message.channel.isThread()) return;
-        if (message.author.bot == true && message.author.id != "439205512425504771")
+        if (
+            message.author.bot == true &&
+            message.author.id != "439205512425504771"
+        )
             return;
         if (message.author.id == "302249242469335060") return;
         for (let key in excepciones) {
@@ -35,15 +38,17 @@ module.exports = (message, client, ignoredChannels, backupChannel) => {
         if (args.length > limiteCaracteres) {
             //borra el walltext
             console.warn("walltexts de: " + args.length + " caracteres");
-            message.delete()
+            await message.delete();
 
             //envia el walltext a bots
-            botsChannel.send(`<@${message.author.id}> ${message.content}`)
-            message.channel
+            await botsChannel.send(
+                `<@${message.author.id}> ${message.content}`
+            );
+            await message.channel
                 .send(`<@${message.author.id}>` + chiste2)
-                .then((msg) => {
-                    setTimeout(() => {
-                        msg.delete()
+                .then(async (msg) => {
+                    setTimeout(async () => {
+                        await msg.delete();
                     }, 10000);
                 });
             vscLog(
