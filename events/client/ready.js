@@ -6,13 +6,13 @@ const { updateAfternoon } = require("../../timers/bcvUpdate");
 const staffSleeping = require("../../functions/automod/staffSleeping");
 const timer = require("../../functions/timer");
 const setPresence = require("../../functions/setPresence");
-const startBot = require("../../functions/startBot")
+const startBot = require("../../functions/startBot");
 let hoy;
 module.exports = {
     name: Events.ClientReady,
     once: true,
     execute(client) {
-        startBot(client)
+        startBot(client);
         notifier.notify({
             message: "vsc-bot iniciado",
             icon: path.join(__dirname, "../logo.png"),
@@ -20,9 +20,11 @@ module.exports = {
         });
 
         // timers
+        setPresence(client, "/help");
+        vcConnection(client);
         setInterval(() => {
             setPresence(client, "/help");
-            vcConnection(client)
+            vcConnection(client);
 
             hoy = new Date();
             //staffSleeping(hoy, client);
