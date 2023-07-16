@@ -1,5 +1,5 @@
 const { Events } = require("discord.js");
-const antiWalltexts = require("../../functions/automod/messageCreate/walltext");
+const antiTextWall = require("../../functions/automod/messageCreate/antiTextWall");
 const { ignoredChannels, backupChannel } = require("../../config.json");
 const antiCrypto = require("../../functions/automod/messageCreate/antiCrypto");
 const banDiscordInvite = require("../../functions/automod/messageCreate/banDiscordInvite");
@@ -11,7 +11,7 @@ module.exports = {
     async execute(message, oldM) {
         try {
             client = message.client;
-            antiWalltexts(message, client, ignoredChannels, backupChannel);
+            antiTextWall(message, client, ignoredChannels, backupChannel);
             removePhoneNumbers(message);
             banDiscordInvite(message, client);
             antiCrypto(message, client);

@@ -25,14 +25,7 @@ module.exports = {
                 });
             });
         } catch (err) {
-            if (err.code == "CommandInteractionOptionNotFound") {
-                interaction.reply({
-                    content: "Introduzca los datos requeridos",
-                    ephemeral: true,
-                });
-            } else {
-                errorLogger(err, interaction.client, "error");
-            }
+            errorLogger(err, interaction.client, "error");
         }
     },
     async run(message) {

@@ -1,14 +1,12 @@
 const { Events } = require("discord.js");
-const errorLogger = require("../../functions/loggers/errorLogger");
-const targetChannel = "1088423410905919550";
+const wlcRoles = require("../../functions/welcome/wlcRoles")
+const wlcStaff = require("../../functions/welcome/wlcStaff");
+const wlcID = require("../../functions/welcome/wlcID");
 module.exports = {
     name: Events.GuildMemberAdd,
     async execute(member) {
-        try {
-            const channel = member.guild.channels.cache.get(targetChannel);
-            await channel.send(`${member.id}`);
-        } catch (err) {
-            errorLogger(err, member.client, "error");
-        }
+        wlcRoles(member)
+        wlcStaff(member)
+        wlcID(member)
     },
 };

@@ -1,22 +1,22 @@
 const { Events } = require("discord.js");
-const antiWalltexts = require("../../functions/automod/messageCreate/walltext");
+const antiTextWall = require("../../functions/automod/messageCreate/antiTextWall");
 const messageLogger = require("../../functions/loggers/messageLogger");
 const antiCrypto = require("../../functions/automod/messageCreate/antiCrypto");
-const welcome = require("../../functions/welcome");
+const gb = require("../../functions/gb");
 const banDiscordInvite = require("../../functions/automod/messageCreate/banDiscordInvite");
 const recomendationReactions = require("../../functions/recomendationReactions");
-const bumpReminder = require("../../functions/automod/bumpReminder");
 const removePhoneNumbers = require("../../functions/automod/messageCreate/removePhoneNumbers");
 const errorLogger = require("../../functions/loggers/errorLogger");
-const bumpChannelId = "813796911994896397";
 //const neetAdviser = require(../functions/neetAdviser");
-const { prefix, ignoredChannels, backupChannel } = require("../../config.json");
+const { prefix } = require("../../config.json");
 const { updateMorning } = require("../../timers/bcvUpdate");
+const bannedWords = require("../../functions/automod/messageCreate/bannedWords");
+const nsfwAdviser = require("../../functions/nsfwAdviser");
 
 const nsfwChannels = {
     aportes: "1013280756757430364",
     aportes2D: "942934915396288542",
-    LGBT: "1053118780705874040",
+    LGBT: "1053118780705874040"
 };
 module.exports = {
     name: Events.MessageCreate,
@@ -31,17 +31,20 @@ module.exports = {
             // automod
             removePhoneNumbers(message);
             banDiscordInvite(message, client);
-            antiWalltexts(message, client, ignoredChannels, backupChannel);
+            bannedWords(message)
+            nsfwAdviser(message)
+            antiTextWall(message, client);
             antiCrypto(message, client);
-            welcome(message);
-            bumpReminder(message, bumpChannelId);
+            gb(message)
             updateMorning(message);
-            recomendationReactions(message, "813553405695361105");
+            recomendationReactions(message, "813553405695361105"); //sugerencias
+            recomendationReactions(message, "813970132191674398"); //#dibujos
+            recomendationReactions(message, "1010377354020929536"); //#sugerencias mc
             recomendationReactions(message, nsfwChannels.aportes, "nsfw");
             recomendationReactions(message, nsfwChannels.aportes2D, "nsfw");
             recomendationReactions(message, nsfwChannels.LGBT, "nsfw");
             messageLogger(message, "create");
-            //  neetAdviser(message);
+            //neetAdviser(message);
 
             //comandos
             if (message.content.startsWith(prefix)) {

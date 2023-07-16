@@ -21,9 +21,13 @@ module.exports = async (message, type) => {
     let messageContent;
     if (message.content == "") {
         if (message.attachments.size > 0) {
-            messageContent = message.attachments;
-        } else {
-            messageContent = "maybe a embed";
+            messageContent = "imagen(es)";
+        } else if(message.embeds.length > 0) {
+            messageContent = "Embed"
+        } else if(message.stickers.size > 0) {
+            message.stickers.forEach( sticker => {
+                messageContent = `sticker: ${sticker.name}`
+            });
         }
     } else {
         messageContent = message.content;

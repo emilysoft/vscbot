@@ -9,7 +9,7 @@ const errorLogger = require("./loggers/errorLogger");
 module.exports = async (client) => {
     try {
         const guild = await client.guilds.cache.get("813538324320092161");
-        const channel = guild.channels.cache.get("844030463530369054");
+        const channel = guild.channels.cache.get("1109962551153926225");
         if (!channel) return console.error("The channel does not exist!");
         const connection = await joinVoiceChannel({
             channelId: channel.id,

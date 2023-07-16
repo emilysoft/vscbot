@@ -6,9 +6,9 @@ module.exports = (hoy, client) => {
   );
   //    let general = client.channels.cache.find(channel => channel.id === "813538324320092164")
   if (hora == 21 && minutos == 50) {
-    channel.send(
-      "**Hey!! Seria de muchisima ayuda si nos ayudas votando y comentando en Disboard y en TOP.GG:**\n**Disboard:** https://disboard.org/server/813538324320092161\n**TOP.GG**: https://top.gg/servers/813538324320092161/vote"
-    );
+//    channel.send(
+//      "**Hey!! Seria de muchisima ayuda si nos ayudas votando y comentando en Disboard y en TOP.GG:**\n**Disboard:** https://disboard.org/server/813538324320092161\n**TOP.GG**: https://top.gg/servers/813538324320092161/vote"
+//    );
   }
   //    if(hora == 8 && minutos == 0){
   //        general.send("https://cdn.discordapp.com/attachments/813538324320092164/1058018597777195068/318448742_1557812098044336_6218322130156172565_n.mp4")
