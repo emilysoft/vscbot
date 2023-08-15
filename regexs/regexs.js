@@ -1,4 +1,5 @@
 module.exports = {
+    godkermit: /(k|q)[\n\s\-_\.]*[uυüúù\s\n\-_\.]*[eеẹėéè3\s\n\.\-_]+(r+|l+)[\n\s\.\-_]*m+[\n\s\.\-_]*[(1i!¡\|ïí|y\n\s\.\-_]+t*\b/,
     pedofilia: [
         /p(3|e)dr(a|@)st((a|@)|(i|!|¡||))a?/gi,
         /(relacion(es)?|sexo|cojer|follar|tirar)scons(una?s)?((des1[0-7])|menor(es)?|niñ(a|o)s?)/gi,
