@@ -10,6 +10,6 @@ module.exports = async (member) => {
             )
             .then((msg) => msg.delete());
     } catch (err) {
-        errorLogger(err, message.client, "error");
+        errorLogger(err, member.client, "error");
     }
 };
