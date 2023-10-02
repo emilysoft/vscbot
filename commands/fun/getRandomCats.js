@@ -24,7 +24,7 @@ async function getCats(interaction) {
             allowedMentions: {
                 repliedUser: false,
             },
-            files: [cat],
+            content: cat,
         });
     } catch (err) {
         errorLogger(err, interaction.client, "error");

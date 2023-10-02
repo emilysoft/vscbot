@@ -1,112 +1,83 @@
 const { PermissionsBitField } = require("discord.js");
-const errorLogger = require("../loggers/errorLogger");
-const permisosDenegados = {
-    AttachFiles: false,
-    EmbedLinks: false,
-};
+const errorLogger = require("../functions/loggers/errorLogger");
+
 const permisosPermitidos = {
     AttachFiles: true,
     EmbedLinks: true,
 };
 const generalId = "813538324320092164";
 const guildId = "813538324320092161";
-
-module.exports = async (hoy, client) => {
-    hora = hoy.getHours();
-    minutos = hoy.getMinutes();
-    //comprueba si son las 3
-    if (hora == 3 && minutos == 0) {
-        let guild = await client.guilds.cache.get(guildId),
-            everyone = await guild.roles.cache.find((r) => r.id === guildId),
-            level5 = await guild.roles.cache.find(
-                (r) => r.id === "813545491957940244"
-            ),
-            level10 = await guild.roles.cache.find(
-                (r) => r.id === "813546760152547348"
-            ),
-            boc = await guild.roles.cache.find(
-                (r) => r.id === "824041590166781962"
-            ),
-            socio = await guild.roles.cache.find(
-                (r) => r.id === "813967666003181618"
-            ),
-            billete = await guild.roles.cache.find(
-                (r) => r.id === "813847213582188544"
-            ),
-            moderacion = await guild.roles.cache.find(
-                (r) => r.id === "813568302294761486"
+const userRoles = {
+    lvl5: "813545491957940244",
+    lvl10: "813546760152547348",
+    boc: "824041590166781962",
+    socio: "813967666003181618",
+    billete: "813847213582188544",
+    moderacion: "813568302294761486",
+};
+const botRoles = {
+    notsobot: "813539844076470303",
+};
+module.exports = {
+    async sleep(client) {
+        try {
+            let guild = await client.guilds.cache.get(guildId);
+            let everyone = await guild.roles.cache.find(
+                (r) => r.id === guildId
             );
-        notsobot = await guild.roles.cache.find(
-            (r) => r.id === "813539844076470303"
-        );
-        general = await guild.channels.cache.find(
-            (channel) => channel.id === generalId
-        );
-        while (typeof general == "undefined") {
+
+            // SLOWMODE 3s
             general = await guild.channels.cache.find(
                 (channel) => channel.id === generalId
             );
-        }
-        try {
-            console.log("activando sleep mode: slowmode de 3 segundos...");
+            while (typeof general == "undefined") {
+                general = await guild.channels.cache.find(
+                    (channel) => channel.id === generalId
+                );
+            }
+            console.log("Activando sleep mode: slowmode de 3 segundos...");
             await general
                 .setRateLimitPerUser(3, "sleep mode on")
                 .then(() => console.log("slowmode de 3 segundos activado"));
 
-            console.log(
-                "activando sleep mode: cambiando permisos para los level 10..."
-            );
+            //Deactivating user's role permissions
+            console.log("Activando sleep mode");
+            for (roleID of userRoles) {
+                let role = await guild.roles.cache.find((r) => r.id === roleID);
+                console.log(`Desactivando permisos para ${role.name}`);
+
+                await general.permissionOverwrites
+                    .edit(role, {
+                        AttachFiles: false,
+                        EmbedLinks: false,
+                    })
+                    .then(() => console.log(`Permisos ${role.name} denegados`));
+            }
+            //Deactivating bot's role permissions
+            for (roleID of botRoles) {
+                let role = await guild.roles.cache.find((r) => r.id === roleID);
+                console.log(`Desactivando permisos para ${role.name}`);
+
+                await general.permissionOverwrites
+                    .edit(role, {
+                        ViewChannel: false,
+                        SendMessages: false,
+                    })
+                    .then(() => console.log(`Permisos ${role.name} denegados`));
+            }
+            //deactivating command slashes for everyone
             await general.permissionOverwrites
-                .edit(level10, permisosDenegados)
-                .then(() => console.log("permisos lvl10 denegados"));
-            console.log(
-                "activando sleep mode:  cambiando permisos para los level 5..."
-            );
-            await general.permissionOverwrites
-                .edit(level5, permisosDenegados)
-                .then(() => console.log("permisos lvl5 denegados"));
-            console.log(
-                "activando sleep mode:  cambiando permisos para los boc..."
-            );
-            await general.permissionOverwrites
-                .edit(boc, permisosDenegados)
-                .then(() => console.log("permisos boc denegados"));
-            console.log(
-                "activando sleep mode:  cambiando permisos para los socios..."
-            );
-            await general.permissionOverwrites
-                .edit(socio, permisosDenegados)
-                .then(() => console.log("permisos socios denegados"));
-            console.log(
-                "activando sleep mode:  cambiando permisos para los del billete"
-            );
-            await general.permissionOverwrites
-                .edit(billete, permisosDenegados)
-                .then(() => console.log("permisos billete denegados"));
-            console.log(
-                "activando sleep mode:  cambiando permisos para la moderacion"
-            );
-            await general.permissionOverwrites
-                .edit(moderacion, permisosDenegados)
-                .then(() => console.log("permisos moderacion denegados"));
-            console.log(
-                "activando sleep mode:  cambiando permisos para la notsobot"
-            );
-            await general.permissionOverwrites
-                .edit(notsobot, { ViewChannel: false, SendMessages: false })
-                .then(() => console.log("permisos notsobot denegados"));
-            console.log(
-                "activando sleep mode:  cambiando permisos para la everyone"
-            );
-            await general.permissionOverwrites
-                .edit("813538324320092161", { UseApplicationCommands: false })
+                //.edit("813538324320092161", { UseApplicationCommands: false })
+                .edit({ UseApplicationCommands: false })
                 .then(() => console.log("permisos everyone denegados"));
+
             console.log("Avisando a los usuarios");
             await general.send({
                 files: [
                     "https://cdn.discordapp.com/attachments/1024260771326197781/1066244806415753286/images.jpg",
                 ],
             });
+            //cambiando permisos generales
             console.log("cambiando permisos del everyone");
             await everyone
                 .setPermissions([
@@ -119,6 +90,7 @@ module.exports = async (hoy, client) => {
                     PermissionsBitField.Flags.AddReactions,
                 ])
                 .then(() => console.log("permisos cambiados"));
+            //expulsados usuarios del vc
             console.log("expulsando usuarios del vc...");
             await guild.channels.cache.find((channel) => {
                 if (channel.isVoiceBased()) {
@@ -136,7 +108,8 @@ module.exports = async (hoy, client) => {
         } catch (err) {
             errorLogger(err, client, "error");
         }
-    } else if (hora == 6 && minutos == 0) {
+    },
+    async wakeUp(client) {
         let guild = await client.guilds.cache.get(guildId),
             everyone = await guild.roles.cache.find((r) => r.id === guildId),
             level5 = await guild.roles.cache.find(
@@ -251,5 +224,15 @@ module.exports = async (hoy, client) => {
         } catch (err) {
             console.log(err);
         }
-    }
+    },
+    async auto(hoy, client) {
+        let hour = hoy.getHours();
+        let minutes = hoy.getMinutes();
+
+        if (hour == 3 && minutes == 0) {
+            this.sleep(client);
+        } else if (hour == 6 && minutes == 0) {
+            this.wakeUp(client);
+        }
+    },
 };

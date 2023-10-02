@@ -16,7 +16,7 @@ module.exports = async (message) => {
             return;
         if (message.channel.name.startsWith("ticket")) return; //evitar canales de tickets
         if (message.channel.parentId === "813564411628355625") return; //administracion
-        if (message.channel.parentId === "874730574089187359") return; //extralaboradles
+        if (message.channel.parentId === "874730574089187359") return; //extralaborales
 
         for (let regex in regexs) {
             if (message.content.match(regexs[regex]) != null) {

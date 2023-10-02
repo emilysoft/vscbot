@@ -6,6 +6,7 @@ const {
     EMBED_COLOR,
     ignoredChannels,
     backupChannel,
+    ignoredCategories
 } = require("../../../config.json");
 module.exports = async (message, client) => {
     try {
@@ -39,8 +40,10 @@ module.exports = async (message, client) => {
                 return;
         }
         if (message.channel.parentId === "813564411628355625") return; //administracion
-        if (message.channel.parentId === "874730574089187359") return;  //extralaboradles
+        //if (message.channel.parentId === "") return; // registro
+        if (message.channel.parentId === "874730574089187359") return; //extralaborales
 
+        if (Object.values(ignoredCategories).includes(message.channel.parentId)) return; //evitar categorias ignoradas 
         if (Object.values(ignoredChannels).includes(message.channelId)) return; //evitar canales ignorados
         if (message.channel.name.startsWith("ticket")) return; //evitar canales de tickets
 
@@ -48,6 +51,11 @@ module.exports = async (message, client) => {
         if (message.content.length > 0) {
             // contenido en texto
             let args = message.content;
+
+            // antinewlines
+            if (message.author.bot && args.match(/(.*\n){10,}/gm))
+                action(message, client, args);
+            // antiwalltexts
             if (args.length > limiteCaracteres) action(message, client, args);
         } else if (message.embeds.length > 0) {
             // embeds

@@ -1,34 +1,70 @@
+const { DateTime } = require("luxon");
 const getBCVdata = require("../functions/getBCVdata");
+const { EmbedBuilder, Embed } = require("discord.js");
 const errorLogger = require("../functions/loggers/errorLogger");
 const targetChannel = "813562627481010196";
+const { EMBED_COLOR } = require("../config.json");
 module.exports = {
-    async updateMorning(message) {
-        try {
-            if (message.author.id == "282286160494067712") {
-                const client = message.client;
-                const embed = await getBCVdata(client);
-                message.reply({ embeds: [embed] });
-            }
-        } catch (err) {
-            errorLogger(err, message.client, "error");
-        }
-    },
     // pon las variables en ingles
-    async updateAfternoon(now, client) {
+    async updateMonitor(now, client) {
         try {
+            const role = "<@&830121766801244160>";
             const day = now.getDay();
             const hour = now.getHours();
             const minutes = now.getMinutes();
+            const channel = client.channels.cache.find(
+                (c) => c.id === targetChannel
+            );
             if (day == 0 || day == 6) return;
+            if (hour == 9 && minutes == 35) sendMessage(client, channel, role);
+            if (hour == 13 && minutes == 35) sendMessage(client, channel);
             if (hour == 17 && minutes == 0) {
-                const channel = client.channels.cache.find(
-                    (c) => c.id === targetChannel
-                );
                 const embed = await getBCVdata(client);
-                channel.send({ embeds: [embed] });
+                await channel.send({
+                    content: "Última actualización del día",
+                    embeds: [embed],
+                });
             }
         } catch (err) {
             errorLogger(err, client, "error");
         }
     },
 };
+async function sendMessage(client, channel, role = "") {
+    const monitorAvatar =
+        "https://pbs.twimg.com/profile_images/1111629538646216705/kLOBbRXR_400x400.jpg";
+    const twitter = "[@MonitorDolarVla](https://twitter.com/monitordolarvla)";
+    const embed1 = await getBCVdata(client);
+    //    const embed2 = new EmbedBuilder()
+    //        .setColor(EMBED_COLOR)
+    //        .setTitle("Dólar Paralelo")
+    //        .setDescription(twitter)
+    //        .setThumbnail(monitorAvatar)
+    //        .setImage(getData().toString());
+
+    await channel.send({
+        content: `Ya subió el dólar marico! ${role}`,
+        files: [getData()],
+        embeds: [embed1],
+    });
+}
+function getData() {
+    let vip = "";
+    const excludeDays = ["sabado", "sábado", "domingo"];
+
+    const now = DateTime.now().setZone("America/Caracas");
+    const hour = now.hour >= 9 && now.hour < 13 ? 9 : 1;
+    const day = now.weekdayLong;
+
+    console.log(day);
+    if (excludeDays.includes(day)) {
+        vip = "vip-";
+    }
+
+    const urlImagen = `https://mdwcoder.com/app/img-historial/${now.toFormat(
+        "dd"
+    )}/${now.toFormat("MM")}/20${now.toFormat("yy")}/${vip}${hour}.1.jpg`;
+
+    console.log(urlImagen);
+    return urlImagen;
+}

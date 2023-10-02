@@ -2,6 +2,7 @@ const { EmbedBuilder } = require("discord.js");
 const { EMBED_COLOR } = require("../config.json");
 module.exports = async (channel) => {
     if (channel.name.startsWith("ticket")) return;
+    if(channel.parentId == "1122175563688317058") return;
     const botAvatar = channel.client.user.displayAvatarURL();
     const embed = new EmbedBuilder()
         .setColor(EMBED_COLOR)

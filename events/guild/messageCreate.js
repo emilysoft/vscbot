@@ -9,7 +9,6 @@ const removePhoneNumbers = require("../../functions/automod/messageCreate/remove
 const errorLogger = require("../../functions/loggers/errorLogger");
 //const neetAdviser = require(../functions/neetAdviser");
 const { prefix } = require("../../config.json");
-const { updateMorning } = require("../../timers/bcvUpdate");
 const bannedWords = require("../../functions/automod/messageCreate/bannedWords");
 const nsfwAdviser = require("../../functions/nsfwAdviser");
 
@@ -36,7 +35,6 @@ module.exports = {
             antiTextWall(message, client);
             antiCrypto(message, client);
             gb(message)
-            updateMorning(message);
             recomendationReactions(message, "813553405695361105"); //sugerencias
             recomendationReactions(message, "813970132191674398"); //#dibujos
             recomendationReactions(message, "1010377354020929536"); //#sugerencias mc

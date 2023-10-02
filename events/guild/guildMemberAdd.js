@@ -6,7 +6,7 @@ const banUsername = require("../../functions/automod/banUsername");
 module.exports = {
     name: Events.GuildMemberAdd,
     async execute(member) {
-        banUsername(member)
+        //banUsername(member)
         wlcRoles(member)
         wlcStaff(member)
         wlcID(member)
