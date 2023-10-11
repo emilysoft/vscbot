@@ -2,12 +2,14 @@ const path = require("node:path");
 const { Events } = require("discord.js");
 const notifier = require("node-notifier");
 const vcConnection = require("../../functions/vcConnection");
-const { updateMonitor} = require("../../timers/bcvUpdate");
+const { updateMonitor } = require("../../timers/bcvUpdate");
 const staffSleeping = require("../../useless/staffSleeping");
 const timer = require("../../functions/timer");
 const setPresence = require("../../functions/setPresence");
 const startBot = require("../../functions/startBot");
+
 let hoy;
+
 module.exports = {
     name: Events.ClientReady,
     once: true,
@@ -19,9 +21,10 @@ module.exports = {
             wait: true,
         });
 
-        // timers
         setPresence(client, "/help");
         vcConnection(client);
+
+        //timers
         setInterval(() => {
             setPresence(client, "/help");
             vcConnection(client);
@@ -30,7 +33,7 @@ module.exports = {
             //staffSleeping(hoy, client);
             timer(hoy, client);
             updateMonitor(hoy, client);
-        }, 60000);
+        }, 1000 * 60);
 
         console.log(`Listo! iniciado como ${client.user.tag}`);
     },

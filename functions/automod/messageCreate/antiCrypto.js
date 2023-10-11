@@ -1,5 +1,5 @@
 const errorLogger = require("../../loggers/errorLogger");
-
+const logger = require("../../loggers/automodLogger")
 vscLog = require("../../loggers/automodLogger");
 const lvl10 = "813546760152547348";
 const lvl5 = "813545491957940244";

@@ -1,18 +1,30 @@
 const { EmbedBuilder } = require("discord.js");
+const path = "path";
+const fs = "fs";
 module.exports = async (error, client, type) => {
     try {
-        let errorColor
-        if(type == 'error') {
-            errorColor = '#FF0000'
+        let now = new Date();
+        fs.writeFile(
+            path.join(__dirname, "../../logs/errors.log"),
+            `${error}\n${now}\n`,
+            { flag: "a+" },
+            (err) => {
+                if (err) console.error(err);
+            }
+        );
+
+        let errorColor;
+        if (type == "error") {
+            errorColor = "#FF0000";
             console.error(error);
-        } else if(type == 'warn') {
-            errorColor = '#FFFF00'
-            console.warn(error)
+        } else if (type == "warn") {
+            errorColor = "#FFFF00";
+            console.warn(error);
         } else {
-            throw new Error('Error en especificar el type de error')
+            throw new Error("Error en especificar el type de error");
         }
         const logChannelId = "1085335051732009113";
-        const botAvatar = client.user.displayAvatarURL(); 
+        const botAvatar = client.user.displayAvatarURL();
         const exampleEmbed = new EmbedBuilder()
             .setColor(errorColor)
             .setTitle(`${error.code}`)

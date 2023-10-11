@@ -1,4 +1,9 @@
 node_modules
+logs
 commands/fun/media/
 **.swp
 commands/utility/icons
+directivas
+useless
+daemon
+**.log
