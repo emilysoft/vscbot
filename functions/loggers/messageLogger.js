@@ -52,8 +52,9 @@ module.exports = async (message, type) => {
         }
         const log1 = `${typeLog}[${date}/${month}/${year}][${hours}:${minutes}][${authorID}][${channelName}] ${userName}: ${messageContent}`;
         console.log(log1);
+
         fs.writeFile(
-            path.join(__dirname, "../../logs/messages.log"),
+            path.join(__dirname, `../../logs/out/${year}-${month}-${date}.log`),
             `${log1}\n`,
             { flag: "a+" },
             (err) => {

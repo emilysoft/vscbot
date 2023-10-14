@@ -4,8 +4,11 @@ const fs = "fs";
 module.exports = async (error, client, type) => {
     try {
         let now = new Date();
+        let date = now.getDate()
+        let year = now.getFullYear()
+        let month = now.getMonth()
         fs.writeFile(
-            path.join(__dirname, "../../logs/errors.log"),
+            path.join(__dirname, `../../logs/errors/${year}-${month}-${day}.log`),
             `${error}\n${now}\n`,
             { flag: "a+" },
             (err) => {
