@@ -1,12 +1,13 @@
 const vscLog = require("../../loggers/automodLogger");
 const inmunidad = require("../../../settings/inmunidad.json");
 const errorLogger = require("../../loggers/errorLogger");
+const isNumberInMessage = require("./isNumberInMessage");
 module.exports = async (message) => {
-    const regex =
-        /([^\.\w\d\-_:\?\/]+|^)(5([\-\.\s\n_]+)?8)?0?(4([\-\.\s\n_]+)?1([\-\.\s\n_]+)?4([\-\.\s\n_]+)?|4([\-\.\s\n_]+)?2([\-\.\s\n_]+)?4([\-\.\s\n_]+)?|4([\-\.\s\n_]+)?1([\-\.\s\n_]+)?2([\-\.\s\n_]+)?|4([\-\.\s\n_]+)?2([\-\.\s\n_]+)?6([\-\.\s\n_]+)?|4([\-\.\s\n_]+)?1([\-\.\s\n_]+)?6([\-\.\s\n_]+)?|2([\-\.\s\n_]+)?1([\-\.\s\n_]+)?2([\-\.\s\n_]+)?)(\d([\-\.\s\n_]+)?){7}([^\.\w\d\-_:\/]+|$)/gm;
-    //    if(message.channel.id != "1024260771326197781") return
-    const regex2 = /b([\s\.\-_]+)?r([\s\.\-_]+)?(a|@|4)([\s\.\-_]+)?y([\s\.\-_]+)?(a|@|4)([\s\.\-_]+)?(ո|n|И)([\s\.\-_]+)?r([\s\.\-_]+)?(o|о|ο|օ|ȯ|ọ|ỏ|ơ|ó|ò|ö|0|°)([\s\.\-_]+)?m([\s\.\-_]+)?(3|e)([\s\.\-_]+)?r([\s\.\-_]+)?(o|о|ο|օ|ȯ|ọ|ỏ|ơ|ó|ò|ö|0|°)/gim
-    if (message.content.match(regex) != null) {
+    if (message.channel.parentId === "813564411628355625") return; //administracion
+    if (message.channel.parentId === "1120080747668197436") return; // registro
+    if (message.channel.parentId === "874730574089187359") return; //extralaborales
+
+    if (isNumberInMessage(message)) {
         try {
             for (let inmune in inmunidad) {
                 if (
@@ -20,8 +21,14 @@ module.exports = async (message) => {
             const muted = message.guild.roles.cache.find(
                 (role) => role.name === "Muted"
             );
-            if (muted)
+            if (muted) {
                 message.member.roles.add(muted, "Enviar un numero de teléfono");
+            } else {
+                message.member.timeout({
+                    reason: "Pasar un numero de telefono", time: 6 * 24 * 60 * 60 * 1000
+                });
+            }
+
             vscLog(
                 message,
                 message.client,

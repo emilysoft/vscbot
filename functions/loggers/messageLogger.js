@@ -13,8 +13,8 @@ module.exports = async (message, type) => {
         if (message.channel.id == "1024260771326197781") return;
         if (message.channel.id == "813562363243921459") return;
         let typeLog;
-        if (type == "create") typeLog = "[MESSAGE CREATED]";
-        else if (type == "delete") typeLog = "[MESSAGE DELETED]";
+        if (type == "create") typeLog = "MESSAGE CREATED";
+        else if (type == "delete") typeLog = "MESSAGE DELETED";
         else {
             throw new Error(
                 "Error al especificar el tipo de evento de mensaje para el messageLogger"
@@ -50,7 +50,7 @@ module.exports = async (message, type) => {
         } else {
             messageContent = message.content;
         }
-        const log1 = `${typeLog}[${date}/${month}/${year}][${hours}:${minutes}][${authorID}][${channelName}] ${userName}: ${messageContent}`;
+        const log1 = `[${typeLog}][${date}/${month}/${year}][${hours}:${minutes}][${authorID}][${channelName}] ${userName}: ${messageContent}`;
         console.log(log1);
 
         fs.writeFile(
@@ -62,11 +62,11 @@ module.exports = async (message, type) => {
             }
         );
         if (categories.includes(message.channel.parentId)) {
-            const log = `[IR AL MENSAJE](<https://discord.com/channels/${message.guild.id}/${message.channel.id}/${message.id}>)${typeLog}[${authorID}][${channelName}] ${userName}: ${messageContent}`;
+            const log = `[${typeLog}] __[#${channelName.replace(/[^a-zA-Z0-9\-]+/, "")}](<https://discord.com/channels/${message.guild.id}/${message.channel.id}/${message.id}>)__ **${userName}**: ${messageContent} ||userID:[${authorID}]||`;
             const { guild } = message;
             guild.channels.cache
                 .get("1160325903461666927")
-                .send(log.replace(/<@/, "<!@"));
+                .send(log.replace(/<@/gim, "<!@"));
         }
     } catch (err) {
         errorLogger(err, message.client, "error");

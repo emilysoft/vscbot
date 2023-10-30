@@ -15,34 +15,37 @@ const nsfwAdviser = require("../../functions/nsfwAdviser");
 const nsfwChannels = {
     aportes: "1013280756757430364",
     aportes2D: "942934915396288542",
-    LGBT: "1053118780705874040"
+    LGBT: "1053118780705874040",
 };
 module.exports = {
     name: Events.MessageCreate,
     async execute(message) {
         try {
-            const client = message.client;
+            const { client } = message;
+            // evita que actue sobre si mismo
+            if (message.author.id == client.user.id) return;
+
             if (!message.guild || message.channel.type === "dm") return;
-            if (message.channel.id == "1017765691115446363") return; // server-log
-            if (message.channel.id == "1036627246657577041") return; // consola
-            if (message.channel.id == "821067797157118013") return; // mudae
 
             // automod
-            removePhoneNumbers(message);
-            banDiscordInvite(message, client);
-            bannedWords(message)
-            nsfwAdviser(message)
             antiTextWall(message, client);
+            banDiscordInvite(message, client);
+            messageLogger(message, "create");
+            gb(message);
+
+            // notsobot
+            if (message.author.id == "439205512425504771") return;
+            removePhoneNumbers(message);
+            bannedWords(message);
+            nsfwAdviser(message);
             antiCrypto(message, client);
-            gb(message)
-            recomendationReactions(message, "813553405695361105"); //sugerencias
-            recomendationReactions(message, "813970132191674398"); //#dibujos
-            recomendationReactions(message, "1010377354020929536"); //#sugerencias mc
+            //neetAdviser(message);
+
+            if (message.author.bot) return;
+
             recomendationReactions(message, nsfwChannels.aportes, "nsfw");
             recomendationReactions(message, nsfwChannels.aportes2D, "nsfw");
             recomendationReactions(message, nsfwChannels.LGBT, "nsfw");
-            messageLogger(message, "create");
-            //neetAdviser(message);
 
             //comandos
             if (message.content.startsWith(prefix)) {

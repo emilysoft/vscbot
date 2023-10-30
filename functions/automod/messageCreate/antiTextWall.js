@@ -1,12 +1,13 @@
 const errorLogger = require("../../loggers/errorLogger");
 const { EmbedBuilder } = require("discord.js");
-const chiste2 = `Borré tu mensaje porque es muy largo, usa <#853387980335874078>`;
+const aviso = `Mensaje borrado por texto excesivo. Usa <#853387980335874078>`;
 const vscLog = require("../../loggers/automodLogger");
+const isNumberInMessage = require("./isNumberInMessage.js")
 const {
     EMBED_COLOR,
     ignoredChannels,
     backupChannel,
-    ignoredCategories
+    ignoredCategories,
 } = require("../../../config.json");
 module.exports = async (message, client) => {
     try {
@@ -40,10 +41,11 @@ module.exports = async (message, client) => {
                 return;
         }
         if (message.channel.parentId === "813564411628355625") return; //administracion
-        //if (message.channel.parentId === "") return; // registro
+        if (message.channel.parentId === "1120080747668197436") return; // registro
         if (message.channel.parentId === "874730574089187359") return; //extralaborales
 
-        if (Object.values(ignoredCategories).includes(message.channel.parentId)) return; //evitar categorias ignoradas 
+        if (Object.values(ignoredCategories).includes(message.channel.parentId))
+            return; //evitar categorias ignoradas
         if (Object.values(ignoredChannels).includes(message.channelId)) return; //evitar canales ignorados
         if (message.channel.name.startsWith("ticket")) return; //evitar canales de tickets
 
@@ -70,47 +72,70 @@ module.exports = async (message, client) => {
 };
 
 async function action(message, client, args) {
-    await message.delete();
-    const avatarPhoto = `https://cdn.discordapp.com/avatars/${message.author.id}/${message.author.avatar}.png`;
-    const botAvatar = client.user.displayAvatarURL();
-    const botsChannel = client.channels.cache.find(
-        (channel) => channel.id === backupChannel
-    );
-    const messageFormated = args.replace(/`/g, "");
+    try {
+        await message.delete();
+        const avatarPhoto = `https://cdn.discordapp.com/avatars/${message.author.id}/${message.author.avatar}.png`;
+        const botAvatar = client.user.displayAvatarURL();
+        const botsChannel = client.channels.cache.find(
+            (channel) => channel.id === backupChannel
+        );
+        const messageFormated = args.replace(/`/g, "");
 
-    //envia el textWall a bots
-    const exampleEmbed = new EmbedBuilder()
-        .setColor(EMBED_COLOR)
-        .setTitle(`Mensaje borrado`)
-        .setAuthor({
-            name: message.author.username,
-            iconURL: avatarPhoto,
-        })
-        .setDescription(`\`\`\`\n${messageFormated}\`\`\``)
-        .setTimestamp()
-        .setFooter({
-            text: "automod",
-            iconURL: botAvatar,
-        });
-    await botsChannel.send({
-        content: `<@${message.author.id}>`,
-        embeds: [exampleEmbed],
-    });
+        //envia el textWall a bots
+        const exampleEmbed = new EmbedBuilder()
+            .setColor(EMBED_COLOR)
+            .setTitle(`Mensaje borrado`)
+            .setAuthor({
+                name: message.author.username,
+                iconURL: avatarPhoto,
+            })
+            .setDescription(`\`\`\`\n${messageFormated}\`\`\``)
+            .setTimestamp()
+            .setFooter({
+                text: "automod",
+                iconURL: botAvatar,
+            });
 
-    //envia avisa del mensaje borrado
-    await message.channel
-        .send(`<@${message.author.id}>` + chiste2)
-        .then(async (msg) => {
-            setTimeout(async () => {
-                await msg.delete();
-            }, 10000);
-        });
+        if (message.author.bot) return;
 
-    //logea la situacion
-    vscLog(
-        message,
-        client,
-        "Un text wall fue borrado",
-        `<@${message.author.id}> pasó un texto demasiado largo`
-    );
+        //envia aviso del mensaje borrado
+        await message.channel
+            .send(`<@${message.author.id}>` + aviso)
+            .then(async (msg) => {
+                setTimeout(async () => {
+                    await msg.delete();
+                }, 10000);
+            });
+
+        // Hace un backup en el dm si esta abierto o en un canal del servidor
+        await message.member.user
+            .createDM()
+            .then((dm) => {
+                dm.send({
+                    content: `${aviso}`,
+                    embeds: [exampleEmbed],
+                }).catch((err) => {
+                    // Envia el backup en el canal de bots
+                    if (err.code == 50007) {
+                        if(isNumberInMessage(message)) return
+                        botsChannel.send({
+                            content: `<@${message.author.id}> ${aviso}`,
+                            embeds: [exampleEmbed],
+                        });
+                    } else errorLogger(err, message.client, "error");
+                });
+            })
+            .then(() => {
+                vscLog(
+                    message,
+                    client,
+                    "Un text wall fue borrado",
+                    `<@${message.author.id}> pasó un texto excesivo`
+                );
+            });
+
+        //logea la situacion
+    } catch (err) {
+        errorLogger(err, message.client, "error");
+    }
 }

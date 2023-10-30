@@ -16,7 +16,7 @@ module.exports = {
                 (c) => c.id === targetChannel
             );
             if (day == 0 || day == 6) return;
-            if (hour == 9 && minutes == 35) sendMessage(client, channel, role);
+            if (hour == 9 && minutes == 45) sendMessage(client, channel, role);
             if (hour == 13 && minutes == 35) sendMessage(client, channel);
             if (hour == 17 && minutes == 0) {
                 const embed = await getBCVdata(client);

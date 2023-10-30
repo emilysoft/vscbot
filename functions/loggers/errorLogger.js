@@ -1,10 +1,10 @@
 const { EmbedBuilder } = require("discord.js");
-const path = "path";
-const fs = "fs";
+const path = require("path");
+const fs = require("fs");
 module.exports = async (error, client, type) => {
     try {
         let now = new Date();
-        let date = now.getDate()
+        let day = now.getDate()
         let year = now.getFullYear()
         let month = now.getMonth()
         fs.writeFile(
