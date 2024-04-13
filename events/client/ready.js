@@ -22,12 +22,12 @@ module.exports = {
         });
 
         setPresence(client, "/help");
-        vcConnection(client);
+        //vcConnection(client);
 
         //timers
         setInterval(() => {
             setPresence(client, "/help");
-            vcConnection(client);
+            //vcConnection(client);
 
             hoy = new Date();
             //staffSleeping(hoy, client);

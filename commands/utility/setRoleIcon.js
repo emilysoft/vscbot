@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, InteractionResponse } = require("discord.js");
+const { SlashCommandBuilder } = require("discord.js");
 const getIds = require("../../functions/getIds");
 const errorLogger = require("../../functions/loggers/errorLogger");
 const Jimp = require("jimp");
@@ -22,6 +22,7 @@ module.exports = {
     //slash command
     async execute(interaction) {
         try {
+            interaction.deferReply({ ephemeral: true });
             const AUTHOR_ID = interaction.user.id;
             if (!OWNERS_ID.some((id) => id === AUTHOR_ID)) return;
             const image = interaction.options.getAttachment("imagen", true);
@@ -29,7 +30,7 @@ module.exports = {
             setRoleIcon(interaction, image, role);
         } catch (err) {
             if (err.code == "CommandInteractionOptionNotFound") {
-                interaction.reply({
+                interaction.followUp({
                     content: "Introduzca los datos requeridos",
                     ephemeral: true,
                 });
@@ -44,7 +45,7 @@ module.exports = {
             const AUTHOR_ID = message.author.id;
             if (!OWNERS_ID.some((id) => id === AUTHOR_ID)) return;
             if (!message.attachments.size >= 1) {
-                message.reply({
+                message.followUp({
                     content: `Por favor adjunte una imagen.`,
                     allowedMentions: { repliedUser: false },
                 });
@@ -52,15 +53,16 @@ module.exports = {
             }
             const id = getIds(message.content);
             if (id.length == 0) {
-                return message.reply({
-                    content: "Por favor especifique una (ID o mención) de usuario.",
+                return message.followUp({
+                    content:
+                        "Por favor especifique una (ID o mención) de usuario.",
                     allowedMentions: { repliedUser: false },
                 });
             }
             const targetRole = id[0];
             const role = message.guild.roles.cache.get(targetRole);
             if (!role)
-                return message.reply({
+                return message.followUp({
                     content: `Especifique una (ID o mención) de rol válida.`,
                     allowedMentions: { repliedUser: false },
                 });
@@ -77,8 +79,8 @@ async function setRoleIcon(interaction, image, role) {
     try {
         //validaciones
         const imageType = image.contentType;
-        if (!formatsAllowed.some( format => format === imageType)) {
-            return interaction.reply({
+        if (!formatsAllowed.some((format) => format === imageType)) {
+            return interaction.followUp({
                 content: "Por favor inserte una imagen jpg/png/webp/gif.",
                 allowedMentions: { repliedUser: false },
             });
@@ -99,7 +101,7 @@ async function setRoleIcon(interaction, image, role) {
                         "Nuevo icon para rol"
                     )
                     .then(async () => {
-                        await interaction.reply({
+                        await interaction.followUp({
                             content: `Icon colocado exitosamente.`,
                             allowedMentions: { repliedUser: false },
                         });

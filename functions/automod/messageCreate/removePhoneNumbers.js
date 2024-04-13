@@ -7,6 +7,7 @@ module.exports = async (message) => {
     if (message.channel.parentId === "1120080747668197436") return; // registro
     if (message.channel.parentId === "874730574089187359") return; //extralaborales
 
+
     if (isNumberInMessage(message)) {
         try {
             for (let inmune in inmunidad) {
@@ -18,6 +19,7 @@ module.exports = async (message) => {
                     return;
             }
             message.delete();
+            if(message.author.bot) return
             const muted = message.guild.roles.cache.find(
                 (role) => role.name === "Muted"
             );

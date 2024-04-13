@@ -6,6 +6,7 @@ const regexs = {
     loli: /\b(l)[\n\s\-_\.]*[oоοօȯọỏơóòö0°\s\n]+[\n\s\-_\.]*(l)+[\n\s\-_\.]*[i!¡|ïí1](s|z)?(((c|k)[\n\s\-_\.]*[oоοօȯọỏơóòö0°\s\n]+[\n\s\-_\.]*n)|\b)/gim,
     godkermit:
         /(q(\n+)?(u|υ|ü|ú|ù)?|k|q)(\n+)?[eеẹėéè3]+(\n+)?(r|l|m|n)(\n+)?m(\n+)?((1|i|!|¡|\||ï|í)|y)(\n+)?/gim,
+    emptyText: "឵",
 };
 
 module.exports = async (message) => {
@@ -17,9 +18,7 @@ module.exports = async (message) => {
             return;
         if (message.channel.name.startsWith("ticket")) return; //evitar canales de tickets
 
-        
-
-
+        if(message.author.id == "268478587651358721") return; //MonitoRSS
         if (message.channel.parentId === "813564411628355625") return; //administracion
         if (message.channel.parentId === "874730574089187359") return; //extralaborales
         if (message.channel.parentId === "1120080747668197436") return; //extralaborales

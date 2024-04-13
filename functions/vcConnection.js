@@ -25,7 +25,7 @@ module.exports = async (client) => {
         function reproducir() {
             let resource = createAudioResource(
                 //"C:\\Discord Bots\\vsc-bot\\youtube.mp3"
-                "C:\\Discord Bots\\vsc-bot\\Bebé llorando con autotune-5-PQhF7JzIM.mp3"
+                "C:\\Discord Bots\\vsc-bot\\gaitas.mp3"
             );
             let player = createAudioPlayer({
                 behaviors: {

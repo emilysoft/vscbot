@@ -11,11 +11,19 @@ const errorLogger = require("../../functions/loggers/errorLogger");
 const { prefix } = require("../../config.json");
 const bannedWords = require("../../functions/automod/messageCreate/bannedWords");
 const nsfwAdviser = require("../../functions/nsfwAdviser");
-
+const deleteThatShit = require("../../functions/deleteThatShit");
+const downloadFacebookVideo = require("../../functions/downloadFacebookVideo");
+const rules = require("../../functions/rules");
 const nsfwChannels = {
+
     aportes: "1013280756757430364",
     aportes2D: "942934915396288542",
     LGBT: "1053118780705874040",
+    furry: "1172695535468150814",
+    nube: "868499065984393308",
+    galeria: "813562445729628170",
+    memes: "813562363243921459",
+    test: "1024260771326197781",
 };
 module.exports = {
     name: Events.MessageCreate,
@@ -32,21 +40,29 @@ module.exports = {
             banDiscordInvite(message, client);
             messageLogger(message, "create");
             gb(message);
+            deleteThatShit(message);
+            //downloadFacebookVideo(message);
 
             // notsobot
             if (message.author.id == "439205512425504771") return;
             removePhoneNumbers(message);
             bannedWords(message);
-            nsfwAdviser(message);
+            //nsfwAdviser(message);
             antiCrypto(message, client);
             //neetAdviser(message);
 
             if (message.author.bot) return;
 
-            recomendationReactions(message, nsfwChannels.aportes, "nsfw");
-            recomendationReactions(message, nsfwChannels.aportes2D, "nsfw");
-            recomendationReactions(message, nsfwChannels.LGBT, "nsfw");
+            recomendationReactions(message, nsfwChannels.aportes, "heart");
+            recomendationReactions(message, nsfwChannels.aportes2D, "heart");
+            recomendationReactions(message, nsfwChannels.LGBT, "heart");
+            recomendationReactions(message, nsfwChannels.furry, "heart");
+            recomendationReactions(message, nsfwChannels.nube, "heart");
+            recomendationReactions(message, nsfwChannels.galeria, "galeria");
+            recomendationReactions(message, nsfwChannels.memes, "memes");
+            recomendationReactions(message, nsfwChannels.test, "heart");
 
+            rules(message);
             //comandos
             if (message.content.startsWith(prefix)) {
                 const commands = message.client.messageCommands;

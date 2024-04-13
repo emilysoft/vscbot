@@ -2,7 +2,7 @@ const errorLogger = require("../../loggers/errorLogger");
 const { EmbedBuilder } = require("discord.js");
 const aviso = `Mensaje borrado por texto excesivo. Usa <#853387980335874078>`;
 const vscLog = require("../../loggers/automodLogger");
-const isNumberInMessage = require("./isNumberInMessage.js")
+const isNumberInMessage = require("./isNumberInMessage.js");
 const {
     EMBED_COLOR,
     ignoredChannels,
@@ -41,7 +41,8 @@ module.exports = async (message, client) => {
                 return;
         }
         if (message.channel.parentId === "813564411628355625") return; //administracion
-        if (message.channel.parentId === "1120080747668197436") return; // registro
+        if (message.channel.parentId === "1169624626188521563") return; // registro principales
+        if (message.channel.parentId === "1120080747668197436") return; // registro secundarios
         if (message.channel.parentId === "874730574089187359") return; //extralaborales
 
         if (Object.values(ignoredCategories).includes(message.channel.parentId))
@@ -117,7 +118,7 @@ async function action(message, client, args) {
                 }).catch((err) => {
                     // Envia el backup en el canal de bots
                     if (err.code == 50007) {
-                        if(isNumberInMessage(message)) return
+                        if (isNumberInMessage(message)) return;
                         botsChannel.send({
                             content: `<@${message.author.id}> ${aviso}`,
                             embeds: [exampleEmbed],

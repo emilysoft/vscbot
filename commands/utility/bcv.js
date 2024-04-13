@@ -34,7 +34,7 @@ module.exports = {
     },
     async run(message) {
         try {
-            message 
+            message
                 .reply({
                     content: "Cargando...",
                     allowedMentions: {

@@ -2,7 +2,7 @@ const { DateTime } = require("luxon");
 const getBCVdata = require("../functions/getBCVdata");
 const { EmbedBuilder, Embed } = require("discord.js");
 const errorLogger = require("../functions/loggers/errorLogger");
-const targetChannel = "813562627481010196";
+const targetChannel = "1228498362475610133";
 const { EMBED_COLOR } = require("../config.json");
 module.exports = {
     // pon las variables en ingles
@@ -15,15 +15,28 @@ module.exports = {
             const channel = client.channels.cache.find(
                 (c) => c.id === targetChannel
             );
-            if (day == 0 || day == 6) return;
-            if (hour == 9 && minutes == 45) sendMessage(client, channel, role);
-            if (hour == 13 && minutes == 35) sendMessage(client, channel);
-            if (hour == 17 && minutes == 0) {
-                const embed = await getBCVdata(client);
-                await channel.send({
-                    content: "Última actualización del día",
-                    embeds: [embed],
-                });
+
+            if (day == 0 || day == 6) {
+                if ((hour == 9 || hour == 13) && minutes == 35)
+                    sendMessage(client, channel);
+                else if (hour == 17 && minutes == 0) {
+                    const embed = await getBCVdata(client);
+                    await channel.send({
+                        content: "Última actualización del día",
+                        embeds: [embed],
+                    });
+                }
+            } else {
+                if (hour == 9 && minutes == 35)
+                    sendMessage(client, channel, role);
+                if (hour == 13 && minutes == 35) sendMessage(client, channel);
+                if (hour == 17 && minutes == 0) {
+                    const embed = await getBCVdata(client);
+                    await channel.send({
+                        content: "Última actualización del día",
+                        embeds: [embed],
+                    });
+                }
             }
         } catch (err) {
             errorLogger(err, client, "error");
