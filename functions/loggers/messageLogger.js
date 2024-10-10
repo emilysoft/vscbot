@@ -9,6 +9,8 @@ module.exports = async (message, type) => {
             "813564125380214785",
             "1122175563688317058",
         ];
+        if (message.content.match(/^\$wa/) != null) return
+        if (message.author.id == "432610292342587392") return //mudae
         if (message.channel.id == "1160325903461666927") return;
         if (message.channel.id == "1024260771326197781") return;
         if (message.channel.id == "813562363243921459") return;
@@ -37,10 +39,7 @@ module.exports = async (message, type) => {
 
         if (message.content == "") {
             if (message.attachments.size > 0) {
-                messageContent = "imagen(es)";
-                //                message.attachments.forEach((image) =>
-                //                    images.push(image.url)
-                //                );
+                messageContent = message.attachments.reduce((acc, curr) => acc + "\n" + curr.url, "");
             } else if (message.embeds.length > 0) {
                 messageContent = "Embed";
             } else if (message.stickers.size > 0) {

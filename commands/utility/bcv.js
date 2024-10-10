@@ -8,8 +8,8 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName("bcv")
         .setDescription("Obtiene tasas del Sistema Bancario (Bs/USD)."),
-    slashCommand: true,
-    messageCommand: true,
+    slashCommand: false,
+    messageCommand: false,
     async execute(interaction) {
         try {
             interaction

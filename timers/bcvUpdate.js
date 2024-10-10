@@ -2,7 +2,7 @@ const { DateTime } = require("luxon");
 const getBCVdata = require("../functions/getBCVdata");
 const { EmbedBuilder, Embed } = require("discord.js");
 const errorLogger = require("../functions/loggers/errorLogger");
-const targetChannel = "1228498362475610133";
+const targetChannel = "1240285460195049622";
 const { EMBED_COLOR } = require("../config.json");
 module.exports = {
     // pon las variables en ingles
@@ -27,8 +27,7 @@ module.exports = {
                     });
                 }
             } else {
-                if (hour == 9 && minutes == 35)
-                    sendMessage(client, channel, role);
+                if (hour == 9 && minutes == 35) sendMessage(client, channel);
                 if (hour == 13 && minutes == 35) sendMessage(client, channel);
                 if (hour == 17 && minutes == 0) {
                     const embed = await getBCVdata(client);

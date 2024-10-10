@@ -1,6 +1,6 @@
 const errorLogger = require("../../loggers/errorLogger");
 const { EmbedBuilder } = require("discord.js");
-const aviso = `Mensaje borrado por texto excesivo. Usa <#853387980335874078>`;
+const aviso = `Mensaje borrado por texto excesivo. Usa <#1112164583344443433>`;
 const vscLog = require("../../loggers/automodLogger");
 const isNumberInMessage = require("./isNumberInMessage.js");
 const {
@@ -44,7 +44,8 @@ module.exports = async (message, client) => {
         if (message.channel.parentId === "1169624626188521563") return; // registro principales
         if (message.channel.parentId === "1120080747668197436") return; // registro secundarios
         if (message.channel.parentId === "874730574089187359") return; //extralaborales
-
+        if (message.channel.id === "1005354020333948988") return;       //basados
+        if (message.author.id == "1095572785482444860") return; // hiraku
         if (Object.values(ignoredCategories).includes(message.channel.parentId))
             return; //evitar categorias ignoradas
         if (Object.values(ignoredChannels).includes(message.channelId)) return; //evitar canales ignorados

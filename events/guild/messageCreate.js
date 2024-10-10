@@ -1,7 +1,12 @@
 const { Events } = require("discord.js");
 const antiTextWall = require("../../functions/automod/messageCreate/antiTextWall");
+const nekotinaAdviser = require("../../functions/automod/messageCreate/nekotinaAdviser");
+const automodChannel = require("../../functions/automod/automodChannel");
+const deleteMee6 = require("../../functions/automod/messageCreate/deleteMee6");
+const deleteProbot = require("../../functions/automod/messageCreate/deleteProbot");
 const messageLogger = require("../../functions/loggers/messageLogger");
 const antiCrypto = require("../../functions/automod/messageCreate/antiCrypto");
+const attchAviser = require("../../functions/automod/attachmentPermissionAdviser");
 const gb = require("../../functions/gb");
 const banDiscordInvite = require("../../functions/automod/messageCreate/banDiscordInvite");
 const recomendationReactions = require("../../functions/recomendationReactions");
@@ -13,9 +18,11 @@ const bannedWords = require("../../functions/automod/messageCreate/bannedWords")
 const nsfwAdviser = require("../../functions/nsfwAdviser");
 const deleteThatShit = require("../../functions/deleteThatShit");
 const downloadFacebookVideo = require("../../functions/downloadFacebookVideo");
+const removeInactivo = require("../../functions/automod/messageCreate/removeInactivo");
+const badWords = require("../../functions/automod/messageCreate/badWords");
+const ia = require("../../functions/automod/messageCreate/ia");
 const rules = require("../../functions/rules");
 const nsfwChannels = {
-
     aportes: "1013280756757430364",
     aportes2D: "942934915396288542",
     LGBT: "1053118780705874040",
@@ -23,7 +30,6 @@ const nsfwChannels = {
     nube: "868499065984393308",
     galeria: "813562445729628170",
     memes: "813562363243921459",
-    test: "1024260771326197781",
 };
 module.exports = {
     name: Events.MessageCreate,
@@ -38,9 +44,16 @@ module.exports = {
             // automod
             antiTextWall(message, client);
             banDiscordInvite(message, client);
+            automodChannel(message);
             messageLogger(message, "create");
+            removeInactivo(message);
             gb(message);
             deleteThatShit(message);
+            deleteMee6(message);
+            deleteProbot(message);
+            badWords(message);
+            attchAviser(message);
+            nekotinaAdviser(message);
             //downloadFacebookVideo(message);
 
             // notsobot
@@ -53,6 +66,7 @@ module.exports = {
 
             if (message.author.bot) return;
 
+            ia(message);
             recomendationReactions(message, nsfwChannels.aportes, "heart");
             recomendationReactions(message, nsfwChannels.aportes2D, "heart");
             recomendationReactions(message, nsfwChannels.LGBT, "heart");
@@ -61,6 +75,8 @@ module.exports = {
             recomendationReactions(message, nsfwChannels.galeria, "galeria");
             recomendationReactions(message, nsfwChannels.memes, "memes");
             recomendationReactions(message, nsfwChannels.test, "heart");
+            recomendationReactions(message, "813970132191674398", "heart"); //dibujos
+            recomendationReactions(message, "813562363243921459", "memes"); //shitposting
 
             rules(message);
             //comandos

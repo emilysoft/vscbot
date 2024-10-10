@@ -3,7 +3,7 @@ module.exports = async (client, text) => {
         function setPresence(client, activity) {
             client.user.setPresence({
                 activities: [{ name: activity }],
-                status: "invisible",
+                status: "online",
             });
         }
         setPresence(client, text);

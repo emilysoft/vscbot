@@ -13,7 +13,7 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName("emote")
         .setDescription("Add emotes"),
-    async execute(message, args) {
+    async run(message, args) {
         try {
             if (message.author.id != "302249242469335060") return;
             addEmote(message);
@@ -27,7 +27,7 @@ module.exports = {
 async function addEmote(message) {
     let emojisAdded = [];
     let format = "";
-    if (!message.content.startsWith(">add")) return;
+    if (message.content.match(/add/gim) == null) return;
 
     const regex = /<a?:[a-zA-Z_~0-9]+:\d+>/g; // Expresión regular para buscar emotes
     // Obtener los emotes del mensaje
@@ -55,7 +55,7 @@ async function deleteEmoji(message) {
     const regex = /:[a-zA-Z0-9_~]+:/;
     let emojisDeleted = [];
 
-    if (!message.content.startsWith(">delete")) return;
+    if (message.content.match(/delete/gim) == null) return;
     const args = message.content.split(/\s+/g).slice(1).join("");
     const argsFormatted = args.split(/[>\s\n]+/g);
     console.log(argsFormatted);
@@ -80,8 +80,8 @@ async function deleteEmoji(message) {
 }
 
 async function changeName(message) {
-    if (!message.content.startsWith(">change")) return;
-    const args = message.content.split(" ").slice(1);
+    if (message.content.match(/change/gim) == null) return;
+    const args = message.content.split(" ").slice(2);
     const oldName = args[0];
     const newName = args[1];
     const guild = message.guild;
