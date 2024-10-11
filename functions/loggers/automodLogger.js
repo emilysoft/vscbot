@@ -21,7 +21,7 @@ const module = async (message, client, reason, description) => {
         );
         await channel.send({ embeds: [exampleEmbed] });
     } catch (err) {
-        errorLogger(err, message.client, "error");
+        errorLogger(err, message.client, "error", import.meta.url);
     }
 };
 

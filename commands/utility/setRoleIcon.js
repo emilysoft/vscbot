@@ -35,7 +35,7 @@ const module = {
                     ephemeral: true,
                 });
             } else {
-                errorLogger(err, interaction.client, "error");
+                errorLogger(err, interaction.client, "error", import.meta.url);
             }
         }
     },
@@ -70,7 +70,7 @@ const module = {
             const image = message.attachments.first();
             setRoleIcon(message, image, role);
         } catch (err) {
-            errorLogger(err, message.client, "error");
+            errorLogger(err, message.client, "error", import.meta.url);
         }
     },
 };
@@ -108,7 +108,7 @@ async function setRoleIcon(interaction, image, role) {
                     });
             });
     } catch (err) {
-        errorLogger(err, interaction.client, "error");
+        errorLogger(err, interaction.client, "error", import.meta.url);
     }
 }
 

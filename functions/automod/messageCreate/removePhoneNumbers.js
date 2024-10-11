@@ -38,7 +38,7 @@ const module = async (message) => {
                 "ha sido muteado por enviar un posible numero de teléfono"
             );
         } catch (err) {
-            errorLogger(err, message.client, "error");
+            errorLogger(err, message.client, "error", import.meta.url);
         }
     }
 };

@@ -32,7 +32,7 @@ const module = (member) => {
             }
         });
     } catch (err) {
-        errorLogger(err, member.client, "error");
+        errorLogger(err, member.client, "error", import.meta.url);
     }
 };
 

@@ -6,6 +6,6 @@ module.exports = (message) => {
             message.reply("Y si mejor te pones a chambear y lo compras?") 
         
     } catch (err) {
-        errorLogger(err, client, "error");
+        errorLogger(err, client, "error", import.meta.url);
     }
 };

@@ -22,6 +22,6 @@ export default (member) => {
             }
         }
     } catch (err) {
-        errorLogger(err, client, "error");
+        errorLogger(err, client, "error", import.meta.url);
     }
 };

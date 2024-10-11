@@ -21,7 +21,7 @@ const module = (message, client) => {
             );
         }
     } catch (err) {
-        errorLogger(err, message.client, "error");
+        errorLogger(err, message.client, "error", import.meta.url);
     }
 };
 export default module

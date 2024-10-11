@@ -26,7 +26,7 @@ const module = async (message, targetChannel, type) => {
                 await message.react("👎");
         }
     } catch (err) {
-        errorLogger(err, message, client, "error");
+        errorLogger(err, message, client, "error", import.meta.url);
     }
 };
 export default module

@@ -29,7 +29,7 @@ const module = {
                 data = "[No server found]";
             }
         } catch (err) {
-            errorLogger(err, message.client, "error");
+            errorLogger(err, message.client, "error", import.meta.url);
             const errorlogs = client.channels.cache.get(config.ERROR_LOGS_CHANNEL);
 
             message.channel.send(

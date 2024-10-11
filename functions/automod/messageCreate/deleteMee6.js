@@ -10,7 +10,7 @@ const module = async (message, client) => {
             await message.delete();
         }
     } catch (err) {
-        errorLogger(err, message.client, "error");
+        errorLogger(err, message.client, "error", import.meta.url);
     }
 };
 

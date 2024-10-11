@@ -18,7 +18,7 @@ const module = async (message) => {
             }
         }
     } catch (err) {
-        errorLogger(err, client, "error");
+        errorLogger(err, client, "error", import.meta.url);
     }
 };
 export default module

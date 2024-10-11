@@ -38,7 +38,7 @@ const module = {
                 }
             }
         } catch (err) {
-            errorLogger(err, client, "error");
+            errorLogger(err, client, "error", import.meta.url);
         }
     },
 };

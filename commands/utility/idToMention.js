@@ -31,7 +31,7 @@ export default {
                     ephemeral: true,
                 });
             } else {
-                errorLogger(err, interaction.client, "error");
+                errorLogger(err, interaction.client, "error", import.meta.url);
             }
         }
     },
@@ -41,7 +41,7 @@ export default {
                 return;
             getMention(message, message.content);
         } catch (err) {
-            errorLogger(err, message.client, "error");
+            errorLogger(err, message.client, "error", import.meta.url);
         }
     },
 };

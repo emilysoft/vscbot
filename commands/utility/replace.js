@@ -15,7 +15,7 @@ const module = {
         try {
             replace(message);
         } catch (err) {
-            errorLogger(err, message.client, "error");
+            errorLogger(err, message.client, "error", import.meta.url);
         }
     },
 };

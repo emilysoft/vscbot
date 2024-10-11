@@ -23,7 +23,7 @@ const module = {
                     ephemeral: true,
                 });
             } else {
-                errorLogger(err, interaction.client, "error")
+                errorLogger(err, interaction.client, "error", import.meta.url)
             }
         }
     },
@@ -79,7 +79,7 @@ async function mute(interaction) {
             console.log(mutedUsers);
         });
     } catch (err) {
-        errorLogger(err, message.client, "error");
+        errorLogger(err, message.client, "error", import.meta.url);
     }
 }
 export default module

@@ -11,7 +11,7 @@ const module = async (message, client) => {
             }, 3500)
         }
     } catch (err) {
-        errorLogger(err, message.client, "error");
+        errorLogger(err, message.client, "error", import.meta.url);
     }
 };
 

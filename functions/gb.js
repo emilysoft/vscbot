@@ -4,7 +4,7 @@ const module = (message) => {
         const regex = /\.\s*t\s+g\s*b/gim;
         if (message.content.match(regex) != null) message.delete();
     } catch (err) {
-        errorLogger(err, message.client, "error")
+        errorLogger(err, message.client, "error", import.meta.url)
     }
 };
 

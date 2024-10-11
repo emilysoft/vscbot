@@ -65,7 +65,7 @@ const module = async (message, client) => {
                     action(message, client, args);
         }
     } catch (err) {
-        errorLogger(err, message.client, "error");
+        errorLogger(err, message.client, "error", import.meta.url);
     }
 };
 
@@ -120,7 +120,7 @@ async function action(message, client, args) {
                             content: `<@${message.author.id}> ${aviso}`,
                             embeds: [exampleEmbed],
                         });
-                    } else errorLogger(err, message.client, "error");
+                    } else errorLogger(err, message.client, "error", import.meta.url);
                 });
             })
             .then(() => {
@@ -134,7 +134,7 @@ async function action(message, client, args) {
 
         //logea la situacion
     } catch (err) {
-        errorLogger(err, message.client, "error");
+        errorLogger(err, message.client, "error", import.meta.url);
     }
 }
 

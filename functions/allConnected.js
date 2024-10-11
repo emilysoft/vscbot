@@ -14,7 +14,7 @@ const module = async (time, client) => {
       let title = `${counter} usuarios conectados`
       await role.setName(title);
     } catch (err) {
-        errorLogger(err, client, "error");
+        errorLogger(err, client, "error", import.meta.url);
     }
 }
 export default module

@@ -128,7 +128,7 @@ async function geldooru(message) {
                 );
         }
     } catch (err) {
-        errorLogger(err, message.client, "error");
+        errorLogger(err, message.client, "error", import.meta.url);
     }
 }
 

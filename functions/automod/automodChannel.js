@@ -44,7 +44,7 @@ const module = async (message) => {
         }
         if (content.match(/tenor\.com/gim)) return message.member.timeout(null);
     } catch (err) {
-        errorLogger(err, message.client, "error");
+        errorLogger(err, message.client, "error", import.meta.url);
     }
 };
 

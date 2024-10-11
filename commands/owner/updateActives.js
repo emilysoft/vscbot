@@ -16,7 +16,7 @@ const module = {
             newDate.setHours(0, 0, 0, 0); 
             update(newDate, message.client)
         } catch (err) {
-            errorLogger(err, message.client, "error");
+            errorLogger(err, message.client, "error", import.meta.url);
         }
     },
 }

@@ -27,7 +27,7 @@ async function getCats(interaction) {
             content: cat,
         });
     } catch (err) {
-        errorLogger(err, interaction.client, "error");
+        errorLogger(err, interaction.client, "error", import.meta.url);
     }
 }
 

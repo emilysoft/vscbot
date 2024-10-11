@@ -49,7 +49,7 @@ const module = async (message) => {
                 sendMessage(message, mm)
             })
     } catch (err) {
-        errorLogger(err, message.client, "error");
+        errorLogger(err, message.client, "error", import.meta.url);
     }
 }
 

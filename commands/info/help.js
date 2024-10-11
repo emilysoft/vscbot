@@ -42,7 +42,7 @@ async function help(interaction, avatarPhoto, authorTag) {
             allowedMentions: { repliedUser: false },
         });
     } catch (err) {
-        errorLogger(err, interaction.client, "error");
+        errorLogger(err, interaction.client, "error", import.meta.url);
     }
 }
 

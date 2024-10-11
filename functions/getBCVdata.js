@@ -33,7 +33,7 @@ const module = async (client) => {
                     🌐 **[@BCV_ORG_VE](https://twitter.com/BCV_ORG_VE)**`);
         return embed;
     } catch (err) {
-        errorLogger(err, client, "error");
+        errorLogger(err, client, "error", import.meta.url);
     }
 };
 

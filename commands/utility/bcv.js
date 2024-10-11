@@ -29,7 +29,7 @@ export default {
                     });
                 });
         } catch (err) {
-            errorLogger(err, interaction.client, "error");
+            errorLogger(err, interaction.client, "error", import.meta.url);
         }
     },
     async run(message) {
@@ -51,7 +51,7 @@ export default {
                     });
                 });
         } catch (err) {
-            errorLogger(err, message.client, "error");
+            errorLogger(err, message.client, "error", import.meta.url);
         }
     },
 };

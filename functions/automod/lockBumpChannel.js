@@ -56,6 +56,6 @@ export default async (hoy, client) => {
             openChannel();
         }
     } catch (err) {
-        errorLogger(err, client, "error");
+        errorLogger(err, client, "error", import.meta.url);
     }
 };

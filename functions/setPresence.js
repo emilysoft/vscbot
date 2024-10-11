@@ -11,7 +11,7 @@ const module = async (client, text) => {
         //    setPresence(client, text);
         //}, 300000);
     } catch (err) {
-        errorLogger(err, client, "error");
+        errorLogger(err, client, "error", import.meta.url);
     }
 };
 export default module

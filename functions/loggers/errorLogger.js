@@ -1,7 +1,7 @@
 import { EmbedBuilder } from "discord.js"
-import path from "path"
 import fs from "fs"
-const module = async (error, client, type) => {
+import path from "path"
+const module = async (error, client, type, dir = "") => {
     try {
         let now = new Date();
         let day = now.getDate()
@@ -41,7 +41,10 @@ const module = async (error, client, type) => {
         const channel = client.channels.cache.find(
             (channel) => channel.id === logChannelId
         );
-        await channel.send({ embeds: [exampleEmbed] });
+        await channel.send({ 
+            content: `<@&1294149003696410665> Error encontrado en: ${dir}`,
+            embeds: [exampleEmbed] 
+        });
     } catch (err) {
         console.error(err);
     }

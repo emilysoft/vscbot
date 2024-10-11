@@ -58,7 +58,7 @@ const module = async (message, type) => {
             `${log1}\n`,
             { flag: "a+" },
             (err) => {
-                if (err) errorLogger(err, message.client, "error");
+                if (err) errorLogger(err, message.client, "error", import.meta.url);
             }
         );
         if (categories.includes(message.channel.parentId)) {
@@ -74,7 +74,7 @@ const module = async (message, type) => {
                 );
         }
     } catch (err) {
-        errorLogger(err, message.client, "error");
+        errorLogger(err, message.client, "error", import.meta.url);
     }
 };
 

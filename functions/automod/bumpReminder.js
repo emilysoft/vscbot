@@ -15,7 +15,7 @@ export default (message, targetChannelId) => {
             else if (hour >= 8 && hour < 15) bump(message);
         }
     } catch (err) {
-        errorLogger(err, message.client, "error");
+        errorLogger(err, message.client, "error", import.meta.url);
     }
 };
 function bump(message) {

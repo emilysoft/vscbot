@@ -47,6 +47,6 @@ module.exports = (message) => {
             }
         }
     } catch (err) {
-        errorLogger(err, message.client, "error");
+        errorLogger(err, message.client, "error", import.meta.url);
     }
 };

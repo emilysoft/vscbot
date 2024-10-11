@@ -10,6 +10,6 @@ export default  async (member) => {
             )
             .then((msg) => msg.delete());
     } catch (err) {
-        errorLogger(err, member.client, "error");
+        errorLogger(err, member.client, "error", import.meta.url);
     }
 };

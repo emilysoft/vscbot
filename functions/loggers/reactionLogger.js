@@ -7,7 +7,7 @@ const module = (messageReaction, user, type) => {
     } else {
         throw new Error("Error al especificar el tipo de evento");
     }
-    today = new Date();
+    const today = new Date();
     const now = new Date();
     const date = now.getDate();
     const month = now.getMonth() + 1;
