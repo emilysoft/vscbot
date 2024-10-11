@@ -1,4 +1,4 @@
-module.exports = {
+const module = {
     godkermit: /(k|q)[\n\s\-_\.]*[uυüúù\s\n\-_\.]*[eеẹėéè3\s\n\.\-_]+(r+|l+)[\n\s\.\-_]*m+[\n\s\.\-_]*[(1i!¡\|ïí|y\n\s\.\-_]+t*\b/,
     pedofilia: [
         /@everyone/gi,
@@ -47,3 +47,4 @@ module.exports = {
     adrian: /^Adrian2000$/gi,
     sambox: /^sambox$/gi,
 };
+export default module

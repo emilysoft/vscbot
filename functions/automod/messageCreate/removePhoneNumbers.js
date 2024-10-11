@@ -1,8 +1,8 @@
-const vscLog = require("../../loggers/automodLogger");
-const inmunidad = require("../../../settings/inmunidad.json");
-const errorLogger = require("../../loggers/errorLogger");
-const isNumberInMessage = require("./isNumberInMessage");
-module.exports = async (message) => {
+import vscLog from "../../loggers/automodLogger.js"
+import inmunidad from "../../../settings/inmunidad.json" with {type:"json"}
+import errorLogger from "../../loggers/errorLogger.js"
+import isNumberInMessage from "./isNumberInMessage.js"
+const module = async (message) => {
     if (message.channel.parentId === "813564411628355625") return; //administracion
     if (message.channel.parentId === "1120080747668197436") return; // registro
     if (message.channel.parentId === "874730574089187359") return; //extralaborales
@@ -42,3 +42,5 @@ module.exports = async (message) => {
         }
     }
 };
+
+export default module

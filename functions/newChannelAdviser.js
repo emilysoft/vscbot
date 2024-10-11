@@ -1,11 +1,11 @@
-const { EmbedBuilder } = require("discord.js");
-const { EMBED_COLOR } = require("../config.json");
-module.exports = async (channel) => {
+import { EmbedBuilder } from "discord.js"
+import config from "../config.json" with {type:"json"} 
+const module = async (channel) => {
     if (channel.name.startsWith("ticket")) return;
     if (channel.parentId == "1122175563688317058") return;
     const botAvatar = channel.client.user.displayAvatarURL();
     const embed = new EmbedBuilder()
-        .setColor(EMBED_COLOR)
+        .setColor(config.EMBED_COLOR)
         .setTitle("Aviso al administrador")
         .setDescription(
             `<@240254129333731328> moderará este nuevo canal, usa >>ignore ${channel.id} para desactivarlo.`
@@ -20,3 +20,4 @@ module.exports = async (channel) => {
         });
     await channel.send({ embeds: [embed] });
 };
+export default module

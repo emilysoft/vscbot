@@ -1,5 +1,5 @@
-const errorLogger = require("../../loggers/errorLogger");
-module.exports = async (message, client) => {
+import errorLogger from "../../loggers/errorLogger.js"
+const module = async (message, client) => {
     try {
         const { author, content } = message;
         if (
@@ -13,3 +13,5 @@ module.exports = async (message, client) => {
         errorLogger(err, message.client, "error");
     }
 };
+
+export default module

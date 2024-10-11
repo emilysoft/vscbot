@@ -1,24 +1,24 @@
-const path = require("node:path");
-const { Events } = require("discord.js");
-const notifier = require("node-notifier");
-const vcConnection = require("../../functions/vcConnection");
-const inactivos = require("../../timers/inactivosReminder");
+import path from "node:path"
+import { Events } from "discord.js"
+import notifier from "node-notifier"
+import vcConnection from "../../functions/vcConnection.js"
+import inactivos from "../../timers/inactivosReminder.js"
 //const staffSleeping = require("../../useless/staffSleeping");
-const timer = require("../../functions/timer");
-const setPresence = require("../../functions/setPresence");
-const startBot = require("../../functions/startBot");
-const allConnected = require("../../functions/allConnected");
+import timer from "../../functions/timer.js"
+import setPresence from "../../functions/setPresence.js"
+import startBot from "../../functions/startBot.js"
+import allConnected from "../../functions/allConnected.js"
 
 let hoy;
 
-module.exports = {
+const module =  {
     name: Events.ClientReady,
     once: true,
     execute(client) {
         startBot(client);
         notifier.notify({
             message: "vsc-bot iniciado",
-            icon: path.join(__dirname, "../logo.png"),
+            icon: path.join(process.cwd(), "../logo.png"),
             wait: true,
         });
 
@@ -41,3 +41,5 @@ module.exports = {
         console.log(`Listo! iniciado como ${client.user.tag}`);
     },
 };
+
+export default module

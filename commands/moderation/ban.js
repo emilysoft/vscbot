@@ -1,7 +1,6 @@
-const discord = module.require("discord.js");
-const { SlashCommandBuilder } = require("discord.js")
-const { EMBED_COLOR } = require("../../config.json");
-module.exports = {
+import { EmbedBuilder, SlashCommandBuilder } from "discord.js"
+import config from "../../config.json" with {type:"json"}
+const module = {
     name: "ban",
     category: "moderation",
     description: "Ban anyone with one shot whithout knowing anyone xD",
@@ -37,12 +36,12 @@ module.exports = {
             return message.channel.send("You cannot Ban The Server Owner");
         }
 
-        let embed = new discord.EmbedBuilder()
+        let embed = new EmbedBuilder()
             .setTitle("Action : Ban")
             .setDescription(
                 `Banned ${target} (${target.id})\nReason: ${reason}`
             )
-            .setColor(EMBED_COLOR)
+            .setColor(config.EMBED_COLOR)
             .setThumbnail(target.avatarURL)
             .setFooter(`Banned by ${message.author.tag}`);
 
@@ -55,3 +54,5 @@ module.exports = {
             });
     },
 };
+
+export default module

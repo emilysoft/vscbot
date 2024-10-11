@@ -1,5 +1,5 @@
-const errorLogger = require("../loggers/errorLogger");
-module.exports = (message, targetChannelId) => {
+import errorLogger from "../loggers/errorLogger"
+export default (message, targetChannelId) => {
     try {
         if (
             message.author.id == "302050872383242240" &&

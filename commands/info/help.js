@@ -1,7 +1,7 @@
-const { EmbedBuilder, SlashCommandBuilder } = require("discord.js");
-const errorLogger = require("../../functions/loggers/errorLogger");
-const { EMBED_COLOR } = require("../../config.json");
-module.exports = {
+import { EmbedBuilder, SlashCommandBuilder } from "discord.js"
+import errorLogger from "../../functions/loggers/errorLogger.js"
+import config from "../../config.json" with {type:"json"}
+const module = {
     name: "help",
     description: "Mira todos los comandos",
     data: new SlashCommandBuilder()
@@ -29,7 +29,7 @@ async function help(interaction, avatarPhoto, authorTag) {
                 );
         });
         const embed = new EmbedBuilder()
-            .setColor(EMBED_COLOR)
+            .setColor(config.EMBED_COLOR)
             .setTitle(`Comandos de ${interaction.client.user.username}`)
             .setAuthor({ name: authorTag, iconURL: avatarPhoto})
             .setDescription(descriptions.join("\n"))
@@ -45,3 +45,5 @@ async function help(interaction, avatarPhoto, authorTag) {
         errorLogger(err, interaction.client, "error");
     }
 }
+
+export default module

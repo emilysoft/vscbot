@@ -1,11 +1,7 @@
-const errorLogger = require("../../functions/loggers/errorLogger");
-const OWNERS_ID = require("../../config.json").OWNER_ID;
-const ERROR_LOGS_CHANNEL = require("../../config.json").ERROR_LOGS_CHANNEL;
-const { SlashCommandBuilder } = require("discord.js");
-const update = require("../../functions/allConnected")
-//require("dotenv");
-
-module.exports = {
+import errorLogger from "../../functions/loggers/errorLogger.js"
+import { SlashCommandBuilder } from "discord.js"
+import update from "../../functions/allConnected.js"
+const module = {
     name: "updateactive",
     description: "actualiza la cantidad de activos",
     botPerms: [""],
@@ -24,3 +20,4 @@ module.exports = {
         }
     },
 }
+export default module

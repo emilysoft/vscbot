@@ -1,8 +1,8 @@
-const errorLogger = require("../../functions/loggers/errorLogger");
-const getIds = require("../../functions/getIds");
-const { SlashCommandBuilder } = require("discord.js");
-const { OWNERS_ID } = require("../../config.json");
-module.exports = {
+import errorLogger from "../../functions/loggers/errorLogger.js"
+import getIds from "../../functions/getIds.js"
+import { SlashCommandBuilder } from "discord.js"
+import config from "../../config.json" with {type:"json"}
+const module = {
     name: "mute",
     data: new SlashCommandBuilder()
         .setName("mute")
@@ -34,7 +34,7 @@ module.exports = {
 
 async function mute(interaction) {
     try {
-        if (!OWNERS_ID.some((id) => id === message.author.id)) return;
+        if (!config.OWNERS_ID.some((id) => id === message.author.id)) return;
         const muted = message.guild.roles.cache.find(
             (role) => role.name === "Muted"
         );
@@ -82,3 +82,4 @@ async function mute(interaction) {
         errorLogger(err, message.client, "error");
     }
 }
+export default module

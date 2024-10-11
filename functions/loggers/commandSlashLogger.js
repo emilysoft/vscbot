@@ -1,4 +1,4 @@
-module.exports = async (interaction) => {
+const module = async (interaction) => {
     const now = new Date();
     const date = now.getDate();
     const month = now.getMonth() + 1;
@@ -14,3 +14,5 @@ module.exports = async (interaction) => {
         `[COMMAND SLASH][${date}/${month}/${year}][${hours}:${minutes}][${authorID}][${channelName}] ${userName}: \/${commandName}`
     );
 };
+
+export default module

@@ -1,9 +1,9 @@
-const errorLogger = require("./loggers/errorLogger.js");
+import errorLogger from "./loggers/errorLogger.js"
 const guildID = "813538324320092161";
-module.exports = async (time, client) => {
+const module = async (time, client) => {
     try {
   
-      minutes = time.getMinutes()
+      const minutes = time.getMinutes()
       if(minutes != 0) return
 
       let guild = client.guilds.cache.get(guildID);
@@ -17,3 +17,4 @@ module.exports = async (time, client) => {
         errorLogger(err, client, "error");
     }
 }
+export default module

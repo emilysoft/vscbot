@@ -1,19 +1,19 @@
-const { Events } = require("discord.js");
-const antiTextWall = require("../../functions/automod/messageCreate/antiTextWall");
-const { ignoredChannels, backupChannel } = require("../../config.json");
-const antiCrypto = require("../../functions/automod/messageCreate/antiCrypto");
-const banDiscordInvite = require("../../functions/automod/messageCreate/banDiscordInvite");
-const removePhoneNumbers = require("../../functions/automod/messageCreate/removePhoneNumbers");
-const errorLogger = require("../../functions/loggers/errorLogger");
-const messageLogger = require("../../functions/loggers/messageLogger");
-const deleteThatShit = require("../../functions/deleteThatShit");
+import { Events } from "discord.js"
+import antiTextWall from "../../functions/automod/messageCreate/antiTextWall.js"
+import  config from "../../config.json" with {type:"json"}
+import antiCrypto from "../../functions/automod/messageCreate/antiCrypto.js"
+import banDiscordInvite from "../../functions/automod/messageCreate/banDiscordInvite.js"
+import removePhoneNumbers from "../../functions/automod/messageCreate/removePhoneNumbers.js"
+import errorLogger from "../../functions/loggers/errorLogger.js"
+import messageLogger from "../../functions/loggers/messageLogger.js"
+import deleteThatShit from "../../functions/deleteThatShit.js"
 
-module.exports = {
+const module = {
     name: Events.MessageUpdate,
     async execute(message, oldM) {
         try {
-            client = message.client;
-            antiTextWall(message, client, ignoredChannels, backupChannel);
+            const client = message.client;
+            antiTextWall(message, client, config.ignoredChannels, config.backupChannel);
             removePhoneNumbers(message);
             banDiscordInvite(message, client);
             antiCrypto(message, client);
@@ -27,3 +27,5 @@ module.exports = {
         }
     },
 };
+
+export default module

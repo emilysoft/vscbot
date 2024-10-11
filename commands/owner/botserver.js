@@ -1,10 +1,9 @@
-const errorLogger = require("../../functions/loggers/errorLogger");
-const OWNERS_ID = require("../../config.json").OWNER_ID;
-const ERROR_LOGS_CHANNEL = require("../../config.json").ERROR_LOGS_CHANNEL;
-const { SlashCommandBuilder } = require("discord.js");
+import errorLogger from "../../functions/loggers/errorLogger.js"
+import config from "../../config.json" with {type:"json"}
+import { SlashCommandBuilder } from "discord.js"
 //require("dotenv");
 
-module.exports = {
+const module = {
     name: "botservers",
     description: "Check what Servers the bot is in!",
     botPerms: ["UseExternalEmojis"],
@@ -15,7 +14,7 @@ module.exports = {
         .setDescription("Check what Servers the bot is in!"),
     async execute(client, message, args) {
         try {
-            if (!OWNERS_ID.some((id) => id === message.author.id)) return;
+            if (!config.OWNERS_ID.some((id) => id === message.author.id)) return;
             let data = [];
             client.guilds.cache.forEach((x) => {
                 message.channel.send(
@@ -31,7 +30,7 @@ module.exports = {
             }
         } catch (err) {
             errorLogger(err, message.client, "error");
-            const errorlogs = client.channels.cache.get(ERROR_LOGS_CHANNEL);
+            const errorlogs = client.channels.cache.get(config.ERROR_LOGS_CHANNEL);
 
             message.channel.send(
                 `Whoops, We got a error right now! This error has been reported to Support center!`
@@ -41,3 +40,5 @@ module.exports = {
         }
     },
 };
+
+export default module

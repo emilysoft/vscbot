@@ -1,11 +1,11 @@
-const {SlashCommandBuilder } = require("discord.js")
-module.exports = {
+import {SlashCommandBuilder } from "discord.js"
+const module = {
     name: "ignore",
     slashCommand: false,
     messageCommand: false,
     data: new SlashCommandBuilder()
         .setName("ignore")
-        .setDescription("Ignoras un canal del automod.")
+        .setDescription("Ignoras un canal del automod."),
 }
 //                                    console.log("ejecutando ignore ");
 //                                    if (
@@ -14,3 +14,5 @@ module.exports = {
 //                                        )
 //                                    )
 //                                        ignoreChannel(message, client, "ignore");
+//
+export default module

@@ -1,6 +1,6 @@
-const { SlashCommandBuilder } = require("discord.js");
+import { SlashCommandBuilder } from "discord.js"
 
-module.exports = {
+const module = {
     name: "unmute",
     data: new SlashCommandBuilder()
         .setName("unmute")
@@ -13,3 +13,4 @@ module.exports = {
     
     }
 }
+export default module

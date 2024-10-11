@@ -1,8 +1,8 @@
-const { EmbedBuilder } = require("discord.js");
-const errorLogger = require("../../loggers/errorLogger");
-const { EMBED_COLOR } = require("../../config.json");
+import { EmbedBuilder } from "discord.js"
+import errorLogger from "../../loggers/errorLogger"
+import config from "../../config.json" with {type:"json"}
 const mutedChannelID = "";
-module.exports = (member) => {
+const module = (member) => {
     if (member.user.bot) return;
     try {
         member.roles.cache.find(async (role) => {
@@ -35,3 +35,5 @@ module.exports = (member) => {
         errorLogger(err, member.client, "error");
     }
 };
+
+export default module 

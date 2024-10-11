@@ -6,19 +6,18 @@ export default (client) => {
     client.messageCommands = new Collection();
     console.log(chalk.whiteBright("Loading message commands"));
     const commandFolders = fs.readdirSync(
-        path.join(process.cwd(), "commands")
+        path.join(process.cwd(), "/commands")
     );
     for (const folder of commandFolders) {
         const commandFiles = fs
-            .readdirSync(path.join(process.cwd(), `/commands/${folder}`))
+            .readdirSync(process.cwd(), `/../commands/${folder}`)
             .filter((file) => file.endsWith("js"));
         for (const file of commandFiles) {
             let filePath = path.join(
                 process.cwd(),
-                `/commands/${folder}/${file}`
+                `../commands/${folder}/${file}`
             );
             import(filePath).then(command => {
-                command = command.default
                 if (!command.messageCommand) {
                     console.log(
                         chalk.grey(

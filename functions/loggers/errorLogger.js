@@ -1,14 +1,14 @@
-const { EmbedBuilder } = require("discord.js");
-const path = require("path");
-const fs = require("fs");
-module.exports = async (error, client, type) => {
+import { EmbedBuilder } from "discord.js"
+import path from "path"
+import fs from "fs"
+const module = async (error, client, type) => {
     try {
         let now = new Date();
         let day = now.getDate()
         let year = now.getFullYear()
         let month = now.getMonth()
         fs.writeFile(
-            path.join(__dirname, `../../logs/errors/${year}-${month}-${day}.log`),
+            path.join(process.cwd(), `logs/errors/${year}-${month}-${day}.log`),
             `${error}\n${now}\n`,
             { flag: "a+" },
             (err) => {
@@ -46,3 +46,5 @@ module.exports = async (error, client, type) => {
         console.error(err);
     }
 };
+
+export default module

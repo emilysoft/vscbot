@@ -1,8 +1,8 @@
-const { EmbedBuilder } = require("discord.js");
-const { EMBED_COLOR } = require("../../vscbot_dev/config.json");
-const rule = require("./rules.json");
+import { EmbedBuilder } from "discord.js"
+import config from "../../vscbot_dev/config.json" with {type:"json"}
+import rule from "./rules.json" with {type:"json"}
 const UNKHOWN_MESSAGE = 10008;
-module.exports = (message) => {
+const module = (message) => {
     const { client } = message;
     const match = message.content.match(/^>r\s*([1-5])$/i);
     const avatarPhoto = `https://cdn.discordapp.com/avatars/${message.author.id}/${message.author.avatar}.png`;
@@ -15,7 +15,7 @@ module.exports = (message) => {
                 .setTitle(`Regla ${msg.title}`)
                 .setAuthor({ name: client.user.username, iconURL: botAvatar })
                 .setDescription(msg.rule)
-                .setColor(EMBED_COLOR)
+                .setColor(config.EMBED_COLOR)
                 .setFooter({
                     text: message.author.username,
                     iconURL: avatarPhoto,
@@ -44,3 +44,4 @@ module.exports = (message) => {
         }
     }
 };
+export default module

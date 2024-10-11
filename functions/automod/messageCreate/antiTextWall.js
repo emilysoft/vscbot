@@ -1,15 +1,11 @@
-const errorLogger = require("../../loggers/errorLogger");
-const { EmbedBuilder } = require("discord.js");
+import errorLogger from "../../loggers/errorLogger.js"
+import { EmbedBuilder } from "discord.js"
 const aviso = `Mensaje borrado por texto excesivo. Usa <#1112164583344443433>`;
-const vscLog = require("../../loggers/automodLogger");
-const isNumberInMessage = require("./isNumberInMessage.js");
-const {
-    EMBED_COLOR,
-    ignoredChannels,
-    backupChannel,
-    ignoredCategories,
-} = require("../../../config.json");
-module.exports = async (message, client) => {
+import vscLog from "../../loggers/automodLogger.js"
+import isNumberInMessage from "./isNumberInMessage.js"
+import config from "../../../config.json" with {type:"json"}
+
+const module = async (message, client) => {
     try {
         const limiteCaracteres = 600;
         const excepciones = {
@@ -46,9 +42,9 @@ module.exports = async (message, client) => {
         if (message.channel.parentId === "874730574089187359") return; //extralaborales
         if (message.channel.id === "1005354020333948988") return;       //basados
         if (message.author.id == "1095572785482444860") return; // hiraku
-        if (Object.values(ignoredCategories).includes(message.channel.parentId))
+        if (Object.values(config.ignoredCategories).includes(message.channel.parentId))
             return; //evitar categorias ignoradas
-        if (Object.values(ignoredChannels).includes(message.channelId)) return; //evitar canales ignorados
+        if (Object.values(config.ignoredChannels).includes(message.channelId)) return; //evitar canales ignorados
         if (message.channel.name.startsWith("ticket")) return; //evitar canales de tickets
 
         //COMPROBACION
@@ -79,13 +75,13 @@ async function action(message, client, args) {
         const avatarPhoto = `https://cdn.discordapp.com/avatars/${message.author.id}/${message.author.avatar}.png`;
         const botAvatar = client.user.displayAvatarURL();
         const botsChannel = client.channels.cache.find(
-            (channel) => channel.id === backupChannel
+            (channel) => channel.id === config.backupChannel
         );
         const messageFormated = args.replace(/`/g, "");
 
         //envia el textWall a bots
         const exampleEmbed = new EmbedBuilder()
-            .setColor(EMBED_COLOR)
+            .setColor(config.EMBED_COLOR)
             .setTitle(`Mensaje borrado`)
             .setAuthor({
                 name: message.author.username,
@@ -141,3 +137,5 @@ async function action(message, client, args) {
         errorLogger(err, message.client, "error");
     }
 }
+
+export default module

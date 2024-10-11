@@ -1,10 +1,10 @@
-const errorLogger = require("../loggers/errorLogger");
-const { EmbedBuilder } = require("discord.js");
-const { EMBED_COLOR } = require("../../config.json");
-regex =
+import errorLogger from "../loggers/errorLogger.js"
+import { EmbedBuilder } from "discord.js"
+import config from "../../config.json" with {type:"json"}
+const regex =
     /(https?:\/\/)?(www\.)?(((discord(app)?)\.com\/invite)|((discord(app)?)?\.gg))\/(?<invite>.+)/gim;
 
-module.exports = async (message) => {
+const module = async (message) => {
     try {
         if (message.channel.id != "1055674206156750848") return;
         if (message.member.roles.cache.has("813568302294761486"))
@@ -52,7 +52,7 @@ async function sendDM(message) {
     const avatarPhoto = message.member.displayAvatarURL();
     const botAvatar = message.client.user.displayAvatarURL();
     const embed = new EmbedBuilder()
-        .setColor(EMBED_COLOR)
+        .setColor(config.EMBED_COLOR)
         .setTitle(message.author.username)
         .setDescription(
             `Has sido kickeado porque tu cuenta ha sido hackeada para spamear, cambia la contraseña y regresa de nuevo.`
@@ -72,3 +72,4 @@ async function sendDM(message) {
         });
     });
 }
+export default module

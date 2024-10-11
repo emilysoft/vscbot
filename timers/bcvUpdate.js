@@ -1,10 +1,10 @@
-const { DateTime } = require("luxon");
-const getBCVdata = require("../functions/getBCVdata");
-const { EmbedBuilder, Embed } = require("discord.js");
-const errorLogger = require("../functions/loggers/errorLogger");
+import { DateTime } from "luxon"
+import getBCVdata from "../functions/getBCVdata.js"
+import { EmbedBuilder, Embed } from "discord.js"
+import errorLogger from "../functions/loggers/errorLogger.js"
 const targetChannel = "1240285460195049622";
-const { EMBED_COLOR } = require("../config.json");
-module.exports = {
+import config from "../config.json" with {type:"json"}
+const module = {
     // pon las variables en ingles
     async updateMonitor(now, client) {
         try {
@@ -80,3 +80,5 @@ function getData() {
     console.log(urlImagen);
     return urlImagen;
 }
+
+export default module

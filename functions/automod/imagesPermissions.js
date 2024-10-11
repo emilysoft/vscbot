@@ -1,7 +1,7 @@
-const errorLogger = require("../loggers/errorLogger");
+import errorLogger from "../loggers/errorLogger"
 const regex = /(pegan|pasar|enviar|manda(r|n))\s+([a-zA-Z]+\s+)?(gifs?|videos?|capturas?|im(a|á)genes|imagen|fotos?|videos|m(e|o)m(o|e)s)/gim
 
-module.exports = async (message) => {
+export default async (message) => {
     try {
         if(message.content.match(regex) != null) {
             await message.reply({

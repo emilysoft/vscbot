@@ -1,7 +1,7 @@
-const errorLogger = require("../../functions/loggers/errorLogger");
-const { SlashCommandBuilder } = require("discord.js");
+import errorLogger from "../../functions/loggers/errorLogger.js"
+import { SlashCommandBuilder } from "discord.js"
 
-module.exports = {
+export default {
     name: "emote",
     aliases: ["e"],
     description: "Add emotes",

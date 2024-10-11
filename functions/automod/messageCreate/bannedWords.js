@@ -1,6 +1,5 @@
-const errorLogger = require("../../loggers/errorLogger");
-const vscLog = require("../../loggers/automodLogger");
-const { ignoredCategories } = require("../../../config.json");
+import errorLogger from "../../loggers/errorLogger.js"
+import vscLog from "../../loggers/automodLogger.js"
 const regexs = {
     raid: /\br+[\n\s\.\-_]*[4а@aäąàáạ]+[\n\s\.\-_]*[iіI1!¡|ïí]+[\n\s\.\-_]*(d|ɗ)/gim,
     loli: /\b(l)[\n\s\-_\.]*[oоοօȯọỏơóòö0°\s\n]+[\n\s\-_\.]*(l)+[\n\s\-_\.]*[i!¡|ïí1](s|z)?(((c|k)[\n\s\-_\.]*[oоοօȯọỏơóòö0°\s\n]+[\n\s\-_\.]*n)|\b)/gim,
@@ -9,7 +8,7 @@ const regexs = {
     emptyText: "឵",
 };
 
-module.exports = async (message) => {
+const module = async (message) => {
     try {
         //if (
         //    message.author.id == "302249242469335060" ||
@@ -53,3 +52,5 @@ module.exports = async (message) => {
         errorLogger(err, message.client, "error");
     }
 };
+
+export default module

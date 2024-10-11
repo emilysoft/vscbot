@@ -1,7 +1,7 @@
-const prefixModel = require("../database/guildData/prefix");
-const errorLogger = require("./loggers/errorLogger");
+import prefixModel from "../database/guildData/prefix.js"
+import errorLogger from "./loggers/errorLogger.js"
 
-module.exports = async (message, client) => {
+const module = async (message, client) => {
     try {
         if (message.author.bot) return;
         if (!message.guild) return;
@@ -34,3 +34,4 @@ module.exports = async (message, client) => {
         errorLogger(err, message.client, "error");
     }
 };
+export default module

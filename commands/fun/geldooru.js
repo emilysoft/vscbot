@@ -4,9 +4,9 @@ const channelsAllowed = [
     "813564359874838558",
     "1172695535468150814",
 ];
-const { SlashCommandBuilder } = require("discord.js");
-const errorLogger = require("../../functions/loggers/errorLogger");
-module.exports = {
+import { SlashCommandBuilder } from "discord.js"
+import errorLogger from "../../functions/loggers/errorLogger.js"
+const module = {
     name: "gel",
     data: new SlashCommandBuilder()
         .setName("gel")
@@ -131,3 +131,5 @@ async function geldooru(message) {
         errorLogger(err, message.client, "error");
     }
 }
+
+export default module 

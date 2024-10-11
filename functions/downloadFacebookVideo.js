@@ -1,5 +1,5 @@
 const { spawn } = require("child_process");
-const errorLogger = require("./loggers/errorLogger");
+const errorLogger = require("./loggers/errorLogger").js;
 var statu = 0;
 module.exports = (message) => {
     try {

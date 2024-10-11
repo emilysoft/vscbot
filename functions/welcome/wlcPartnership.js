@@ -1,6 +1,6 @@
-const errorLogger = require("../loggers/errorLogger");
-const partnershitpsChannels = require("./partnerships.json");
-module.exports = async (member) => {
+import errorLogger from "../loggers/errorLogger.js"
+import partnershitpsChannels from "./partnerships.json" with {type:"json"}
+const module = async (member) => {
     try {
         if (member.user.bot) return;
         const guild = member.guild;
@@ -17,3 +17,4 @@ module.exports = async (member) => {
         errorLogger(err, member.client, "error");
     }
 };
+export default module

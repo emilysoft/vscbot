@@ -1,9 +1,9 @@
-const errorLogger = require("../functions/loggers/errorLogger");
+import errorLogger from "../functions/loggers/errorLogger.js"
 const canal_inactivos = "1272621881543102567";
 const canal_noVerificados = "1142222030377328750";
 const inactivo = "<@&1272564404193460286>";
 const noVerificado = "<@&1260331890406068325>";
-module.exports = async (now, client) => {
+const module = async (now, client) => {
     try {
         const hour = now.getHours();
         const minutes = now.getMinutes();
@@ -29,3 +29,4 @@ module.exports = async (now, client) => {
         errorLogger(err, message.client, "error");
     }
 };
+export default module 

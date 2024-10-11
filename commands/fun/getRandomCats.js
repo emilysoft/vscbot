@@ -1,7 +1,7 @@
-const { SlashCommandBuilder } = require("discord.js");
-const errorLogger = require("../../functions/loggers/errorLogger");
-const cats = require("./cats.json");
-module.exports = {
+import { SlashCommandBuilder } from "discord.js"
+import errorLogger from "../../functions/loggers/errorLogger.js"
+import cats from "./cats.json" with {type:"json"}
+const module = {
     name: "cats",
     data: new SlashCommandBuilder()
         .setName("cats")
@@ -30,3 +30,5 @@ async function getCats(interaction) {
         errorLogger(err, interaction.client, "error");
     }
 }
+
+export default module

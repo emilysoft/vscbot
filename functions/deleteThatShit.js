@@ -1,5 +1,5 @@
-const errorLogger = require("./loggers/errorLogger.js");
-module.exports = async (message) => {
+import errorLogger from "./loggers/errorLogger.js"
+const module = async (message) => {
     const { content, client } = message;
     try {
         if (message.channel.id == "1112164583344443433") return;
@@ -21,3 +21,4 @@ module.exports = async (message) => {
         errorLogger(err, client, "error");
     }
 };
+export default module

@@ -1,6 +1,6 @@
-const nsfwCommands = require("./nsfwCommands.json");
-const errorLogger = require("./loggers/errorLogger");
-module.exports = (message) => {
+import nsfwCommands from "./nsfwCommands.json" with {type:"json"}
+import errorLogger from "./loggers/errorLogger.js"
+const module = (message) => {
     try {
         if (message.channel.id == "813564359874838558") {
             nsfwCommands.forEach((cmd) => {
@@ -14,3 +14,5 @@ module.exports = (message) => {
         errorLogger(err, message.client, "error");
     }
 };
+
+export default module

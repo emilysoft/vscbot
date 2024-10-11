@@ -1,6 +1,6 @@
-const errorLogger = require("../../loggers/errorLogger");
+import errorLogger from "../../loggers/errorLogger.js"
 const regex = /^(neko|!)/;
-module.exports = async (message) => {
+const module = async (message) => {
     try {
         if (message.author.bot) return;
         if (message.channel.id == "1112164583344443433") {
@@ -12,3 +12,5 @@ module.exports = async (message) => {
         errorLogger(err, message.client, "error");
     }
 };
+
+export default module

@@ -1,8 +1,8 @@
-const { Events } = require("discord.js");
-const wlcStaff = require("../../functions/welcome/wlcStaff");
-const wlcID = require("../../functions/welcome/wlcID");
-const wlcPartnetship = require("../../functions/welcome/wlcPartnership");
-module.exports = {
+import { Events } from "discord.js"
+import wlcStaff from "../../functions/welcome/wlcStaff.js"
+import wlcID from "../../functions/welcome/wlcID.js"
+import wlcPartnetship from "../../functions/welcome/wlcPartnership.js"
+const module = {
     name: Events.GuildMemberAdd,
     async execute(member) {
         wlcStaff(member);
@@ -10,3 +10,4 @@ module.exports = {
         wlcPartnetship(member);
     },
 };
+export default module

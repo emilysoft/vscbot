@@ -1,7 +1,7 @@
-const { SlashCommandBuilder } = require("discord.js");
-const { OWNERS_ID } = require("../../config.json");
-const errorLogger = require("../../functions/loggers/errorLogger");
-module.exports = {
+import { SlashCommandBuilder } from "discord.js"
+import config from "../../config.json" with {type:"json"}
+import errorLogger from "../../functions/loggers/errorLogger.js"
+const module = {
     name: "replace",
     category: "utility",
     description: "Reemplaza caracteres de un mensaje",
@@ -21,7 +21,7 @@ module.exports = {
 };
 
 async function replace(message) {
-    if (OWNERS_ID.includes(message.author.id)) {
+    if (config.OWNERS_ID.includes(message.author.id)) {
         if (message.reference) {
             await message.channel.messages
                 .fetch(message.reference.messageId)
@@ -48,3 +48,5 @@ async function replace(message) {
         }
     }
 }
+
+export default module

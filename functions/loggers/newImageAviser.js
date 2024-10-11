@@ -1,4 +1,4 @@
-module.exports = (message) => {
+const module = (message) => {
     const size = message.attachments.size;
     const categories = [
         "813538324320092162",
@@ -13,3 +13,5 @@ module.exports = (message) => {
         }
     }
 };
+
+export default module

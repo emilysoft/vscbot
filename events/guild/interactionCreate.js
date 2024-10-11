@@ -1,8 +1,8 @@
-const { Events } = require('discord.js');
-const commandSlashLogger = require('../../functions/loggers/commandSlashLogger');
-const errorLogger = require('../../functions/loggers/errorLogger');
+import { Events } from 'discord.js'
+import commandSlashLogger from '../../functions/loggers/commandSlashLogger.js'
+import errorLogger from '../../functions/loggers/errorLogger.js'
 
-module.exports = {
+const module = {
 	name: Events.InteractionCreate,
 	async execute(interaction) {
 		if (!interaction.isChatInputCommand()) return;
@@ -23,3 +23,5 @@ module.exports = {
 		}
 	},
 };
+
+export default module

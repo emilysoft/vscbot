@@ -1,4 +1,4 @@
-module.exports = (message) => {
+export default (message) => {
     const regex = /\d{18,20}/;
     const args = message.split(/\s+/);
     let ids = [];

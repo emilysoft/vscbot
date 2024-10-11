@@ -1,8 +1,8 @@
-const errorLogger = require("../loggers/errorLogger");
+import errorLogger from "../loggers/errorLogger"
 const vscID = "813538324320092161";
 const targetChannelId = "813796911994896397";
 
-module.exports = async (hoy, client) => {
+export default async (hoy, client) => {
     try {
         async function getChannel() {
             const vsc = client.guilds.cache.get(vscID);

@@ -1,6 +1,6 @@
-const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
-const { EMBED_COLOR } = require("../../config.json");
-module.exports = {
+import { SlashCommandBuilder, EmbedBuilder } from "discord.js"
+import EMBED_COLOR from "../../config.json" with {type:"json"}
+const module = {
     name: "ping",
     category: "Utility",
     description: "Muestra mi ping",
@@ -37,3 +37,4 @@ function ping(interaction) {
         allowedMentions: { repliedUser: false },
     });
 }
+export default module

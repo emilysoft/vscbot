@@ -1,5 +1,5 @@
-const errorLogger = require("../loggers/errorLogger");
-module.exports = async (member) => {
+import errorLogger from "../loggers/errorLogger.js"
+export default  async (member) => {
     try {
         if (member.user.bot) return;
         const guild = member.guild;

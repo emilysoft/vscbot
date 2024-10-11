@@ -1,13 +1,13 @@
-const { EmbedBuilder } = require("discord.js");
-const errorLogger = require("./errorLogger");
-const { EMBED_COLOR } = require("../../config.json");
-module.exports = async (message, client, reason, description) => {
+import { EmbedBuilder } from "discord.js"
+import errorLogger from "./errorLogger.js"
+import config from "../../config.json" with {type:"json"}
+const module = async (message, client, reason, description) => {
     try {
         const logChannelId = "936038476334370896";
         const botAvatar = message.client.user.displayAvatarURL();
         const avatarPhoto = `https://cdn.discordapp.com/avatars/${message.author.id}/${message.author.avatar}.png`;
         const exampleEmbed = new EmbedBuilder()
-            .setColor(EMBED_COLOR)
+            .setColor(config.EMBED_COLOR)
             .setTitle(`${reason}`)
             .setAuthor({ name: message.author.tag, iconURL: avatarPhoto })
             .setDescription(`${description} en <#${message.channelId}>`)
@@ -24,3 +24,5 @@ module.exports = async (message, client, reason, description) => {
         errorLogger(err, message.client, "error");
     }
 };
+
+export default module

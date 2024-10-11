@@ -1,8 +1,8 @@
-const notifier = require("node-notifier");
-const regex = require("regexs");
+import notifier from "node-notifier"
+import regex from "regexs.js"
 const neet = regex.neet;
-const path = require("path");
-module.exports = (message) => {
+import path from "path"
+const module = (message) => {
     if (message.content.search(neet) != null) {
         notifier.notify({
             title: message.author.username,
@@ -12,3 +12,5 @@ module.exports = (message) => {
         });
     }
 };
+
+export default module

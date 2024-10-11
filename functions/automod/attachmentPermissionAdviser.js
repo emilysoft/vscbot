@@ -1,7 +1,7 @@
-const errorLogger = require("../loggers/errorLogger");
+import errorLogger from "../loggers/errorLogger.js"
 const regex =
     /(puedo|deja)\s+(pasar|enviar|mandar)\s+(unas\s+|una\s+)?(imagenes|capturas?|imagen|foto|fotos|videos|m(e|o)m(o|e)s)/gim;
-module.exports = async (message) => {
+const module = async (message) => {
     try {
         if (message.author.bot) return;
         if (message.member.roles.cache.has("813546760152547348")) return;
@@ -15,3 +15,5 @@ module.exports = async (message) => {
         errorLogger(err, message.client, "error");
     }
 };
+
+export default module

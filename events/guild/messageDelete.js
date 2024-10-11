@@ -1,8 +1,8 @@
-const { Events } = require("discord.js");
-const errorLogger = require("../../functions/loggers/errorLogger");
-const messageLogger = require("../../functions/loggers/messageLogger");
-const attachDelete = require("../../functions/automod/messageCreate/attachDelete");
-module.exports = {
+import { Events } from "discord.js"
+import errorLogger from "../../functions/loggers/errorLogger.js"
+import messageLogger from "../../functions/loggers/messageLogger.js"
+import attachDelete from "../../functions/automod/messageCreate/attachDelete.js"
+const module = {
   name: Events.MessageDelete,
   async execute(message) {
     try {
@@ -13,3 +13,5 @@ module.exports = {
     }
   },
 };
+
+export default module

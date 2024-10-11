@@ -1,8 +1,8 @@
-const { SlashCommandBuilder } = require("discord.js");
-const getIds = require("../../functions/getIds");
-const errorLogger = require("../../functions/loggers/errorLogger");
+import { SlashCommandBuilder } from "discord.js"
+import getIds from "../../functions/getIds.js"
+import errorLogger from "../../functions/loggers/errorLogger.js"
 const modId = "813568302294761486";
-module.exports = {
+export default {
     name: "getmention",
     description: "pasa ids a menciones",
     data: new SlashCommandBuilder()

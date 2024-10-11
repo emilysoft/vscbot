@@ -1,4 +1,4 @@
-module.exports = async (message, targetChannel, type) => {
+const module = async (message, targetChannel, type) => {
     try {
         const attachments = message.attachments.size;  
         const isURL = message.content.match(/https/gim)
@@ -29,3 +29,4 @@ module.exports = async (message, targetChannel, type) => {
         errorLogger(err, message, client, "error");
     }
 };
+export default module

@@ -9,7 +9,7 @@ if (matched != null) {
     throw new Error("no hay archivo adjunto");
 }
 
-async function instagramGetUrl(url_media) {
+const module =async function instagramGetUrl(url_media) {
     try {
         const BASE_URL = "https://api.sssgram.com/st-tik/ins/dl?";
         const url = `${BASE_URL}url=${url_media}&timestamp=${Date.now()}`;
@@ -59,3 +59,5 @@ main();
 {iscript:
 load {get:arg0} video 
 } 
+
+

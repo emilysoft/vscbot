@@ -1,9 +1,9 @@
-const {SlashCommandBuilder } = require("discord.js")
-const path = require("node:path");
-const errorLogger = require("../../functions/loggers/errorLogger");
-const Jimp = require("jimp");
+import {SlashCommandBuilder } from "discord.js"
+import path from "node:path"
+import errorLogger from "../../functions/loggers/errorLogger.js"
+import Jimp from "jimp"
 const imageLimit = 2000000;
-module.exports = {
+const module = {
     name: "gb",
     data: new SlashCommandBuilder()
         .setName("gb")
@@ -33,7 +33,7 @@ module.exports = {
                             })
                             .then((Input) => {
                                 Jimp.read(
-                                    path.join(__dirname, "./media/globo.png")
+                                    path.join(process.cwd(), "/media/globo.png")
                                 ).then(async (Globo) => {
                                     return Globo.contain(
                                         320,
@@ -45,8 +45,8 @@ module.exports = {
                                         .blit(Input, 0, 105)
                                         .writeAsync(
                                             path.join(
-                                                __dirname,
-                                                `./media/${message.id}.png`
+                                                process.cwd(),
+                                                `/media/${message.id}.png`
                                             )
                                         )
                                         .then(async () => {
@@ -54,8 +54,8 @@ module.exports = {
                                                 files: [
                                                     {
                                                         attachment: path.join(
-                                                            __dirname,
-                                                            `./media/${message.id}.png`
+                                                            process.cwd(),
+                                                            `/media/${message.id}.png`
                                                         ),
                                                         name: "vsc-globo.png",
                                                     },
@@ -84,3 +84,5 @@ module.exports = {
         }
     },
 };
+
+export default module

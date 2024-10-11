@@ -1,9 +1,8 @@
-const { Agent } = require("https");
-const { get } = require("axios");
-const { load } = require("cheerio");
-const { EmbedBuilder } = require("discord.js");
-const { EMBED_COLOR } = require("../config.json");
-const errorLogger = require("./loggers/errorLogger");
+import { Agent } from "https"
+import { load } from "cheerio"
+import { EmbedBuilder } from "discord.js"
+import config from "../config.json" with {type:"json"}
+import errorLogger from "./loggers/errorLogger.js"
 const link = "https://www.bcv.org.ve/";
 const httpsAgent = new Agent({
     rejectUnauthorized: false,
@@ -12,10 +11,10 @@ const httpsAgent = new Agent({
 const twitterPhoto =
     "https://pbs.twimg.com/profile_images/927966724753944577/SAw5bHeo_400x400.jpg";
 
-module.exports = async (client) => {
+const module = async (client) => {
     try {
         const botAvatar = client.user.displayAvatarURL();
-        const { data } = await get(link, { httpsAgent });
+        //const { data } = await get(link, { httpsAgent });
         const $ = load(data);
         const dolar = $("#dolar div.col-sm-6.col-xs-6.centrado");
         const euro = $("#euro div.col-sm-6.col-xs-6.centrado");
@@ -23,7 +22,7 @@ module.exports = async (client) => {
             "div.pull-right.dinpro.center span.date-display-single"
         );
         const embed = new EmbedBuilder()
-            .setColor(EMBED_COLOR)
+            .setColor(config.EMBED_COLOR)
             .setTitle(`Banco Central de Venezuela`)
             .setAuthor({ name: "Bot sin Contexto", iconURL: botAvatar })
             .setThumbnail(twitterPhoto).setDescription(`💵 Dólar Bs: ${dolar
@@ -37,3 +36,5 @@ module.exports = async (client) => {
         errorLogger(err, client, "error");
     }
 };
+
+export default module

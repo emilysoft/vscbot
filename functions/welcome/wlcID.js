@@ -1,6 +1,6 @@
-const errorLogger = require("../../functions/loggers/errorLogger");
+import errorLogger from "../../functions/loggers/errorLogger.js"
 const targetChannel = "1088423410905919550";
-module.exports = async (member) => {
+export default async (member) => {
     try {
         const channel = member.guild.channels.cache.get(targetChannel);
         await channel.send(`${member.id}`);

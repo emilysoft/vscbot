@@ -1,15 +1,14 @@
-const logger = require("../../loggers/automodLogger");
-const errorLogger = require("../../loggers/errorLogger");
+import logger from "../../loggers/automodLogger.js"
+import errorLogger from "../../loggers/errorLogger.js"
 const lvl10 = "813546760152547348";
 const lvl5 = "813545491957940244";
-module.exports = async (message, client) => {
+const regex = /(https?:\/\/)?(www\.)?(((discord(app)?)\.com\/invite)|((discord(app)?)?\.gg))\/(?<invite>.+)/gim;
+const module = async (message, client) => {
     try {
         let role;
         if (message.author.bot) return;
         if(message.author.id == "690796358579257424") return
         if(message.author.id == "302249242469335060") return
-        regex =
-            /(https?:\/\/)?(www\.)?(((discord(app)?)\.com\/invite)|((discord(app)?)?\.gg))\/(?<invite>.+)/gim;
         if (message.content.match(regex) != null) {
             if (message.content.match(/promos\.discord\.gg/gim)) return;
             message.delete();
@@ -80,3 +79,4 @@ async function sendDM(message) {
         });
     });
 }
+export default module

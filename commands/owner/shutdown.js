@@ -1,8 +1,8 @@
-const { OWNERS_ID } = require("../../config.json");
-const { SlashCommandBuilder } = require("discord.js");
-const errorLogger = require("../../functions/loggers/errorLogger");
-const chalk = require("chalk");
-module.exports = {
+import config from "../../config.json" with {type:"json"}
+import { SlashCommandBuilder } from "discord.js"
+import errorLogger from "../../functions/loggers/errorLogger.js"
+import chalk from "chalk"
+const module = {
     name: "shutdown",
     description: "Apagas el bot",
     slashCommand: true,
@@ -12,7 +12,7 @@ module.exports = {
         .setName("shutdown")
         .setDescription("Apagas el bot"),
     async execute(interaction) {
-        if (OWNERS_ID[0] == interaction.user.id) {
+        if (config.OWNERS_ID[0] == interaction.user.id) {
             shutdown(interaction);
         } else {
             await interaction.reply({
@@ -22,7 +22,7 @@ module.exports = {
         }
     },
     async run(message) {
-        if (OWNERS_ID[0] == message.author.id) {
+        if (config.OWNERS_ID[0] == message.author.id) {
             shutdown(message);
         }
     },
@@ -44,3 +44,4 @@ async function shutdown(interaction) {
         errorLogger(err, message.client, "error");
     }
 }
+export default module

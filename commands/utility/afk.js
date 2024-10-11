@@ -1,5 +1,5 @@
-const { SlashCommandBuilder } = require("discord.js");
-module.exports = {
+import { SlashCommandBuilder } from "discord.js"
+export default {
     name: "afk",
     data: new SlashCommandBuilder()
         .setName("afk")

@@ -1,5 +1,5 @@
-const {SlashCommandBuilder } = require("discord.js")
-module.exports = {
+import {SlashCommandBuilder } from "discord.js"
+const module = {
     name: "unignore",
     slashCommand: false,
     messageCommand: false,
@@ -7,6 +7,8 @@ module.exports = {
         .setName("unignore")
         .setDescription("Agregas un canal al automod.")
 }
+
+export default module
 
 //                                    console.log("ejecutando unignore");
 //                                    if (

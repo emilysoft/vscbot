@@ -1,7 +1,7 @@
-const { SlashCommandBuilder } = require("discord.js");
-const { OWNERS_ID } = require("../../config.json");
-const errorLogger = require("../../functions/loggers/errorLogger");
-module.exports = {
+import { SlashCommandBuilder } from "discord.js"
+import config from "../../config.json" with {type:"json"}
+import errorLogger from "../../functions/loggers/errorLogger.js"
+const module = {
     name: "say",
     category: "utility",
     description: "Di algo por medio del bot",
@@ -16,7 +16,7 @@ module.exports = {
     async execute(interaction) {
         try {
             const authorID = interaction.user.id;
-            if (!OWNERS_ID.some((id) => id === authorID)) return;
+            if (!config.OWNERS_ID.some((id) => id === authorID)) return;
             const args = interaction.options.getString("texto", true);
             await interaction.channel.send(args).then(async () => {
                 interaction.reply({
@@ -48,3 +48,5 @@ module.exports = {
         }
     },
 };
+
+export default module

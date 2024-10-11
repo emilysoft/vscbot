@@ -1,6 +1,6 @@
-const logger = require("../../loggers/automodLogger");
-const errorLogger = require("../../loggers/errorLogger");
-module.exports = (message) => {
+import logger from "../../loggers/automodLogger.js"
+import errorLogger from "../../loggers/errorLogger.js"
+const module = (message) => {
     try {
         if (message.author.bot) return;
         if (message.channel.id === "1272621881543102567") {
@@ -20,3 +20,5 @@ module.exports = (message) => {
         errorLogger(err, message.client, "error");
     }
 };
+
+export default module

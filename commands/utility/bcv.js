@@ -1,7 +1,7 @@
-const { SlashCommandBuilder } = require("discord.js");
-const getBCVdata = require("../../functions/getBCVdata");
-const errorLogger = require("../../functions/loggers/errorLogger");
-module.exports = {
+import { SlashCommandBuilder } from "discord.js"
+import getBCVdata from "../../functions/getBCVdata.js"
+import errorLogger from "../../functions/loggers/errorLogger.js"
+export default {
     name: "bcv",
     description: "Obtiene tasas del Sistema Bancario (Bs/USD).",
     category: "utility",

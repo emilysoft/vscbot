@@ -1,9 +1,9 @@
-const errorLogger = require("../../loggers/errorLogger");
-const badWords = require("./badWords.json");
-const { EmbedBuilder } = require("discord.js");
-const { EMBED_COLOR } = require("../../../config.json");
+import errorLogger from "../../loggers/errorLogger.js"
+import badWords from "./badWords.json" with {type:"json"}
+import { EmbedBuilder } from "discord.js"
+import config from "../../../config.json" with {type:"json"}
 const badWordsRegexed = badWords.map((word) => new RegExp(word, "gim"));
-module.exports = (message) => {
+const module = (message) => {
     try {
         if (message.author.bot) return;
         if (message.channel.id == "1024260771326197781") return;
@@ -25,7 +25,7 @@ function sendMessage(message) {
         (channel) => channel.id === "1270476028619260018"
     );
     const embed = new EmbedBuilder()
-        .setColor(EMBED_COLOR)
+        .setColor(config.EMBED_COLOR)
         .setTitle(message.author.username)
         .setDescription(
             `**Swear words sent by <@${message.author.id}> in ${message.url}**\n**Message:**\n${message.content}`
@@ -44,3 +44,4 @@ function sendMessage(message) {
         embeds: [embed],
     });
 }
+export default module

@@ -1,4 +1,4 @@
-module.exports = (hoy, client) => {
+const module = (hoy, client) => {
   const hora = hoy.getHours();
   const minutos = hoy.getMinutes();
   let channel = client.channels.cache.find(
@@ -23,3 +23,4 @@ module.exports = (hoy, client) => {
   //        general.send("https://cdn.discordapp.com/attachments/813538324320092164/1055865972545814548/b13b58c69fdaa7c5.mp4")
   //    }
 };
+export default module

@@ -1,4 +1,4 @@
-module.exports = (messageReaction, user, type) => {
+const module = (messageReaction, user, type) => {
     let typeMessage = "";
     if (type == "add") {
         typeMessage = "fue agregado";
@@ -24,3 +24,4 @@ module.exports = (messageReaction, user, type) => {
         `[REACTION][${date}/${month}/${year}][${hours}:${minutes}][${authorID}][${channelName}][${emoji}] ${typeMessage} por ${userName}`
     );
 };
+export default module

@@ -1,9 +1,9 @@
-const errorLogger = require("../../loggers/errorLogger");
-const { EmbedBuilder, AttachmentBuilder } = require("discord.js");
-const { EMBED_COLOR } = require("../../../config.json");
-const path = require("path");
-const { writeFile, unlink } = require("fs/promises");
-module.exports = async (message) => {
+import errorLogger from "../../loggers/errorLogger.js"
+import { EmbedBuilder, AttachmentBuilder } from "discord.js"
+import config from "../../../config.json" with {type:"json"}
+import path from "path"
+import { writeFile, unlink } from "fs/promises"
+const module = async (message) => {
     try {
         if (message.author.bot) return;
         if (message.channel.id == "1024260771326197781") return;
@@ -54,7 +54,7 @@ module.exports = async (message) => {
                 case "video/mov":
                 case "video/webm":
                     const embed2 = new EmbedBuilder()
-                        .setColor(EMBED_COLOR)
+                        .setColor(config.EMBED_COLOR)
                         .setTitle(message.author.username)
                         .setDescription(
                             `**Message sent by <@${message.author.id}> deleted in <#${message.channel.id}>**`
@@ -100,7 +100,7 @@ module.exports = async (message) => {
 
 function embedBuilder(imageURL, avatarPhoto, botAvatar, message) {
     return new EmbedBuilder()
-        .setColor(EMBED_COLOR)
+        .setColor(config.EMBED_COLOR)
         .setTitle(message.author.username)
         .setDescription(
             `**Message sent by <@${message.author.id}> deleted in <#${message.channel.id}>**`
@@ -123,3 +123,5 @@ async function downloadAttach(url, format, name) {
         .then((x) => x.arrayBuffer())
         .then((x) => writeFile(outPath, Buffer.from(x)));
 }
+
+export default module

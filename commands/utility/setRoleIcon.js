@@ -1,11 +1,11 @@
-const { SlashCommandBuilder } = require("discord.js");
-const getIds = require("../../functions/getIds");
-const errorLogger = require("../../functions/loggers/errorLogger");
-const Jimp = require("jimp");
-const path = require("node:path");
-const { OWNERS_ID } = require("../../config.json");
+import { SlashCommandBuilder } from "discord.js"
+import getIds from "../../functions/getIds.js"
+import errorLogger from "../../functions/loggers/errorLogger.js"
+import Jimp from "jimp"
+import path from "node:path"
+import config from "../../config.json" with {type:"json"}
 const formatsAllowed = ["image/jpeg", "image/png", "image/gif", "image/webp"];
-module.exports = {
+const module = {
     name: "seticon",
     description: "Coloca un icon a un rol",
     data: new SlashCommandBuilder()
@@ -24,7 +24,7 @@ module.exports = {
         try {
             interaction.deferReply({ ephemeral: true });
             const AUTHOR_ID = interaction.user.id;
-            if (!OWNERS_ID.some((id) => id === AUTHOR_ID)) return;
+            if (!config.OWNERS_ID.some((id) => id === AUTHOR_ID)) return;
             const image = interaction.options.getAttachment("imagen", true);
             const role = interaction.options.getRole("role", true);
             setRoleIcon(interaction, image, role);
@@ -91,13 +91,13 @@ async function setRoleIcon(interaction, image, role) {
                 return input
                     .resize(150, 150) // resize
                     .writeAsync(
-                        path.join(__dirname, `./icons/${interaction.id}.png`)
+                        path.join(process.cwd(), `/icons/${interaction.id}.png`)
                     );
             })
             .then(async () => {
                 await role
                     .setIcon(
-                        path.join(__dirname, `./icons/${interaction.id}.png`),
+                        path.join(process.cwd(), `/icons/${interaction.id}.png`),
                         "Nuevo icon para rol"
                     )
                     .then(async () => {
@@ -111,3 +111,5 @@ async function setRoleIcon(interaction, image, role) {
         errorLogger(err, interaction.client, "error");
     }
 }
+
+export default module

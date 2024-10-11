@@ -1,6 +1,6 @@
-const errorLogger = require("../../loggers/errorLogger");
+import errorLogger from "../../loggers/errorLogger.js"
 
-module.exports = async (message) => {
+const module = async (message) => {
     try {
         if(message.author.bot) return 
         if(message.channel.id != "1073774467282641038") return
@@ -72,3 +72,4 @@ async function sendMessage(message, mensaje) {
             sendMessage(msg, end)
         })
 }
+export default module 

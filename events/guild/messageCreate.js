@@ -1,27 +1,26 @@
-const { Events } = require("discord.js");
-const antiTextWall = require("../../functions/automod/messageCreate/antiTextWall");
-const nekotinaAdviser = require("../../functions/automod/messageCreate/nekotinaAdviser");
-const automodChannel = require("../../functions/automod/automodChannel");
-const deleteMee6 = require("../../functions/automod/messageCreate/deleteMee6");
-const deleteProbot = require("../../functions/automod/messageCreate/deleteProbot");
-const messageLogger = require("../../functions/loggers/messageLogger");
-const antiCrypto = require("../../functions/automod/messageCreate/antiCrypto");
-const attchAviser = require("../../functions/automod/attachmentPermissionAdviser");
-const gb = require("../../functions/gb");
-const banDiscordInvite = require("../../functions/automod/messageCreate/banDiscordInvite");
-const recomendationReactions = require("../../functions/recomendationReactions");
-const removePhoneNumbers = require("../../functions/automod/messageCreate/removePhoneNumbers");
-const errorLogger = require("../../functions/loggers/errorLogger");
-//const neetAdviser = require(../functions/neetAdviser");
-const { prefix } = require("../../config.json");
-const bannedWords = require("../../functions/automod/messageCreate/bannedWords");
-const nsfwAdviser = require("../../functions/nsfwAdviser");
-const deleteThatShit = require("../../functions/deleteThatShit");
-const downloadFacebookVideo = require("../../functions/downloadFacebookVideo");
-const removeInactivo = require("../../functions/automod/messageCreate/removeInactivo");
-const badWords = require("../../functions/automod/messageCreate/badWords");
-const ia = require("../../functions/automod/messageCreate/ia");
-const rules = require("../../functions/rules");
+import { Events } from "discord.js"
+import antiTextWall from "../../functions/automod/messageCreate/antiTextWall.js"
+import nekotinaAdviser from "../../functions/automod/messageCreate/nekotinaAdviser.js"
+import automodChannel from "../../functions/automod/automodChannel.js"
+import deleteMee6 from "../../functions/automod/messageCreate/deleteMee6.js"
+import deleteProbot from "../../functions/automod/messageCreate/deleteProbot.js"
+import messageLogger from "../../functions/loggers/messageLogger.js"
+import antiCrypto from "../../functions/automod/messageCreate/antiCrypto.js"
+import attchAviser from "../../functions/automod/attachmentPermissionAdviser.js"
+import gb from "../../functions/gb.js"
+import banDiscordInvite from "../../functions/automod/messageCreate/banDiscordInvite.js"
+import recomendationReactions from "../../functions/recomendationReactions.js"
+import removePhoneNumbers from "../../functions/automod/messageCreate/removePhoneNumbers.js"
+import errorLogger from "../../functions/loggers/errorLogger.js"
+import config from "../../config.json" with {type:"json"}
+import bannedWords from "../../functions/automod/messageCreate/bannedWords.js"
+import nsfwAdviser from "../../functions/nsfwAdviser.js"
+import deleteThatShit from "../../functions/deleteThatShit.js"
+//import downloadFacebookVideo from "../../functions/downloadFacebookVideo.js"
+import removeInactivo from "../../functions/automod/messageCreate/removeInactivo.js"
+import badWords from "../../functions/automod/messageCreate/badWords.js"
+import ia from "../../functions/automod/messageCreate/ia.js"
+import rules from "../../functions/rules.js"
 const nsfwChannels = {
     aportes: "1013280756757430364",
     aportes2D: "942934915396288542",
@@ -31,7 +30,7 @@ const nsfwChannels = {
     galeria: "813562445729628170",
     memes: "813562363243921459",
 };
-module.exports = {
+const module = {
     name: Events.MessageCreate,
     async execute(message) {
         try {
@@ -80,7 +79,7 @@ module.exports = {
 
             rules(message);
             //comandos
-            if (message.content.startsWith(prefix)) {
+            if (message.content.startsWith(config.prefix)) {
                 const commands = message.client.messageCommands;
                 const arg = message.content
                     .substring(1)
@@ -96,3 +95,5 @@ module.exports = {
         }
     },
 };
+
+export default module

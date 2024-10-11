@@ -1,7 +1,7 @@
-const errorLogger = require("./errorLogger");
-const fs = require("fs");
-const path = require("path");
-module.exports = async (message, type) => {
+import errorLogger from "./errorLogger.js"
+import fs from "fs"
+import path from "path"
+const module = async (message, type) => {
     try {
         const categories = [
             "813538324320092162",
@@ -54,7 +54,7 @@ module.exports = async (message, type) => {
         console.log(log1);
 
         fs.writeFile(
-            path.join(__dirname, `../../logs/out/${year}-${month}-${date}.log`),
+            path.join(process.cwd(), `/logs/out/${year}-${month}-${date}.log`),
             `${log1}\n`,
             { flag: "a+" },
             (err) => {
@@ -77,3 +77,5 @@ module.exports = async (message, type) => {
         errorLogger(err, message.client, "error");
     }
 };
+
+export default module

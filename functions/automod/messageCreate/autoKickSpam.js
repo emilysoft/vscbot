@@ -1,10 +1,10 @@
-const logger = require("../../loggers/automodLogger");
-const errorLogger = require("../../loggers/errorLogger");
+import logger from "../../loggers/automodLogger.js"
+import errorLogger from "../../loggers/errorLogger.js"
 const lvl10 = "813546760152547348";
 const lvl5 = "813545491957940244";
 
-const /\[steamcommunity.*\]\(.*\)|(best|hot|teens?|nitro|adobe|Onlyfans).*(leaks?|teens?|nudes|girls?|giveaway|porn|gratis)/
-module.exports = (message, client) => {
+//const regex = /\[steamcommunity.*\]\(.*\)|(best|hot|teens?|nitro|adobe|Onlyfans).*(leaks?|teens?|nudes|girls?|giveaway|porn|gratis)/
+const module = (message, client) => {
     try {
         if (message.author.bot) return;
         regex =
@@ -45,3 +45,5 @@ module.exports = (message, client) => {
         errorLogger(err, message.client, "error");
     }
 };
+
+export default module

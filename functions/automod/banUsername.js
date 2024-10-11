@@ -1,7 +1,7 @@
-const automodLogger = require("../loggers/automodLogger");
-const errorLogger = require("../loggers/errorLogger");
-const { bio, sambox, godkermit}  = require("../../regexs/regexs.js")
-module.exports = (member) => {
+import automodLogger from "../loggers/automodLogger.js"
+import errorLogger from "../loggers/errorLogger.js"
+import { bio, sambox, godkermit}  from "../../regexs/regexs"
+export default (member) => {
     const user = member.user
     const client = member.client
     const regex = [bio, sambox, godkermit]

@@ -1,4 +1,4 @@
-module.exports = async (client, text) => {
+const module = async (client, text) => {
     try {
         function setPresence(client, activity) {
             client.user.setPresence({
@@ -14,3 +14,4 @@ module.exports = async (client, text) => {
         errorLogger(err, client, "error");
     }
 };
+export default module

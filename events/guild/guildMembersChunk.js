@@ -1,8 +1,8 @@
-const { Events } = require('discord.js');
-const errorLogger = require('../../functions/loggers/errorLogger')
+import { Events } from 'discord.js'
+import errorLogger from '../../functions/loggers/errorLogger.js'
 
-module.exports = {
-    ame: Events.GuildMembersChunk,
+const module = {
+    name: Events.GuildMembersChunk,
     async execute(members, guild, chunk) {
         try {
 
@@ -11,3 +11,4 @@ module.exports = {
         }        
     }
 }
+export default module

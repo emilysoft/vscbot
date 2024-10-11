@@ -1,12 +1,12 @@
-const {
+import {
     joinVoiceChannel,
     NoSubscriberBehavior,
     createAudioPlayer,
     createAudioResource,
-} = require("@discordjs/voice");
-const errorLogger = require("./loggers/errorLogger");
+} from "@discordjs/voice"
+import errorLogger from "./loggers/errorLogger.js"
 
-module.exports = async (client) => {
+const module = async (client) => {
     try {
         const guild = await client.guilds.cache.get("813538324320092161");
         const channel = guild.channels.cache.get("844030463530369054");
@@ -44,3 +44,4 @@ module.exports = async (client) => {
         errorLogger(err, client, "error")
     }
 };
+export default module

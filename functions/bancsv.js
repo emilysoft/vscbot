@@ -1,6 +1,6 @@
-const fs = require("fs");
+import fs from "fs"
 let razon = "";
-module.exports = async (client) => {
+const module = async (client) => {
   try {
     const neetoons = await client.guilds.cache.find(
       (g) => g.id === "813538324320092161"
@@ -25,3 +25,4 @@ module.exports = async (client) => {
     console.log(e);
   }
 };
+export default module
