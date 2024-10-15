@@ -1,1 +1,1 @@
-screen -DmS vscbot node index-vsc.js
+screen -DmS vscbot npm run dev 

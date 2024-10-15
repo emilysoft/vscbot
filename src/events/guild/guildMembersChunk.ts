@@ -1,0 +1,15 @@
+import { ReadonlyCollection, Snowflake, GuildMember, Events, Guild, GuildMembersChunk } from 'discord.js'
+import errorLogger from '../../functions/loggers/errorLogger.js'
+import client from "../../index-vsc.js"
+import IEvents from "../../interfaces/iEvents.js"
+const module: IEvents = {
+    name: Events.GuildMembersChunk,
+    async execute(members:ReadonlyCollection<Snowflake, GuildMember>, guild:Guild, chunk:GuildMembersChunk) {
+        try {
+
+        } catch (err) {
+            errorLogger(err, client, 'error')
+        }        
+    }
+}
+export default module

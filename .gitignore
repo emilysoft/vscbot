@@ -11,3 +11,6 @@ directivas
 useless
 daemon
 **.log
+dist
+tsconfig.tsbuildinfo
+

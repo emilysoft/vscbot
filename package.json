@@ -2,13 +2,16 @@
   "name": "discord-bot",
   "version": "1.0.0",
   "description": "",
-  "main": "index-vsc.js",
+  "main": "dist/index-vsc.js",
   "scripts": {
-    "start": "nodemon index-vsc.js"
+    "start": "npm run clear && npm run build && node .",
+    "dev": "tsx watch src/index-vsc.ts",
+    "build": "tsc --build",
+    "clear": "rm -rf dist/**"
   },
   "keywords": [],
+  "type":"module",
   "author": "",
-  "type": "module",
   "license": "ISC",
   "dependencies": {
     "@discordjs/voice": "^0.14.0",
@@ -17,14 +20,19 @@
     "cheerio": "^1.0.0-rc.12",
     "cli-table": "^0.3.11",
     "discord.js": "^14.7.1",
+    "dotenv": "^16.4.5",
     "jimp": "^0.16.1",
-    "luxon": "^3.4.2",
+    "luxon": "^3.5.0",
     "mysql": "^2.18.1",
     "node-notifier": "^10.0.1",
     "nodemon": "^2.0.21",
-    "sqlite3": "^5.0.2"
+    "sqlite3": "^5.0.2",
+    "typescript": "^5.6.3"
   },
   "devDependencies": {
-    "eslint": "^7.32.0"
+    "@types/luxon": "^3.4.2",
+    "@types/node": "^22.7.5",
+    "eslint": "^7.32.0",
+    "tsx": "^4.19.1"
   }
 }
