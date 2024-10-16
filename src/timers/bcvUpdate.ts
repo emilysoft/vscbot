@@ -22,6 +22,7 @@ const module = {
                 else if (hour == 17 && minutes == 0) {
                     const embed = await getBCVdata(client);
                     if(channel instanceof TextChannel != true || !embed) return
+                    channel.sendTyping()
                     await channel.send({
                         content: "Última actualización del día",
                         embeds: [embed],
@@ -33,6 +34,7 @@ const module = {
                 if (hour == 17 && minutes == 0) {
                     const embed = await getBCVdata(client);
                     if(channel instanceof TextChannel != true || !embed) return
+                    channel.sendTyping()
                     await channel.send({
                         content: "Última actualización del día",
                         embeds: [embed],
@@ -52,6 +54,7 @@ async function sendMessage(client:Client, channel:TextChannel, role = "") {
 
 
     if(channel instanceof TextChannel != true || !embed1) return
+    channel.sendTyping()
     await channel.send({
         content: `Ya subió el dólar marico! ${role}`,
         files: [getData()],

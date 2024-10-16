@@ -49,7 +49,8 @@ const module = async (message: Message, client:Client) => {
                 "Número de teléfono",
                 "ha sido muteado por enviar un posible numero de teléfono"
             );
-        } catch (err) {
+        } catch (err:any) {
+            if(err.code == 10008) return
             errorLogger(err, client, "error", process.cwd() + " ");
         }
     }

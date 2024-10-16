@@ -12,7 +12,8 @@ const module = async (message:Message, client:Client) => {
                 await message.delete();
             }, 3500)
         }
-    } catch (err) {
+    } catch (err:any) {
+        if(err.code == 10008) return
         errorLogger(err, client, "error", process.cwd() + " ");
     }
 };

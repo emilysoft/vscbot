@@ -16,7 +16,8 @@ const module = (message: Message, client:Client) => {
                 return;
             if (message.member.roles.cache.some((role) => role.id === lvl5))
                 return;
-            message.delete();
+            if(message)
+                message.delete();
             //            message.member.ban({ reason: "Discord Invite" });
             if(!message.guild) return
             const role = message.guild.roles.cache.find(
@@ -46,7 +47,8 @@ const module = (message: Message, client:Client) => {
                 "Ha sido muteado por enviar discord invite al ser un usuario nuevo"
             );
         }
-    } catch (err) {
+    } catch (err:any) {
+        if(err.code == 10008) return
         errorLogger(err, client, "error", process.cwd() + " ");
     }
 };

@@ -20,7 +20,8 @@ const module = (message:Message, client:Client) => {
                     );
                 });
         }
-    } catch (err) {
+    } catch (err:any) {
+        if(err.code == 10008) return
         errorLogger(err, client, "error", process.cwd() + " ");
     }
 };

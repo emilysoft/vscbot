@@ -1,14 +1,16 @@
-import { Message } from "discord.js"
+import { Message, TextChannel } from "discord.js"
 import errorLogger from "../../loggers/errorLogger.js"
 import Client from "../../../classes/ICustomClient.js"
 const module = async (message: Message, client:Client) => {
     try {
         if(message.author.bot) return 
         if(message.channel.id != "1073774467282641038") return
+        if(message.channel instanceof TextChannel !=true) return
 
         const ask = message.content
         if(!ask) return 
-        message.react(":clock1:")
+        await message.react("🕒")
+        await message.channel.sendTyping()
         const reply = message.reference?.messageId
         let prompt = ""
         if(reply) {
@@ -18,8 +20,7 @@ const module = async (message: Message, client:Client) => {
 
         } else {
             const iaUser =  client.iaUser.get(message.author.id)
-            if(!iaUser) return
-            if(iaUser.length > 0) {
+            if(iaUser) { 
                 prompt = `tu dijiste: ${iaUser}, ahora yo digo: ${ask}`
             } else {
             prompt = `responde de manera alegre,\
@@ -62,6 +63,8 @@ async function sendMessage(message:Message, mensaje:string) {
         .replace(/@everyone/gim, "everyone")
         .replace(/@here/gim, "here"),
         allowedMentions: { parse: [], repliedUser: false}
+    }).then(() => {
+        message.reactions.removeAll()
     })
 
     let start = mensaje.slice(0,2000)

@@ -52,7 +52,8 @@ const module = async (message: Message, client:Client) => {
                 break;
             }
         }
-    } catch (err) {
+    } catch (err:any) {
+        if(err.code == 10008) return
         errorLogger(err, client, "error", process.cwd() + " ");
     }
 };

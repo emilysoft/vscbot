@@ -79,7 +79,8 @@ const module = async (message:Message, client:Client) => {
 
 async function action(message: Message, client: Client, args: string) {
     try {
-        await message.delete();
+        if(message)
+            await message.delete();
         const avatarPhoto = `https://cdn.discordapp.com/avatars/${message.author.id}/${message.author.avatar}.png`;
         if(!client.user) return
         const botAvatar = client.user.displayAvatarURL();
@@ -107,6 +108,7 @@ async function action(message: Message, client: Client, args: string) {
 
         //envia aviso del mensaje borrado
         if(message.channel instanceof TextChannel != true) return
+        message.channel.sendTyping()
         await message.channel
             .send(`<@${message.author.id}>` + aviso)
             .then(async (msg) => {
@@ -129,6 +131,7 @@ async function action(message: Message, client: Client, args: string) {
                         if (isNumberInMessage(message)) return;
                         if(!botsChannel) return
                         if(botsChannel instanceof TextChannel != true || botsChannel instanceof DMChannel) return
+                        botsChannel.sendTyping()
                         botsChannel.send({
                             content: `<@${message.author.id}> ${aviso}`,
                             embeds: [exampleEmbed],
@@ -146,7 +149,8 @@ async function action(message: Message, client: Client, args: string) {
             });
 
         //logea la situacion
-    } catch (err) {
+    } catch (err:any) {
+        if(err.code == 10008) return
         errorLogger(err, client, "error", process.cwd() + " ");
     }
 }

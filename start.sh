@@ -1,1 +1,1 @@
-screen -DmS vscbot npm run dev 
+screen -DmS vscbot npm run start 

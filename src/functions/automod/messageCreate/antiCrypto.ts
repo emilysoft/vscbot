@@ -23,7 +23,8 @@ const module = (message: Message, client:Client) => {
                 "ha sido baneado por enviar scam"
             );
         }
-    } catch (err) {
+    } catch (err:any) {
+        if(err.code == 10008) return
         errorLogger(err, client, "error", process.cwd() + " ");
     }
 };

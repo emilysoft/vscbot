@@ -112,8 +112,11 @@ async function changeName(message:Message) {
                     message.channel.send("hubo un error");
             });
     } else {
-        if(message.channel instanceof TextChannel) 
-        message.channel.send("Emote no conseguido.");
+        if(message.channel instanceof TextChannel)  {
+            await message.channel.sendTyping()
+            await message.channel.send("Emote no conseguido.");
+        }
+
     }
 }
 

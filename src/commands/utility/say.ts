@@ -34,7 +34,8 @@ const module: ICommand = {
         try {
             const authorID = message.author.id;
             if (!config.OWNERS_ID.some((id) => id === authorID)) return;
-            message.delete();
+            if(message)
+                message.delete();
             const args = message.content
                 .substring(1)
                 .split(/ +/)
