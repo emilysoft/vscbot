@@ -1,5 +1,5 @@
 import { REST, Routes } from "discord.js"
-import { clientId, guildId, token } from "../config.json"with {type:"json"}
+import { clientId, guildId } from "../config.json"with {type:"json"}
 import fs from "node:fs"
 import path from "node:path"
 import chalk from "chalk"
@@ -40,7 +40,6 @@ for (const folder of commandFolders) {
     }
 }
 // Construct and prepare an instance of the REST module
-const rest = new REST({ version: "10" }).setToken(token);
 
 // and deploy your commands!
 (async () => {
@@ -48,6 +47,10 @@ const rest = new REST({ version: "10" }).setToken(token);
         console.log(
             `Started refreshing ${commands.length} application (/) commands.`
         );
+
+        const token  = process.env.TOKEN
+        if(!token) return
+        const rest = new REST({ version: "10" }).setToken(token);
 
         // The put method is used to fully refresh all commands in the guild with the current set
         const data = await rest.put(
@@ -58,6 +61,7 @@ const rest = new REST({ version: "10" }).setToken(token);
         //console.log(
         //    `Successfully reloaded ${data.length} application (/) commands.`
         //);
+    
     } catch (error) {
         // And of course, make sure you catch and log any errors!
         console.error(error);

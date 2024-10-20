@@ -94,7 +94,7 @@ const module: IEvents = {
                 if (!commands.has(arg)) return 
                 const cmd = commands.get(arg)
                 if(!cmd || !cmd.run) return
-                cmd.run(message, client, arg);
+                await cmd.run(message, client, arg);
             }
         } catch (err) {
             errorLogger(err, client, "error", process.cwd() + " ");

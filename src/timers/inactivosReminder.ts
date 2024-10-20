@@ -20,13 +20,13 @@ const module = async (now: Date, client:Client) => {
         if (hour == 8 && minutes == 0) {
             channel
                 .send(inactivo + " Ups, parece que te has quedado dormido/a")
-                .then((msg) => msg.delete());
+                .then(async (msg) => await msg.delete());
             channel2
                 .send(
                     noVerificado +
                         " No olvides verificar tu cuenta para entrar al servidor"
                 )
-                .then((msg) => msg.delete());
+                .then(async (msg) => await msg.delete());
         }
     } catch (err) {
         errorLogger(err, client, "error", process.cwd() + " ");

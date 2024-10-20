@@ -13,4 +13,4 @@ daemon
 **.log
 dist
 tsconfig.tsbuildinfo
-
+.env

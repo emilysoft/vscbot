@@ -12,7 +12,7 @@ const module= async (message:Message, client:Client) => {
         const regex = /(https?:\/\/)?(www\.)?(((discord(app)?)\.com\/invite)|((discord(app)?)?\.gg))\/(?<invite>.+)/gim;
         if (message.content.match(regex) != null) {
             if (message.content.match(/promos\.discord\.gg/gim)) return;
-            message.delete();
+            await message.delete();
             //            message.member.ban({ reason: "Discord Invite" });
             if (
                 message.content.match(

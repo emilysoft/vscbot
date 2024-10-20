@@ -4,23 +4,17 @@ import Client from "../classes/ICustomClient.js"
 const module = async (message:Message, client:Client) => {
     const { content} = message;
     try {
-        if (message.channel.id == "1112164583344443433") return;
+
         if (/^\.\s*dl\s+https/i.test(content)) {
-            if(message)
-                return message.delete();
-        } 
-        if(message.content.startsWith("=") && message.author.bot != true) {
-                if(message)
-                    await message.delete()
+            return await message.delete();
         }
 
-        if (message.author.id == "356268235697553409")  {
-            return setTimeout(async () => {
-                if(message)
-                    await message.delete()
-            }, 5000)
+        if(message.channel.id == "813538324320092164") { //general
+            if(message.content.startsWith("=") && message.author.bot != true) await message.delete() // borra el =fm
+            if (message.author.id == "356268235697553409")  return setTimeout(async () =>  await message.delete(), 3000) // borra el bot fmbot
         }
-        else if(message.author.id == "439205512425504771") {
+        
+        if(message.author.id == "439205512425504771") { //nsb
             if (message.embeds.length > 0) {
                 // embeds
                 let args = message.embeds[0].title;

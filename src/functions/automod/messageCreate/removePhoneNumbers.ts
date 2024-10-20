@@ -30,7 +30,7 @@ const module = async (message: Message, client:Client) => {
                 )
                     return;
             }
-            message.delete();
+            await message.delete();
             if(message.author.bot) return
             if(!message.guild) return
             if(!message.member) return

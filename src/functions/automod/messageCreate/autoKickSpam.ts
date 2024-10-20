@@ -6,7 +6,7 @@ const lvl10 = "813546760152547348";
 const lvl5 = "813545491957940244";
 
 //const regex = /\[steamcommunity.*\]\(.*\)|(best|hot|teens?|nitro|adobe|Onlyfans).*(leaks?|teens?|nudes|girls?|giveaway|porn|gratis)/
-const module = (message: Message, client:Client) => {
+const module = async (message: Message, client:Client) => {
     try {
         if (message.author.bot) return;
         const regex = /(https?:\/\/)?(www\.)?(((discord(app)?)?\.com\/invite)|((discord(app)?)?\.gg))\/(?<invite>.+)/gim;
@@ -17,7 +17,7 @@ const module = (message: Message, client:Client) => {
             if (message.member.roles.cache.some((role) => role.id === lvl5))
                 return;
             if(message)
-                message.delete();
+                await message.delete();
             //            message.member.ban({ reason: "Discord Invite" });
             if(!message.guild) return
             const role = message.guild.roles.cache.find(
@@ -29,7 +29,7 @@ const module = (message: Message, client:Client) => {
                 member.roles.add(role, "Enviar mensaje de scam");
 
                 if(message.channel instanceof TextChannel != true) return
-                message.channel
+                await message.channel
                     .send(`**${message.author.username}** muteado por enviar scam`)
                     .then((r) => {
                         setTimeout(() => {

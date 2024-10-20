@@ -5,12 +5,12 @@
   "main": "dist/index-vsc.js",
   "scripts": {
     "start": "npm run clear && npm run build && node .",
-    "dev": "tsx watch src/index-vsc.ts",
-    "build": "tsc --build",
+    "dev": "npm run clear && tsx watch src/index-vsc.ts",
+    "build": "npm run clear && tsc --build",
     "clear": "rm -rf dist/**"
   },
   "keywords": [],
-  "type":"module",
+  "type": "module",
   "author": "",
   "license": "ISC",
   "dependencies": {

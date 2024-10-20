@@ -14,7 +14,7 @@ const module = async (member:GuildMember, client:Client) => {
                 .send(
                     `${partner.name} te da la bienvenida <@${member.user.id}>`
                 )
-                .then((msg) => msg.delete());
+                .then(async (msg) => await msg.delete());
         });
     } catch (err) {
         errorLogger(err, client, "error", process.cwd() + " ");

@@ -27,7 +27,7 @@ export default (client:Client) => {
                         )
                     );
                 } else if ("name" in command && "run" in command && "description" in command) {
-                    client.messageCommands.set(command.name, command.run);
+                    client.messageCommands.set(command.name, command);
                     console.log(
                         chalk.greenBright(
                             `[COMMAND LOADED] ${command.name}.`

@@ -8,8 +8,8 @@ const module = (message:Message, client:Client) => {
             if(!message.member) return
             message.member.roles
                 .remove("1272564404193460286", "rol removido por actividad")
-                .then(() => {
-                    message.delete();
+                .then(async () => {
+                    await message.delete();
                     if(!message.guild) return
                     let log = message.guild.channels.cache.get(
                         "1088423410905919550"

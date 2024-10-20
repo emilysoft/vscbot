@@ -11,7 +11,7 @@ export default  async (member:GuildMember, client:Client) => {
             .send(
                 `${member.user.username} ha entrado al servidor <@&1049626515849084988>`
             )
-            .then((msg:Message) => msg.delete());
+            .then(async (msg:Message) => await msg.delete());
     } catch (err) {
         errorLogger(err, client, "error", process.cwd() + " ");
     }

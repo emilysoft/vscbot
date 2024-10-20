@@ -2,8 +2,7 @@ import {
     SlashCommandBuilder,
     ChatInputCommandInteraction,
     Message,
-    SharedSlashCommandOptions ,
-        SharedNameAndDescription,
+    SharedSlashCommandOptions 
 } 
 from "discord.js"
 import Client from "../classes/ICustomClient.js"
