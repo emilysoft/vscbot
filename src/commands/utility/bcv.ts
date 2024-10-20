@@ -11,7 +11,7 @@ const module:ICommand = {
         .setName("bcv")
         .setDescription("Obtiene tasas del Sistema Bancario (Bs/USD)."),
     slashCommand: false,
-    messageCommand: false,
+    messageCommand: true,
     async execute(interaction: ChatInputCommandInteraction, client:Client) {
         try {
             interaction
