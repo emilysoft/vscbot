@@ -1,7 +1,6 @@
-import { Events, Message, TextChannel } from "discord.js"
+import { ChannelType, Events, ForumChannel, Message, TextChannel } from "discord.js"
 import Client from "../../classes/ICustomClient.js"
 import antiTextWall from "../../functions/automod/messageCreate/antiTextWall.js"
-import nekotinaAdviser from "../../functions/automod/messageCreate/nekotinaAdviser.js"
 import automodChannel from "../../functions/automod/automodChannel.js"
 import deleteMee6 from "../../functions/automod/messageCreate/deleteMee6.js"
 import deleteProbot from "../../functions/automod/messageCreate/deleteProbot.js"
@@ -21,6 +20,8 @@ import deleteThatShit from "../../functions/deleteThatShit.js"
 import removeInactivo from "../../functions/automod/messageCreate/removeInactivo.js"
 import badWords from "../../functions/automod/messageCreate/badWords.js"
 import ia from "../../functions/automod/messageCreate/ia.js"
+import newThread from "../../functions/automod/messageCreate/newThread.js"
+import clearChat from "../../functions/automod/messageCreate/clearChat.js"
 import rules from "../../functions/rules.js"
 import client from "../../index-vsc.js"
 import IEvents from "../../interfaces/iEvents.js"
@@ -28,7 +29,7 @@ import IEvents from "../../interfaces/iEvents.js"
 const nsfwChannels = {
     aportes: "1013280756757430364",
     aportes2D: "942934915396288542",
-    LGBT: "1053118780705874040",
+    LGBT: "1230709697129091102",
     furry: "1172695535468150814",
     nube: "868499065984393308",
     galeria: "813562445729628170",
@@ -41,14 +42,14 @@ const module: IEvents = {
             // evita que actue sobre si mismo
             if(!client.user) return
             if (message.author.id == client.user.id) return;
-
             if (!message.guild || message.channel instanceof TextChannel != true) return;
-
+            console.log(message.content)
             // automod
             antiTextWall(message, client as Client);
             banDiscordInvite(message, client as Client);
             automodChannel(message, client as Client);
             messageLogger(message, "create", client as Client);
+            newThread(message);
             removeInactivo(message, client as Client);
             gb(message, client as Client);
             deleteThatShit(message, client as Client);
@@ -56,12 +57,12 @@ const module: IEvents = {
             deleteProbot(message, client as Client);
             badWords(message, client as Client);
             attchAviser(message, client as Client);
-            nekotinaAdviser(message, client as Client);
+            clearChat(message, client as Client);
             //downloadFacebookVideo(message);
             // notsobot
             if (message.author.id == "439205512425504771") return;
             removePhoneNumbers(message, client as Client);
-            bannedWords(message, client as Client);
+            //bannedWords(message, client as Client);
             //nsfwAdviser(message);
             antiCrypto(message, client as Client);
             //neetAdviser(message);
@@ -69,16 +70,17 @@ const module: IEvents = {
             if (message.author.bot) return;
 
             ia(message, client as Client);
-            recomendationReactions(message, nsfwChannels.aportes, "heart", client as Client);
-            recomendationReactions(message, nsfwChannels.aportes2D, "heart", client as Client);
-            recomendationReactions(message, nsfwChannels.LGBT, "heart", client as Client);
-            recomendationReactions(message, nsfwChannels.furry, "heart", client as Client);
-            recomendationReactions(message, nsfwChannels.nube, "heart", client as Client);
+            recomendationReactions(message, nsfwChannels.aportes, "nsfw", client as Client);
+            recomendationReactions(message, nsfwChannels.aportes2D, "nsfw", client as Client);
+            recomendationReactions(message, nsfwChannels.LGBT, "nsfw", client as Client);
+            recomendationReactions(message, nsfwChannels.furry, "nsfw", client as Client);
+            recomendationReactions(message, nsfwChannels.nube, "nsfw", client as Client);
             recomendationReactions(message, nsfwChannels.galeria, "galeria", client as Client);
             recomendationReactions(message, nsfwChannels.memes, "memes", client as Client);
             //recomendationReactions(message, nsfwChannels.test, "heart", client);
             recomendationReactions(message, "813970132191674398", "heart", client as Client); //dibujos
             recomendationReactions(message, "813562363243921459", "memes", client as Client); //shitposting
+            recomendationReactions(message, "1321222701775454218", "heart", client); //24
 
             rules(message);
             //comandos

@@ -1,0 +1,136 @@
+[
+  {
+    "id": "813538324320092164",
+    "default_name": "👀・general",
+    "halloween": "🎃・general",
+    "navidad": "🎄・general"
+  },
+  {
+    "id": "1123991503774175253",
+    "default_name": "👥・𝙁𝙊𝙍𝙊",
+    "halloween": "👥・𝙁𝙊𝙍𝙊",
+    "navidad": "👥・𝙁𝙊𝙍𝙊"
+  },
+  {
+    "id": "853387980335874078",
+    "default_name": "⚖・ciencias-sociales",
+    "halloween": "👻・ciencias-sociales",
+    "navidad": "❄️d・cientas-sociales"
+  },
+  {
+    "id": "1294633642865332287",
+    "default": "💵・dolar",
+    "halloween": "🌪・dolar",
+    "navidad": "🎅・dolar"
+  },
+  {
+    "id": "1112164583344443433",
+    "default_name": "🤖・comandos",
+      "halloween": "👾・comandos",
+      "navidad": "🍒・comandos"
+  },
+  {
+    "id": "813562445729628170",
+    "default_name": "📷・galeria",
+    "halloween": "🛸・galeria",
+    "navidad": "☕️・galeria"
+  },
+  {
+    "id": "813970132191674398",
+    "default_name": "🎨・dibujos",
+    "halloween": "👺・dibujos",
+    "navidad": "🍫・dibujos"
+  },
+  {
+    "id": "813562363243921459",
+    "default_name": "🎪・memes",
+    "halloween": "🕷️・memes",
+    "navidad": "🥳・memes"
+  },
+  {
+    "id": "1018612558061649940",
+    "default_name": "🎵・melomanos",
+    "halloween": "🕸️・melomanos",
+    "navidad": "┊️🍻melomanos"
+  },
+  {
+    "id": "815031494359253002",
+    "default_name": "🤫・confesiones",
+    "halloween": "┊️🧞・confesiones",
+    "navidad": "┊️🥧confesiones"
+  },
+  {
+    "id": "1014933451121627249",
+    "default_name": "🎂・cumpleaños",
+    "halloween": "🦇・cumpleaños",
+    "navidad": "🎂・cumpleaños"
+  },
+  {
+    "id": "813564359874838558",
+    "default_name": "🍑・general-nsfw",
+    "halloween": "🩸・general-nsfw",
+    "navidad": "🍭・general-nsfw"
+  },
+
+  {
+    "id": "1013280756757430364",
+    "default_name": "🍑・aportes",
+    "halloween": "🩸・aportes",
+    "navidad": "🍭・aportes"
+  },
+  {
+    "id": "942934915396288542",
+    "default_name": "🍑・aportes-𝟮𝗗",
+    "halloween": "🩸・aportes-𝟮𝗗",
+    "navidad": "🍭・aportes-𝟮𝗗"
+  },
+
+  {
+    "id": "868499065984393308",
+    "default_name": "🍑・la-nube",
+    "halloween": "💉・la-nube",
+    "navidad": "🍭・la-nube"
+  },
+  {
+    "id": "1230709697129091102",
+    "default": "🌈・nsfw-lgbt",
+    "halloween": "🐈・nsfw-lgbt",
+    "navidad": "🍭・nsfw-lgbt"
+  },
+  {
+    "id": "1172695535468150814",
+    "default_name": "🍑・nsfw-furry",
+    "halloween": "🐈・nsfw-furry",
+    "navidad": "🍭・nsfw-furry"
+  },
+  {
+    "id": "836362584088903710",
+    "default_name": "🤖・reproduce-música",
+    "halloween": "🌃・reproduce-música",
+    "navidad": "🍬・bots-vc"
+  },
+  {
+    "id": "813538324320092165",
+    "default_name": "💬・general",
+    "halloween": "🍫・general"
+  },
+  {
+    "id": "1139706344451096676",
+    "default_name": "🎵・Musica",
+    "halloween": "🍬・Musica",
+    "navidad": "🍩・Musica"
+  },
+  {
+    "id": "1018884982166523963",
+    "default_name": "🔴・Streaming",
+    "halloween": "👹・Streaming",
+    "navidad": "🍓・Streaming"
+  },
+  {
+    "id": "1023436144718905375",
+    "default_name": "👤・esquizo",
+    "halloween": "🌙️・esquizo",
+    "navidad": "🌙️・esquizo"
+  }
+]
+

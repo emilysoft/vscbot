@@ -23,7 +23,11 @@ const module:ICommand = {
                 })
                 .then(async () => {
                     const embed = await getBCVdata(client);
-                    if(!embed) return
+                    if(!embed) return interaction.editReply({
+                        content: "Error al cargar",
+                        allowedMentions: { repliedUser: false },
+                    });
+
                     interaction.editReply({
                         content: "",
                         embeds: [embed],
@@ -36,22 +40,23 @@ const module:ICommand = {
     },
     async run(message: Message, client:Client) {
         try {
-            message
-                .reply({
-                    content: "Cargando...",
-                    allowedMentions: {
-                        repliedUser: false,
-                    },
-                })
-                .then(async (msg) => {
+            //message
+            //    .reply({
+            //        content: "Cargando...",
+            //        allowedMentions: {
+            //            repliedUser: false,
+            //        },
+            //    })
+                //.then(async (msg) => {
                     const embed = await getBCVdata(client);
-                    if(!embed) return
-                    msg.edit({
+                    if(!embed) return  
+                    //msg.edit({
+                    await message.reply({
                         content: "",
                         embeds: [embed],
                         allowedMentions: { repliedUser: false },
                     });
-                });
+                //});
         } catch (err) {
             errorLogger(err, client, "error", process.cwd() + " ");
         }

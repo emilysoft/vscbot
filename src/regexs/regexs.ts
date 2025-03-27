@@ -1,5 +1,5 @@
+//godkermit: /(k|q)[\n\s\-_\.]*[uυüúù\s\n\-_\.]*[eеẹėéè3\s\n\.\-_]+(r+|l+)[\n\s\.\-_]*m+[\n\s\.\-_]*[(1i!¡\|ïí|y\n\s\.\-_]+t*\b/,
 const module = {
-    godkermit: /(k|q)[\n\s\-_\.]*[uυüúù\s\n\-_\.]*[eеẹėéè3\s\n\.\-_]+(r+|l+)[\n\s\.\-_]*m+[\n\s\.\-_]*[(1i!¡\|ïí|y\n\s\.\-_]+t*\b/,
     pedofilia: [
         /@everyone/gi,
         /assign/gi,

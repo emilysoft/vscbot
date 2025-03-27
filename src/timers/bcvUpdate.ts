@@ -1,63 +1,58 @@
-import { DateTime } from "luxon"
-import getBCVdata from "../functions/getBCVdata.js"
-import {  TextChannel } from "discord.js"
-import errorLogger from "../functions/loggers/errorLogger.js"
-const targetChannel = "1240285460195049622";
-import Client from "../classes/ICustomClient.js"
-const module = {
-    async updateMonitor(now: Date, client: Client) {
-        try {
-            const role = "<@&830121766801244160>";
-            const day = now.getDay();
-            const hour = now.getHours();
-            const minutes = now.getMinutes();
-            const channel = client.channels.cache.find(
-                (c) => c.id === targetChannel
-            );
+import { DateTime } from "luxon";
+import getBCVdata from "../functions/getBCVdata.js";
+import { TextChannel } from "discord.js";
+import errorLogger from "../functions/loggers/errorLogger.js";
+const targetChannel = "1294633642865332287";
+import Client from "../classes/ICustomClient.js";
+const role = "<@&830121766801244160>";
+const module = async (now: Date, client: Client) => {
+    try {
+        const day = now.getDay();
+        const hour = now.getHours();
+        const minutes = now.getMinutes();
+        const channel = client.channels.cache.find(
+            (c) => c.id === targetChannel
+        );
 
-            if(channel instanceof TextChannel != true) return
-            if (day == 0 || day == 6) {
-                if ((hour == 9 || hour == 13) && minutes == 35)
-                    sendMessage(client, channel);
-                else if (hour == 17 && minutes == 0) {
-                    const embed = await getBCVdata(client);
-                    if(channel instanceof TextChannel != true || !embed) return
-                    channel.sendTyping()
-                    await channel.send({
-                        content: "Última actualización del día",
-                        embeds: [embed],
-                    });
-                }
-            } else {
-                if (hour == 9 && minutes == 35) sendMessage(client, channel);
-                if (hour == 13 && minutes == 35) sendMessage(client, channel);
-                if (hour == 17 && minutes == 0) {
-                    const embed = await getBCVdata(client);
-                    if(channel instanceof TextChannel != true || !embed) return
-                    channel.sendTyping()
-                    await channel.send({
-                        content: "Última actualización del día",
-                        embeds: [embed],
-                    });
-                }
+        if (channel instanceof TextChannel != true) return console.log("canal de dolar no conseguido")
+        if (day == 0 || day == 6) {
+            if ((hour == 9 || hour == 13) && minutes == 35)
+                return sendMessage(client, channel);
+            else if (hour == 17 && minutes == 0) {
+                const embed = await getBCVdata(client);
+                if (channel instanceof TextChannel != true || !embed) return;
+                await channel.send({
+                    content: "Última actualización del día",
+                    embeds: [embed],
+                });
             }
-        } catch (err) {
-            errorLogger(err, client, "error", process.cwd() + " ");
+        } else {
+            if (hour == 9 && minutes == 0) 
+                return sendMessage(client, channel, role);
+            if (hour == 13 && minutes == 35) sendMessage(client, channel);
+            if (hour == 17 && minutes == 0) {
+                const embed = await getBCVdata(client);
+                if (channel instanceof TextChannel != true || !embed) return;
+                await channel.send({
+                    content: "Última actualización del día",
+                    embeds: [embed],
+                });
+            }
         }
-    },
+    } catch (err) {
+        errorLogger(err, client, "error", process.cwd() + " ");
+    }
 };
-async function sendMessage(client:Client, channel:TextChannel, role = "") {
-    const monitorAvatar =
-        "https://pbs.twimg.com/profile_images/1111629538646216705/kLOBbRXR_400x400.jpg";
-    const twitter = "[@MonitorDolarVla](https://twitter.com/monitordolarvla)";
+async function sendMessage(client: Client, channel: TextChannel, rol = "") {
+
     const embed1 = await getBCVdata(client);
 
-
-    if(channel instanceof TextChannel != true || !embed1) return
-    channel.sendTyping()
+    if (channel instanceof TextChannel != true) return;
+    if(!embed1) return
+    channel.sendTyping();
     await channel.send({
-        content: `Ya subió el dólar marico! ${role}`,
-        files: [getData()],
+        content: `Ya subió el dólar marico! ${rol}`,
+        //files: [getData()],
         embeds: [embed1],
     });
 }
@@ -82,4 +77,4 @@ function getData() {
     return urlImagen;
 }
 
-export default module
+export default module;

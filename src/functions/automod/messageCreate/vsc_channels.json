@@ -1,0 +1,52 @@
+[
+     {
+        "id" :"813562445729628170",
+        "name": "galeria",
+        "thread": true,
+        "reaction": false,
+        "fileRequired": true,
+        "allowReply": false,
+        "emoji": "<:altoke:885921300810457159>",
+        "imgURL": "https://cdn.discordapp.com/attachments/871264713600823296/1227468189617881118/anuncios.png?ex=662883d5&is=66160ed5&hm=6a6f1b6b17c1993d24081e5717ba0718a7d2189e0d654d25bd2fba0bc03a91b4&"
+    },
+    {
+        "id": "813970132191674398",
+        "name": "dibujos",
+        "thread": true,
+        "reaction": false,
+        "fileRequired": true,
+        "allowReply": false,
+        "emoji": "<:altoke:885921300810457159>",
+        "imgURL": "https://cdn.discordapp.com/attachments/871264713600823296/1227468189617881118/anuncios.png?ex=662883d5&is=66160ed5&hm=6a6f1b6b17c1993d24081e5717ba0718a7d2189e0d654d25bd2fba0bc03a91b4&"
+    },
+    {
+        "id": "1013280756757430364",
+        "name": "aportes",
+        "thread": true,
+        "reaction": false,
+        "fileRequired": true,
+        "allowReply": false,
+        "emoji": "<:altoke:885921300810457159>",
+        "imgURL": "https://cdn.discordapp.com/attachments/871264713600823296/1227468189617881118/anuncios.png?ex=662883d5&is=66160ed5&hm=6a6f1b6b17c1993d24081e5717ba0718a7d2189e0d654d25bd2fba0bc03a91b4&"
+    },
+    {
+        "id": "942934915396288542",
+        "name": "aportes-2d",
+        "thread": true,
+        "reaction": false,
+        "fileRequired": true,
+        "allowReply": false,
+        "emoji": "<:altoke:885921300810457159>",
+        "imgURL": "https://cdn.discordapp.com/attachments/871264713600823296/1227468189617881118/anuncios.png?ex=662883d5&is=66160ed5&hm=6a6f1b6b17c1993d24081e5717ba0718a7d2189e0d654d25bd2fba0bc03a91b4&"
+    },
+    {
+        "id": "1172695535468150814",
+        "name": "furry",
+        "thread": true,
+        "reaction": false,
+        "fileRequired": true,
+        "allowReply": false,
+        "emoji": "<:altoke:885921300810457159>",
+        "imgURL": "https://cdn.discordapp.com/attachments/871264713600823296/1227468189617881118/anuncios.png?ex=662883d5&is=66160ed5&hm=6a6f1b6b17c1993d24081e5717ba0718a7d2189e0d654d25bd2fba0bc03a91b4&"
+    }
+]

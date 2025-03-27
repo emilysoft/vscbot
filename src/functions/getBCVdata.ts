@@ -12,25 +12,41 @@ const module = async (client:Client) => {
     try {
         if(!client.user) return 
         const botAvatar = client.user.displayAvatarURL();
-        const data = await fetch(link)
-            .then(response => response.text())
-        const $ = load(data);
-        const dolar = $("#dolar div.col-sm-6.col-xs-6.centrado");
-        const euro = $("#euro div.col-sm-6.col-xs-6.centrado");
-        const fecha = $(
-            "div.pull-right.dinpro.center span.date-display-single"
-        );
+            const data = await fetch("https://pydolarve.org/api/v1/dollar")
+            .then(res => res.json())
+        const fecha = data.datetime.date
+        const hora = data.datetime.time
+
+        const bcv_dolar = data.monitors.bcv.price
+        const bcv_simbolo = data.monitors.bcv.symbol
+        const bcv_change = data.monitors.bcv.change
+        const logo = data.monitors.bcv.image
+
+        const monitor_dolar = data.monitors.enparalelovzla.price
+        const monitor_simbolo = data.monitors.enparalelovzla.symbol
+        const monitor_change = data.monitors.enparalelovzla.change
+        //const data = await fetch(link)
+        //    .then(response => response.text())
+        //const $ = load(data);
+        //const dolar = $("#dolar div.col-sm-6.col-xs-6.centrado");
+        //const euro = $("#euro div.col-sm-6.col-xs-6.centrado");
+        //const fecha = $(
+        //    "div.pull-right.dinpro.center span.date-display-single"
+        //);
         const embed = new EmbedBuilder()
             .setColor(config.EMBED_COLOR as ColorResolvable)
-            .setTitle(`Banco Central de Venezuela`)
+            .setTitle(`Monitor Dólar`)
             .setAuthor({ name: "Bot sin Contexto", iconURL: botAvatar })
-            .setThumbnail(twitterPhoto).setDescription(`💵 Dólar Bs: ${dolar
-            .text()
-            .substring(0, 6)}\n\
-                    💶 Euro Bs: ${euro.text().substring(0, 6)}\n\
-                    🗓️ Fecha Valor: ${fecha.text()}️\n\
-                    🌐 **[@BCV_ORG_VE](https://twitter.com/BCV_ORG_VE)**`);
+            .setThumbnail(logo).setDescription(`\
+                ## BCV
+                💵 Dólar Bs: ${bcv_dolar} ${bcv_simbolo}${bcv_change}\n\
+                🌐 **[@BCV_ORG_VE](https://bcv.org.ve)**\
+                \n## Paralelo\n\
+                💵 Dólar Paralelo Bs: ${monitor_dolar} ${monitor_simbolo}${monitor_change}\n
+                ${fecha}️ ${hora}
+                `);
         return embed;
+                    //💶 Euro Bs: ${euro.text().substring(0, 6)}\n\
     } catch (err) {
         errorLogger(err, client, "error", process.cwd());
     }

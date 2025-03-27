@@ -9,7 +9,7 @@ const module= async (message:Message, client:Client) => {
         if (message.author.bot) return;
         if(message.author.id == "690796358579257424") return
         if(message.author.id == "302249242469335060") return
-        const regex = /(https?:\/\/)?(www\.)?(((discord(app)?)\.com\/invite)|((discord(app)?)?\.gg))\/(?<invite>.+)/gim;
+        const regex = /(https?:\/\/)?(www\.)?(((discord(app)?)\.com\/invite)|((discord(app)?)\.gg))/gim;
         if (message.content.match(regex) != null) {
             if (message.content.match(/promos\.discord\.gg/gim)) return;
             await message.delete();

@@ -13,10 +13,13 @@ const module = async (message:Message, type:string, client:Client) => {
             "1122175563688317058",
         ];
         if (message.content.match(/^\$wa/) != null) return
-        if (message.author.id == "432610292342587392") return //mudae
-        if (message.channel.id == "1160325903461666927") return;
-        if (message.channel.id == "1024260771326197781") return;
-        if (message.channel.id == "813562363243921459") return;
+        const {channel} = message;
+        if(channel instanceof TextChannel != true) return
+        if (channel.id == "821067797157118013") return //mudae
+        if (channel.parentId == "1169624626188521563") return //registro principales
+        if (channel.parentId == "1120080747668197436") return //registro secundarios 
+        if (channel.id == "1024260771326197781") return; // panel
+        if (channel.id == "813562363243921459") return; // memes
         let typeLog;
         if (type == "create") typeLog = ":green_circle:";
         else if (type == "delete") typeLog = ":red_circle:";

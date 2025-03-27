@@ -46,7 +46,7 @@ const module = async (message:Message, client:Client) => {
                                 .then(() => {
                                     unlink(
                                         path.join(
-                                            __dirname + `/temp/${fileName}.png`
+                                            process.cwd(),`dist/functions/automod/messageCreate/temp/${fileName}.png`
                                         )
                                     );
                                 });
@@ -85,7 +85,7 @@ const module = async (message:Message, client:Client) => {
                                 .then(() => {
                                     unlink(
                                         path.join(
-                                            __dirname + `/temp/${fileName}.mp4`
+                                            process.cwd(), `dist/functions/automod/messagecreate/temp/${fileName}.mp4`
                                         )
                                     );
                                 });
@@ -122,7 +122,8 @@ function embedBuilder(imageURL: string, avatarPhoto: string, botAvatar: string, 
 }
 
 async function downloadAttach(url:string, format:string, name:string) {
-    let outPath = path.join(__dirname + "/temp/" + `${name}.${format}`);
+
+    let outPath = path.join(process.cwd(), `dist/functions/automod/messagecreate/temp/${name}.${format}`);
     await fetch(url)
         .then((x) => x.arrayBuffer())
         .then((x) => writeFile(outPath, Buffer.from(x)));

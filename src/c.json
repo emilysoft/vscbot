@@ -1,0 +1,178 @@
+[
+  {
+    "id": "813538324320092164",
+    "default": "┌💬┐general",
+    "halloween": "┌🎃┐general",
+    "navidad": "┌🎄┐general"
+  },
+  {
+    "id": "1005354020333948988",
+    "default": "┊💎┊general-basado ",
+    "halloween": "┊💎┊general-basado ",
+    "navidad": "┊🦌┊general-basado "
+  },
+  {
+    "id": "1123991503774175253",
+    "default": "┊🗨┊off-topic",
+    "halloween": "┊🗨┊off-topic",
+    "navidad": "┊⛄┊off-topic"
+  },
+  {
+    "id": "853387980335874078",
+    "default": "┊💭┊debates-serios",
+    "halloween": "┊👻┊debates-serios",
+    "navidad": "┊❄️┊debates-serios"
+  },
+  {
+    "id": "1188560848822743060",
+    "default": "┊💵┊dolar",
+    "halloween": "┊🌪┊dolar",
+    "navidad": "┊🎅┊dolar"
+  },
+  {
+    "id": "1112164583344443433",
+    "default": "┊🤖┊bots",
+      "halloween": "┊👾┊bots",
+      "navidad": "┊🍒┊bots"
+  },
+  {
+    "id": "813562445729628170",
+    "default": "┊📷┊galeria",
+    "halloween": "┊🛸┊galeria",
+    "navidad": "┊☕️┊galeria"
+  },
+  {
+    "id": "813970132191674398",
+    "default": "┊🎨┊dibujos",
+    "halloween": "┊👺┊dibujos",
+    "navidad": "┊🍫┊dibujos"
+  },
+  {
+    "id": "813562363243921459",
+    "default": "┊😂┊memes",
+    "halloween": "┊🕷️┊memes",
+    "navidad": "┊️🥳┊momingos"
+  },
+  {
+    "id": "813553355783405598",
+    "default": "┊🎼┊fmbot",
+    "halloween": "┊🔮┊fmbot",
+    "navidad": "┊🏂┊fmbot"
+  },
+  {
+    "id": "1018612558061649940",
+    "default": "┊🎵┊melomanos",
+    "halloween": "┊🕸️┊melomanos",
+    "navidad": "┊️🍻┊melomanos"
+  },
+  {
+    "id": "815031494359253002",
+    "default": "┊🤫┊confesiones",
+    "halloween": "┊️🧞┊confesiones",
+    "navidad": "┊️🥧┊confesiones"
+  },
+  {
+    "id": "1014933451121627249",
+    "default": "┊🎂┊cumpleaños",
+    "halloween": "┊🦇┊cumpleaños",
+    "navidad": "┊🎂┊umpleaños"
+  },
+  {
+    "id": "876095489148325889",
+    "default": "┊👊┊bardo",
+    "halloween": "┊️⛓️┊bardo",
+    "navidad": "┊️🍾️┊bardo"
+  },
+  {
+    "id": "813553479803994182",
+    "default": "└🎉┘sorteos",
+    "halloween": "└️🧙┘sorteos",
+    "navidad": "└️🍰┘sorteos"
+  },
+  {
+    "id": "813564359874838558",
+    "default": "┊🔞┊general-nsfw",
+    "halloween": "┊🩸┊general-nsfw",
+    "navidad": "┊🍭┊general-nsfw"
+  },
+
+  {
+    "id": "1013280756757430364",
+    "default": "┊🔞┊aportes",
+    "halloween": "┊🩸┊aportes",
+    "navidad": "┊🍭┊aportes"
+  },
+  {
+    "id": "942934915396288542",
+    "default": "┊🔞┊aportes-𝟮𝗗",
+    "halloween": "┊🩸┊aportes-𝟮𝗗",
+    "navidad": "┊🍭┊aportes-𝟮𝗗"
+  },
+
+  {
+    "id": "868499065984393308",
+    "default": "┊🔥┊la-nube",
+    "halloween": "┊💉┊la-nube",
+    "navidad": "┊🍭┊la-nube"
+  },
+  {
+    "id": "1053118780705874040",
+    "default": "┊🌈┊nsfw-lgbt",
+    "halloween": "┊🐈┊nsfw-lgbt",
+    "navidad": "┊🍭┊nsfw-lgbt"
+  },
+  {
+    "id": "1172695535468150814",
+    "default": "└🔞┘nsfw-furry",
+    "halloween": "└🔞┘nsfw-furry",
+    "navidad": "└🍭┘nsfw-furry"
+  },
+  {
+    "id": "836362584088903710",
+    "default": "┌🤖┐bots-vc",
+    "halloween": "┌🌃┐bots-vc",
+    "navidad": "┌🍬┐bots-vc"
+  },
+  {
+    "id": "813538324320092165",
+    "default": "┊💬┊general",
+    "halloween": "┊🍫┊general",
+    "navidad": "┊🍫┊general"
+  },
+  {
+    "id": "1139706344451096676",
+    "default": "┊🎵┊Musica",
+    "halloween": "┊🍬┊Musica",
+    "navidad": "┊🍩┊Musica"
+  },
+  {
+    "id": "1018884982166523963",
+    "default": "┊🔴┊Streaming",
+    "halloween": "┊👹┊Streaming",
+    "navidad": "┊🍓┊Streaming"
+  },
+  {
+    "id": "1015695196798853132",
+    "default": "┊📺┊YouTube",
+    "halloween": "┊️🍭┊YouTube",
+    "navidad": "┊️🍡┊YouTube"
+  },
+  {
+    "id": "1122154888051306536",
+    "default": "┊📞┊Gartic Phone",
+    "halloween": "┊🧟┊Gartic Phone",
+    "navidad": "┊🍮┊Gartic Phone"
+  },
+  {
+    "id": "1014222046173077504",
+    "default": "┊👥┊2 pajuos",
+    "halloween": "┊🌕┊ajuos",
+    "navidad": "┊🍪┊2 pajuos"
+  },
+  {
+    "id": "1023436144718905375",
+    "default": "└👤┘esquizo",
+    "halloween": "└🌙️┘esquizo",
+    "navidad": "└🥜┘esquizo"
+  }
+]

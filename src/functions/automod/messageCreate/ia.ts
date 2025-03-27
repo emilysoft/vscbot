@@ -23,33 +23,39 @@ const module = async (message: Message, client:Client) => {
             if(iaUser) { 
                 prompt = `tu dijiste: ${iaUser}, ahora yo digo: ${ask}`
             } else {
-            prompt = `responde de manera alegre,\
-            pasa del saludo y ve directo al grano de mis preguntas,\
-            no hables formal,\
-            usa palabras que son usadas del dia a dia,\
-            ten en mente que le escribes a un persona joven,\
-            no uses markdown,\
-            escribe todo en 1 parrafo,\
-            eres de venezuela pero no hables del pais,\
-            usa jerga venezolana pero no abuses usarla,\
-            usa lenguaje inclusivo,\
-            cuando quieras decir chido di chevere,\
-            responde resumidamente,\
-            no uses emojis: ${ask}`
+            prompt = ask;
+            //`Sigue estas instrucciones para responder a la pregunta:
+            //        1. Sé breve
+            //        2. Usa Markdown cuando necesites resaltar algo.
+            //        ${ask}
+            //    `;
+            //prompt = `responde de manera alegre,\
+            //pasa del saludo y ve directo al grano de mis preguntas,\
+            //no hables formal,\
+            //usa palabras que son usadas del dia a dia,\
+            //ten en mente que le escribes a un persona joven,\
+            //no uses markdown,\
+            //escribe todo en 1 parrafo,\
+            //eres de venezuela pero no hables del pais,\
+            //usa jerga venezolana pero no abuses usarla,\
+            //usa lenguaje inclusivo,\
+            //cuando quieras decir chido di chevere,\
+            //responde resumidamente,\
+            //no uses emojis: ${ask}`
             }
         }
 
         //if(!replyMessage?.author.bot) return
+        //fetch(`https://large-cerebras.vercel.app/api/code?prompt=${encodeURIComponent(prompt)}`)
         fetch(`https://gemini-rest.vercel.app/api/?prompt=${encodeURIComponent(prompt)}`)
-          .then(res => res.json())
+            .then(res => res.json())
             .then(res => {
-                    let mm=res.response
-                        .replace(/hola/m, "<:holaGawr:1116468570306642020> hola")
-                        .replace(/¡/gm, "")
-                        .replace(/¿/gm, "")
-                        .replace(/:smile:/gim, "<:a_heart:1116461880924446741>")
-                client.iaUser.set(message.author.id, mm)
-                sendMessage(message, mm)
+                    //let mm=res
+                    //    .replace(/Hola/m, "<:holaGawr:1116468570306642020> hola")
+                    //    .replace(/¡/gm, "")
+                    //    .replace(/¿/gm, "")
+                client.iaUser.set(message.author.id, res.response)
+                sendMessage(message, res.response)
             })
     } catch (err) {
         errorLogger(err, client, "error", process.cwd() + " ");
