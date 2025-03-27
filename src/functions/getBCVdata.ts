@@ -42,7 +42,9 @@ const module = async (client:Client) => {
                 💵 Dólar Bs: ${bcv_dolar} ${bcv_simbolo}${bcv_change}\n\
                 🌐 **[@BCV_ORG_VE](https://bcv.org.ve)**\
                 \n## Paralelo\n\
-                💵 Dólar Paralelo Bs: ${monitor_dolar} ${monitor_simbolo}${monitor_change}\n
+                💵 Dólar Paralelo Bs: ${monitor_dolar} ${monitor_simbolo}${monitor_change}\
+                \n## Promedio\n\
+                💵 Dólar Promedio Bs: ${(monitor_dolar+bcv_dolar)/2}\n
                 ${fecha}️ ${hora}
                 `);
         return embed;
