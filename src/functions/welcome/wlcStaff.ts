@@ -1,6 +1,5 @@
 import { Message, GuildMember, TextChannel } from "discord.js";
-import errorLogger from "../loggers/errorLogger.js"
-import Client from "../../classes/ICustomClient.js"
+import Client from "../../interfaces/ICustomClient.js"
 export default  async (member:GuildMember, client:Client) => {
     try {
         if (member.user.bot) return;
@@ -13,6 +12,6 @@ export default  async (member:GuildMember, client:Client) => {
             )
             .then(async (msg:Message) => await msg.delete());
     } catch (err) {
-        errorLogger(err, client, "error", process.cwd() + " ");
+        client.errorLogger(err, client, "error", process.cwd() + " ");
     }
 };

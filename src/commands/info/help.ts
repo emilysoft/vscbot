@@ -1,7 +1,6 @@
 import { ChatInputCommandInteraction, Message, EmbedBuilder, SlashCommandBuilder, ColorResolvable } from "discord.js"
-import errorLogger from "../../functions/loggers/errorLogger.js"
 import config from "../../config.json" with {type:"json"}
-import Client from "./../../classes/ICustomClient.js"
+import Client from "./../../interfaces/ICustomClient.js"
 import ICommand from "../../interfaces/command.js"
 const module: ICommand = {
     name: "help",
@@ -44,7 +43,7 @@ async function help(interaction:Message | ChatInputCommandInteraction, avatarPho
             allowedMentions: { repliedUser: false },
         });
     } catch (err) {
-        errorLogger(err, client, "error", process.cwd() + " ");
+        client.errorLogger(err, client, "error", process.cwd() + " ");
     }
 }
 

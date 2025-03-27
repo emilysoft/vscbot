@@ -1,8 +1,8 @@
 import config from "../../config.json" with {type:"json"}
 import { Message, SlashCommandBuilder } from "discord.js"
-import Client from "../../classes/ICustomClient.js"
+import Client from "../../interfaces/ICustomClient.js"
 import ICommand from "../../interfaces/command.js"
-import {clearBots} from "../../functions/automod/messageCreate/clearChat.js"
+import {clearBots} from "../../functions/automod/workers/clearChat.js"
 const module: ICommand = {
     name: "clearbots",
     description: "borrar todos los bots",

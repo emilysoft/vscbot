@@ -1,7 +1,6 @@
 import { ChatInputCommandInteraction, Message, SlashCommandBuilder } from "discord.js"
-import getBCVdata from "../../functions/getBCVdata.js"
-import errorLogger from "../../functions/loggers/errorLogger.js"
-import Client from "../../classes/ICustomClient.js"
+import getBCVdata from "../../functions/lib/getBCVdata.js"
+import Client from "../../interfaces/ICustomClient.js"
 import ICommand from "../../interfaces/command.js"
 const module:ICommand = {
     name: "bcv",
@@ -35,7 +34,7 @@ const module:ICommand = {
                     });
                 });
         } catch (err) {
-            errorLogger(err, client, "error", process.cwd() + " ");
+            client.errorLogger(err, client, "error", process.cwd() + " ");
         }
     },
     async run(message: Message, client:Client) {
@@ -58,7 +57,7 @@ const module:ICommand = {
                     });
                 //});
         } catch (err) {
-            errorLogger(err, client, "error", process.cwd() + " ");
+            client.errorLogger(err, client, "error", process.cwd() + " ");
         }
     },
 };

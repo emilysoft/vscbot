@@ -1,28 +1,34 @@
 import { Message, Events } from "discord.js"
-import antiTextWall from "../../functions/automod/messageCreate/antiTextWall.js"
-import antiCrypto from "../../functions/automod/messageCreate/antiCrypto.js"
-import banDiscordInvite from "../../functions/automod/messageCreate/banDiscordInvite.js"
-import removePhoneNumbers from "../../functions/automod/messageCreate/removePhoneNumbers.js"
-import errorLogger from "../../functions/loggers/errorLogger.js"
 import messageLogger from "../../functions/loggers/messageLogger.js"
-import deleteThatShit from "../../functions/deleteThatShit.js"
-import Client from "../../classes/ICustomClient.js"
+import Client from "../../interfaces/ICustomClient.js"
 import client from "./../../index-vsc.js"
+import config from "../../config.json" with {type:"json"}
 import IEvents from "../../interfaces/iEvents.js"
-const module: IEvents = {
+export default  {
     name: Events.MessageUpdate,
     async execute(message: Message, oldM: Message) {
         try {
-            antiTextWall(message, client as Client);
-            removePhoneNumbers(message, client as Client);
-            banDiscordInvite(message, client as Client);
-            antiCrypto(message, client as Client);
-            deleteThatShit(message, client as Client);
+            //automod
+            client.automod.forEach(automod => {
+                if(automod.ignoreBots == message.author.bot) return
+                automod.execute(message, client)
+            })
             messageLogger(message, "edit", client as Client)            
+            if (message.content.startsWith(config.prefix)) {
+                const commands = client.messageCommands;
+                const arg = message.content
+                    .substring(1)
+                    .split(/ +/)
+                    .slice(0, 1)
+                    .join("")
+                    .toLowerCase();
+                if (!commands.has(arg)) return 
+                const cmd = commands.get(arg)
+                if(!cmd || !cmd.run) return
+                await cmd.run(message, client, arg);
+            }
         } catch (err) {
-            errorLogger(err, client, "error", process.cwd() + " ");
+            client.errorLogger(err, client, "error", process.cwd() + " ");
         }
     },
-};
-
-export default module
+} as IEvents

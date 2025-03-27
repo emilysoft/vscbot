@@ -1,5 +1,4 @@
 import { ReadonlyCollection, Snowflake, GuildMember, Events, Guild, GuildMembersChunk } from 'discord.js'
-import errorLogger from '../../functions/loggers/errorLogger.js'
 import client from "../../index-vsc.js"
 import IEvents from "../../interfaces/iEvents.js"
 const module: IEvents = {
@@ -8,7 +7,7 @@ const module: IEvents = {
         try {
 
         } catch (err) {
-            errorLogger(err, client, 'error')
+            client.errorLogger(err, client, 'error')
         }        
     }
 }

@@ -1,13 +1,15 @@
-import Client from "./classes/ICustomClient.js";
+import Client from "./interfaces/ICustomClient.js";
 const client = new Client();
 import loadSlashCommands from "./handlers/loadSlashCommands.js";
 import loadCommands from "./handlers/loadCommands.js";
 import loadEvents from "./handlers/loadEvents.js";
 import dotenv from "dotenv";
+import loadAutomod from "./handlers/loadAutomod.js";
 dotenv.config();
 loadSlashCommands(client)
 loadCommands(client)
 loadEvents(client)
+loadAutomod(client)
 
 //nodejs-listeners
 process.on("unhandledRejection", (e) => console.error(e));

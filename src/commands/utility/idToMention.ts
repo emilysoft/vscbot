@@ -1,6 +1,5 @@
 import { ChatInputCommandInteraction, Message, Role, SlashCommandBuilder } from "discord.js"
-import getIds from "../../functions/getIds.js"
-import errorLogger from "../../functions/loggers/errorLogger.js"
+import getIds from "../../functions/lib/getIds.js"
 const modId = "813568302294761486";
 import ICommand from "../../interfaces/command.js"
 const module: ICommand = {
@@ -32,7 +31,7 @@ const module: ICommand = {
                     ephemeral: true,
                 });
             } else {
-                errorLogger(err, client, "error", process.cwd() + " ");
+                client.errorLogger(err, client, "error", process.cwd() + " ");
             }
         }
     },
@@ -42,7 +41,7 @@ const module: ICommand = {
                 return;
             getMention(message, message.content);
         } catch (err) {
-            errorLogger(err, client, "error", process.cwd() + " ");
+            client.errorLogger(err, client, "error", process.cwd() + " ");
         }
     },
 };

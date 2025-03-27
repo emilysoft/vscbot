@@ -1,8 +1,7 @@
 import {Message} from "discord.js"
-import errorLogger from "../../functions/loggers/errorLogger.js"
 import { SlashCommandBuilder } from "discord.js"
-import update from "../../functions/allConnected.js"
-import Client from "../../classes/ICustomClient.js"
+import update from "../../functions/lib/allConnected.js"
+import Client from "../../interfaces/ICustomClient.js"
 import ICommand from "../../interfaces/command.js"
 const module: ICommand = {
     name: "updateactive",
@@ -19,7 +18,7 @@ const module: ICommand = {
             newDate.setHours(0, 0, 0, 0); 
             update(newDate, client)
         } catch (err) {
-            errorLogger(err,client, "error", process.cwd() + " ");
+            client.errorLogger(err,client, "error", process.cwd() + " ");
         }
     },
 }

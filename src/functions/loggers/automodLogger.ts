@@ -1,7 +1,6 @@
 import { ColorResolvable, EmbedBuilder, Message, TextChannel } from "discord.js"
-import errorLogger from "./errorLogger.js"
 import config from "../../config.json" with {type:"json"}
-import Client from "../../classes/ICustomClient.js"
+import Client from "../../interfaces/ICustomClient.js"
 const module = async (message:Message, client:Client, reason:string, description:string) => {
     try {
         const logChannelId = "936038476334370896";
@@ -23,7 +22,7 @@ const module = async (message:Message, client:Client, reason:string, description
         if(channel instanceof TextChannel)
         await channel.send({ embeds: [exampleEmbed] });
     } catch (err) {
-        errorLogger(err, client, "error", process.cwd() + " ");
+        client.errorLogger(err, client, "error", process.cwd() + " ");
     }
 };
 

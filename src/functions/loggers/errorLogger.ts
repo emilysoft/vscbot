@@ -1,4 +1,4 @@
-import Client from "../../classes/ICustomClient.js"
+import Client from "../../interfaces/ICustomClient.js"
 import { ColorResolvable, EmbedBuilder, TextChannel } from "discord.js"
 import fs from "fs"
 import path from "path"

@@ -7,9 +7,8 @@ import {
     Message,
     TextChannel
 } from "discord.js";
-import errorLogger from "../../functions/loggers/errorLogger.js";
 import ICommand from "../../interfaces/command.js";
-import Client from "../../classes/ICustomClient.js";
+import Client from "../../interfaces/ICustomClient.js";
 const module: ICommand = {
     name: "gl",
     description: "cambia de general",
@@ -39,7 +38,7 @@ const module: ICommand = {
             await channel.send(`<@${message.author.id}>`)
                 .then(msg => msg.delete())
         } catch (err) {
-            errorLogger(err, client, "error", process.cwd() + " ");
+            client.errorLogger(err, client, "error", process.cwd() + " ");
         }
     },
 };

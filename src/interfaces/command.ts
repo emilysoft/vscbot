@@ -5,7 +5,7 @@ import {
     SharedSlashCommandOptions 
 } 
 from "discord.js"
-import Client from "../classes/ICustomClient.js"
+import Client from "../interfaces/ICustomClient.js"
 type TypeAfterAddingOptions = SharedSlashCommandOptions<TypeAfterAddingOptions>
 
 export default interface ICommand {

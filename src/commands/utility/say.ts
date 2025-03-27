@@ -1,6 +1,5 @@
 import {  SlashCommandBuilder, TextChannel } from "discord.js"
 import config from "../../config.json" with {type:"json"}
-import errorLogger from "../../functions/loggers/errorLogger.js"
 import ICommand from "../../interfaces/command.js"
 const module: ICommand = {
     name: "say",
@@ -27,7 +26,7 @@ const module: ICommand = {
                 });
             });
         } catch (err) {
-            errorLogger(err, client, "error", process.cwd() + " ");
+            client.errorLogger(err, client, "error", process.cwd() + " ");
         }
     },
     async run(message, client) {
@@ -48,7 +47,7 @@ const module: ICommand = {
             if(message.channel instanceof TextChannel != true ) return
             message.channel.send(args);
         } catch (err) {
-            errorLogger(err, client, "error", process.cwd() + " ");
+            client.errorLogger(err, client, "error", process.cwd() + " ");
         }
     },
 };

@@ -1,6 +1,6 @@
 import { TextChannel, Message } from "discord.js";
 import ICommand from "../../interfaces/command.js"
-import Client from "../../classes/ICustomClient.js"
+import Client from "../../interfaces/ICustomClient.js"
 const UNKHOWN_MESSAGE = 10008;
 const channelsAllowed = [
     "1024260771326197781",
@@ -8,7 +8,6 @@ const channelsAllowed = [
     "1172695535468150814",
 ];
 import { SlashCommandBuilder } from "discord.js";
-import errorLogger from "../../functions/loggers/errorLogger.js";
 const module: ICommand = {
     name: "gel",
     data: new SlashCommandBuilder()
@@ -132,7 +131,7 @@ async function geldooru(message: Message, client:Client) {
             }
         }
     } catch (err) {
-        errorLogger(err, client, "error", process.cwd() + " ");
+        client.errorLogger(err, client, "error", process.cwd() + " ");
     }
 }
 

@@ -1,4 +1,4 @@
-import Client from "../classes/ICustomClient.js"
+import Client from "../interfaces/ICustomClient.js"
 import fs from "node:fs"
 import path from "node:path"
 import chalk from "chalk"

@@ -1,8 +1,7 @@
 import { Message, TextChannel } from "discord.js";
-import errorLogger from "./errorLogger.js"
 import fs from "fs"
 import path from "path"
-import Client from "../../classes/ICustomClient.js"
+import Client from "../../interfaces/ICustomClient.js"
 
 const module = async (message:Message, type:string, client:Client) => {
     try {
@@ -65,7 +64,7 @@ const module = async (message:Message, type:string, client:Client) => {
             `${log1}\n`,
             { flag: "a+" },
             (err) => {
-                if (err) errorLogger(err, client, "error", process.cwd() + " ");
+                if (err) client.errorLogger(err, client, "error", process.cwd() + " ");
             }
         );
         if (categories.includes(message.channel.parentId as string)) {
@@ -84,7 +83,7 @@ const module = async (message:Message, type:string, client:Client) => {
                 );
         }
     } catch (err) {
-        errorLogger(err, client, "error", process.cwd() + " ");
+        client.errorLogger(err, client, "error", process.cwd() + " ");
     }
 };
 

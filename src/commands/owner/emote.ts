@@ -1,6 +1,5 @@
-import errorLogger from "../../functions/loggers/errorLogger.js"
 import { Message, SlashCommandBuilder, TextChannel } from "discord.js"
-import Client from "../../classes/ICustomClient.js"
+import Client from "../../interfaces/ICustomClient.js"
 import ICommand from "../../interfaces/command.js"
 const module: ICommand = {
     name: "emote",
@@ -21,7 +20,7 @@ const module: ICommand = {
             deleteEmoji(message);
             changeName(message);
         } catch (err) {
-            errorLogger(err, client, "error", process.cwd() + " ");
+            client.errorLogger(err, client, "error", process.cwd() + " ");
         }
     },
 };

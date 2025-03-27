@@ -1,15 +1,15 @@
 import path from "node:path"
 import { Events } from "discord.js"
 //import notifier from "node-notifier"
-import inactivos from "../../timers/inactivosReminder.js"
-import bcv from "../../timers/bcvUpdate.js"
+import inactivos from "../../functions/timers/inactivosReminder.js"
+import bcv from "../../functions/timers/bcvUpdate.js"
 //const staffSleeping = require("../../useless/staffSleeping");
-import timer from "../../functions/timer.js"
-import setPresence from "../../functions/setPresence.js"
-import startBot from "../../functions/startBot.js"
-import allConnected from "../../functions/allConnected.js"
-import Client from "../../classes/ICustomClient.js"
-import { clearGulag } from "../../functions/automod/messageCreate/clearChat.js"
+import timer from "../../functions/lib/timer.js"
+import setPresence from "../../functions/lib/setPresence.js"
+import startBot from "../../functions/lib/startBot.js"
+import allConnected from "../../functions/lib/allConnected.js"
+import Client from "../../interfaces/ICustomClient.js"
+import { clearGulag } from "../../functions/automod/workers/clearChat.js"
 let hoy;
 
 const module =  {

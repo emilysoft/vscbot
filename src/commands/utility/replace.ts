@@ -1,8 +1,7 @@
 import { Message, SlashCommandBuilder } from "discord.js"
 import config from "../../config.json" with {type:"json"}
-import errorLogger from "../../functions/loggers/errorLogger.js"
 import ICommand from "../../interfaces/command.js"
-import Client from "../../classes/ICustomClient.js"
+import Client from "../../interfaces/ICustomClient.js"
 const module: ICommand = {
     name: "replace",
     //category: "utility",
@@ -17,7 +16,7 @@ const module: ICommand = {
         try {
             replace(message, client);
         } catch (err) {
-            errorLogger(err, client, "error", process.cwd() + " ");
+            client.errorLogger(err, client, "error", process.cwd() + " ");
         }
     },
 };

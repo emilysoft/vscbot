@@ -1,8 +1,7 @@
 import config from "../../config.json" with {type:"json"}
 import { Message, ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js"
-import errorLogger from "../../functions/loggers/errorLogger.js"
 import chalk from "chalk"
-import Client from "../../classes/ICustomClient.js"
+import Client from "../../interfaces/ICustomClient.js"
 import ICommand from "../../interfaces/command.js"
 const module: ICommand = {
     name: "shutdown",
@@ -50,7 +49,7 @@ async function shutdown(interaction: ChatInputCommandInteraction | Message, clie
         }
 
     } catch (err) {
-        errorLogger(err, client, "error", process.cwd() + " ");
+        client.errorLogger(err, client, "error", process.cwd() + " ");
     }
 }
 export default module

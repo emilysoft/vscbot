@@ -5,13 +5,12 @@ import {
     Role,
     Message,
 } from "discord.js";
-import getIds from "../../functions/getIds.js";
-import errorLogger from "../../functions/loggers/errorLogger.js";
+import getIds from "../../functions/lib/getIds.js";
 import Jimp from "jimp";
 import path from "node:path";
 import config from "../../config.json" with {type:"json"}
 import ICommand from "../../interfaces/command.js";
-import Client from "../../classes/ICustomClient.js";
+import Client from "../../interfaces/ICustomClient.js";
 const formatsAllowed = ["image/jpeg", "image/png", "image/gif", "image/webp"];
 const module: ICommand = {
     name: "seticon",
@@ -45,7 +44,7 @@ const module: ICommand = {
                     ephemeral: true,
                 });
             } else {
-                errorLogger(err, client, "error", process.cwd() + " ");
+                client.errorLogger(err, client, "error", process.cwd() + " ");
             }
         }
     },
@@ -85,7 +84,7 @@ const module: ICommand = {
             if (!image) return;
             setRoleIcon(message, image, role, client);
         } catch (err) {
-            errorLogger(err, client, "error", process.cwd() + " ");
+            client.errorLogger(err, client, "error", process.cwd() + " ");
         }
     },
 };
@@ -136,7 +135,7 @@ async function setRoleIcon(
                 });
         }
     } catch (err) {
-        errorLogger(err, client, "error", process.cwd() + " ");
+        client.errorLogger(err, client, "error", process.cwd() + " ");
     }
 }
 

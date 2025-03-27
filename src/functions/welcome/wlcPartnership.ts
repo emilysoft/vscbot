@@ -1,7 +1,6 @@
-import errorLogger from "../loggers/errorLogger.js"
 import partnershitpsChannels from "./partnerships.json" with {type:"json"}
 import { GuildMember, TextChannel } from "discord.js";
-import Client from "../../classes/ICustomClient.js"
+import Client from "../../interfaces/ICustomClient.js"
 const module = async (member:GuildMember, client:Client) => {
     try {
         if (member.user.bot) return;
@@ -17,7 +16,7 @@ const module = async (member:GuildMember, client:Client) => {
                 .then(async (msg) => await msg.delete());
         });
     } catch (err) {
-        errorLogger(err, client, "error", process.cwd() + " ");
+        client.errorLogger(err, client, "error", process.cwd() + " ");
     }
 };
 export default module
