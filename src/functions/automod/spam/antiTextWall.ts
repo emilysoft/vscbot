@@ -13,6 +13,7 @@ interface Excepciones  {
 export default {
     name:"antiTextWall",
     ignoreBots: false,
+    vscOnly: true,
     execute: async function(message:Message,client:Client) {
         try {
             const limiteCaracteres = 600;

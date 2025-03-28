@@ -5,11 +5,19 @@ import Iautomod from "../../../interfaces/Iautomod.js";
 export default {
     name:"clearChat",
     ignoreBots: true,
+    vscOnly: false,
     execute: function(message:Message,client:Client) {
         try {
-            clearNSB(message, "813538324320092164");
-            clearNSB(message, "853387980335874078");
-            //clearComandos(guild);
+            if(!message.guild) return
+            if(message.guild.id == "813538324320092161") {
+                clearNSB(message, "813538324320092164");
+                clearNSB(message, "853387980335874078");
+                return
+            }
+            //neetoons
+            if(message.author.id == "831906235912814622") {
+                clearNSB(message, "871386967726772234");
+            } 
         } catch (err: any) {
             client.errorLogger(err, client, "error", process.cwd() + " ");
         }

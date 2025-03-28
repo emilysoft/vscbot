@@ -7,6 +7,7 @@ import Iautomod from "../../../interfaces/Iautomod.js"
 
 export default {
     name:"bannedWords",
+    vscOnly: true,
     ignoreBots: true,
     execute: function(message:Message,client:Client) {
         try {

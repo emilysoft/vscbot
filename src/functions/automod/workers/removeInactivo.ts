@@ -4,6 +4,7 @@ import {Message, TextChannel} from "discord.js"
 export default {
     name:"removeInactivo",
     ignoreBots: true,
+    vscOnly: true,
     execute: function(message:Message,client:Client) {
     try {
             if (message.author.bot) return;

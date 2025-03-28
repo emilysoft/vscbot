@@ -6,6 +6,7 @@ const regex = /(https?:\/\/)?(www\.)?(((discord(app)?)\.com\/invite)|((discord(a
 
 export default {
     name:"automodChannel",
+    vscOnly: true,
     ignoreBots: true,
     execute: async function(message:Message,client:Client) {
         try {

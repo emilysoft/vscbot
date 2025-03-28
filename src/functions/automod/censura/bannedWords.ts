@@ -14,6 +14,7 @@ const regexs: Regexs = {
 
 export default {
     name:"bannedWords",
+    vscOnly: true,
     ignoreBots: true,
     execute: async function(message:Message,client:Client) {
         try { 

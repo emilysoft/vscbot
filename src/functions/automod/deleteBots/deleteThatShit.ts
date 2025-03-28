@@ -4,6 +4,7 @@ import Iautomod from "../../../interfaces/Iautomod.js";
 
 export default {
     name:"deleteThatShit",
+    vscOnly: true,
     ignoreBots: false,
     execute: async function(message:Message,client:Client) {
         const { content } = message;

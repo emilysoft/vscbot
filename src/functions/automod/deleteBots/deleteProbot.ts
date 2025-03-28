@@ -4,6 +4,7 @@ import Iautomod from "../../../interfaces/Iautomod.js"
 
 export default {
     name:"deleteProbot",
+    vscOnly: true,
     ignoreBots: false,
     execute: function(message:Message,client:Client) {
         try {

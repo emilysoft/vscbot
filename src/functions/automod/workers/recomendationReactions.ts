@@ -13,6 +13,7 @@ const nsfwChannels = {
 
 const module: Iautomod = {
     name:"recomendationReactions",
+    vscOnly: true,
     ignoreBots: true,
     execute: function(message:Message,client:Client) {
         recomendationReactions(message, nsfwChannels.aportes, "nsfw", client as Client);

@@ -7,28 +7,29 @@ const lvl5 = "813545491957940244";
 //const regex = /\[steamcommunity.*\]\(.*\)|(best|hot|teens?|nitro|adobe|Onlyfans).*(leaks?|teens?|nudes|girls?|giveaway|porn|gratis)/
 export default {
     name:"autoKickSpam",
+    vscOnly: true,
     ignoreBots: true,
     execute: async function(message:Message,client:Client) {
         try {
             const regex = /(https?:\/\/)?(www\.)?(((discord(app)?)?\.com\/invite)|((discord(app)?)?\.gg))\/(?<invite>.+)/gim;
+            if(!message) return
             if(!message.member) return
-            if (message.content.match(regex) != null) {
-                if (message.member.roles.cache.some((role) => role.id === lvl10))
-                    return;
-                if (message.member.roles.cache.some((role) => role.id === lvl5))
-                    return;
-                if(message)
-                    await message.delete();
-                //            message.member.ban({ reason: "Discord Invite" });
+            if(message.content.match(regex) != null) {
                 if(!message.guild) return
+
+                if(message.guild.id == "813538324320092161") {
+                    if (message.member.roles.cache.some((role) => role.id === lvl10))
+                        return;
+                    if (message.member.roles.cache.some((role) => role.id === lvl5))
+                        return;
+                }
+
+                await message.delete();
                 const role = message.guild.roles.cache.find(
                     (role) => role.name === "Muted"
                 );
                 if (role) {
-                    const member = message.guild.members.cache.get(message.author.id)
-                    if(!member) return
-                    member.roles.add(role, "Enviar mensaje de scam");
-
+                    message.member.roles.add(role, "Enviar mensaje de scam");
                     if(message.channel instanceof TextChannel != true) return
                     await message.channel
                         .send(`**${message.author.username}** muteado por enviar scam`)

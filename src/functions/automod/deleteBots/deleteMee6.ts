@@ -3,6 +3,7 @@ import Client from "../../../interfaces/ICustomClient.js"
 import Iautomod from "../../../interfaces/Iautomod.js"
 export default {
     name:"deleteMee6",
+    vscOnly: false,
     ignoreBots: true,
     execute: async function(message:Message,client:Client) {
         try {

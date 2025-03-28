@@ -5,12 +5,15 @@ import config from "../../../config.json"with {type:"json"}
 
 export default {
     name:"banDiscordInvite",
+    vscOnly: true,
     ignoreBots: true,
     execute: async function(message:Message,client:Client) {
         try {
             let role;
+            // ignore nit and loq
             if(message.author.id == "690796358579257424") return
             if(message.author.id == "302249242469335060") return
+
             const regex = /(https?:\/\/)?(www\.)?(((discord(app)?)\.com\/invite)|((discord(app)?)\.gg))/gim;
             if (message.content.match(regex) != null) {
                 if (message.content.match(/promos\.discord\.gg/gim)) return;
@@ -34,7 +37,6 @@ export default {
                 if (role) {
                     const member = message.guild.members.cache.get(message.author.id)
                     if(!member) return
-                    member.roles.add(role, "Enviar mensaje de scam");
                     if(message.channel instanceof TextChannel != true) return
                     message.channel
                         .send(

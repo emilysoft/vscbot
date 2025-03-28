@@ -6,6 +6,7 @@ import rule from "./rules.json" with {type:"json"}
 const UNKHOWN_MESSAGE = 10008;
 export default {
     name:"rules",
+    vscOnly: false,
     ignoreBots: true,
     execute: function(message:Message,client:Client) {
         try {
@@ -45,7 +46,6 @@ export default {
                                     : null
                             );
                     } else {
-                        //messageResponse.allowedMentions = { repliedUser: false };
                         message.reply(messageResponse);
                     }
                 }

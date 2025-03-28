@@ -3,6 +3,7 @@ import Client from "../../../interfaces/ICustomClient.js"
 
 export default {
     name:"gb",
+    vscOnly: true,
     ignoreBots: true,
     execute: async function(message:Message,client:Client) {
         try {

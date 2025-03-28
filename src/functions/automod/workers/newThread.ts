@@ -7,6 +7,7 @@ const linkRegex =
 const intentos = new Map();
 export default {
     name:"newThread",
+    vscOnly: true,
     ignoreBots: true,
     execute: async function(message:Message,client:Client) {
         try {
