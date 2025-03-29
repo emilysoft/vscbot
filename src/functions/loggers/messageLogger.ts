@@ -3,7 +3,7 @@ import fs from "fs"
 import path from "path"
 import Client from "../../interfaces/ICustomClient.js"
 
-const module = async (message:Message, type:string, client:Client) => {
+const module = async (message: Message, type: string, client: Client) => {
     try {
         const categories = [
             "813538324320092162",
@@ -12,8 +12,8 @@ const module = async (message:Message, type:string, client:Client) => {
             "1122175563688317058",
         ];
         if (message.content.match(/^\$wa/) != null) return
-        const {channel} = message;
-        if(channel instanceof TextChannel != true) return
+        const { channel } = message;
+        if (channel instanceof TextChannel != true) return
         if (channel.id == "821067797157118013") return //mudae
         if (channel.parentId == "1169624626188521563") return //registro principales
         if (channel.parentId == "1120080747668197436") return //registro secundarios 
@@ -37,11 +37,10 @@ const module = async (message:Message, type:string, client:Client) => {
         const minutes = now.getMinutes();
 
         const authorID = message.author.id;
-        if(message.channel instanceof TextChannel != true) return
+        if (message.channel instanceof TextChannel != true) return
         const channelName = message.channel.name;
         const userName = message.author.username;
         let messageContent = "";
-        let images = [];
 
         if (message.content == "") {
             if (message.attachments.size > 0) {
@@ -68,14 +67,16 @@ const module = async (message:Message, type:string, client:Client) => {
             }
         );
         if (categories.includes(message.channel.parentId as string)) {
-            if(!message.guild) return
+            if (!message.guild) return
             const log = `${typeLog} __[#${channelName.replace(/[^a-zA-Z0-9\-]+/, "")}](<https://discord.com/channels/${message.guild.id}/${message.channel.id}/${message.id}>)__ **${userName}**: ${messageContent} ||userID:[${authorID}]||`;
             const { guild } = message;
-            if(!guild) return
+            if (!guild) return
+            //onlyvsc
+            if (message.guild.id != "813538324320092161") return
             const channel = guild.channels.cache.get("1160325903461666927")
-            if(!channel) return
-            if(channel instanceof TextChannel) 
-            channel.send(
+            if (!channel) return
+            if (channel instanceof TextChannel)
+                channel.send(
                     log
                         .replace(/<@/gim, "<!@")
                         .replace(/@everyone/gim, "@!everyone")

@@ -18,7 +18,7 @@ const module: IEvents = {
             //automod
             client.automod.forEach(automod => {
                 if(!message.guild) return
-                if(automod.ignoreBots == message.author.bot) return
+                if (message.author.bot && automod.ignoreBots) return;
                 if(!automod.vscOnly || message.guild.id != "813538324320092161") return 
                 automod.execute(message, client)
             })
