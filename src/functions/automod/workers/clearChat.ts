@@ -3,21 +3,21 @@ import Client from "../../../interfaces/ICustomClient.js";
 import Iautomod from "../../../interfaces/Iautomod.js";
 
 export default {
-    name:"clearChat",
+    name: "clearChat",
     ignoreBots: true,
     vscOnly: false,
-    execute: function(message:Message,client:Client) {
+    execute: function (message: Message, client: Client) {
         try {
-            if(!message.guild) return
-            if(message.guild.id == "813538324320092161") {
+            if (!message.guild) return
+            if (message.guild.id == "813538324320092161") {
                 clearNSB(message, "813538324320092164");
                 clearNSB(message, "853387980335874078");
                 return
             }
             //neetoons
-            if(message.author.id == "831906235912814622") {
+            if (message.guild.id == "811827256489541643") {
                 clearNSB(message, "871386967726772234");
-            } 
+            }
         } catch (err: any) {
             client.errorLogger(err, client, "error", process.cwd() + " ");
         }
@@ -83,9 +83,9 @@ export async function clearGulag(client: Client) {
     const channel = await guild.channels.fetch(gulagId);
 
     if (channel instanceof TextChannel != true) return;
-    let messages = await channel.messages.fetch({limit:1});
+    let messages = await channel.messages.fetch({ limit: 1 });
     const lastMessage = messages.first();
-    if(!lastMessage) return
+    if (!lastMessage) return
     const haceTresDias = Date.now() - (2 * 24 * 60 * 60 * 1000)
     if (lastMessage.createdTimestamp > haceTresDias) return;
     messages = await channel.messages.fetch();
