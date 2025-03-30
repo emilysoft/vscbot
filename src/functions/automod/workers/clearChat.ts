@@ -4,7 +4,7 @@ import Iautomod from "../../../interfaces/Iautomod.js";
 
 export default {
     name: "clearChat",
-    ignoreBots: true,
+    ignoreBots: false,
     vscOnly: false,
     execute: function (message: Message, client: Client) {
         try {

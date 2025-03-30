@@ -1,11 +1,11 @@
-import {Message} from "discord.js"
+import { Message } from "discord.js"
 import Client from "../../../interfaces/ICustomClient.js"
 import Iautomod from "../../../interfaces/Iautomod.js"
 export default {
-    name:"deleteMee6",
-    vscOnly: false,
-    ignoreBots: true,
-    execute: async function(message:Message,client:Client) {
+    name: "deleteMee6",
+    vscOnly: true,
+    ignoreBots: false,
+    execute: async function (message: Message, client: Client) {
         try {
             const { author, content } = message;
             if (
@@ -15,8 +15,8 @@ export default {
             ) {
                 await message.delete();
             }
-        } catch (err:any) {
-            if(err.code == 10008) return
+        } catch (err: any) {
+            if (err.code == 10008) return
             client.errorLogger(err, client, "error", process.cwd() + " ");
         }
     }
