@@ -9,7 +9,7 @@ const REGEX_STEAM_SCAM = /(gift\s+\d{2}\$|\d{2}\$\s+(gift|(from )?steam))[\s\S]+
 const REGEX_NICOLAS_MADURO = /viva\s+(maduro|chavez)/gim
 const HACKED_MESSAGE = "Has sido kickeado/a del servidor porque tu cuenta de Discord has sido hackeada, revisa todos tus dms, borra todos los mensajes de spam que has enviado con tu cuenta, cambia la contraseña, de ser necesario formatea la computadora y regresa de nuevo."
 export default {
-    name: "banDiscordInvite",
+    name: "automodModeration",
     vscOnly: false,
     ignoreBots: true,
     execute: async function (message: Message, client: Client) {
