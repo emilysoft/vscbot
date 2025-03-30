@@ -19,7 +19,7 @@ export default {
             if (message.author.id == "302249242469335060") return
             if (message.channel instanceof TextChannel != true) return
             //consigue el canal automod
-            if (/automod/gim.test(message.channel.name)) return
+            if (message.channel.name.match(/automod/gim) == null) return
             if (!message.member) return
             if (!message.guild) return
 
