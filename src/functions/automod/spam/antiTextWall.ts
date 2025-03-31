@@ -1,20 +1,20 @@
 import Client from "../../../interfaces/ICustomClient.js"
 import Iautomod from "../../../interfaces/Iautomod.js"
-import { ColorResolvable, TextChannel, Message, EmbedBuilder, Role, DMChannel} from "discord.js"
+import { ColorResolvable, TextChannel, Message, EmbedBuilder, Role, DMChannel } from "discord.js"
 const aviso = `Mensaje borrado por texto excesivo. Usa <#1112164583344443433>`;
 import isNumberInMessage from "./../../lib/isNumberInMessage.js"
-import config from "../../../config.json" with {type:"json"}
-interface Excepciones  {
-    outOfContextRoleId: string, 
+import config from "../../../config.json" with {type: "json"}
+interface Excepciones {
+    outOfContextRoleId: string,
     moderacionRoleId: string,
     SilenciadoRoleId: string,
     mutedRoleId: string,
-} 
+}
 export default {
-    name:"antiTextWall",
+    name: "antiTextWall",
     ignoreBots: false,
     vscOnly: true,
-    execute: async function(message:Message,client:Client) {
+    execute: async function (message: Message, client: Client) {
         try {
             const limiteCaracteres = 600;
             const excepciones: Excepciones = {
@@ -22,7 +22,7 @@ export default {
                 moderacionRoleId: "813568302294761486",
                 SilenciadoRoleId: "813572971338792962",
                 mutedRoleId: "936077832747118652",
-            } 
+            }
             //EXCEPCIONES
             if (message.channel.isThread()) return; // evitar hilos
             if (
@@ -36,16 +36,17 @@ export default {
                 message.author.id == "690796358579257424"
             )
                 return; //evitar owner
-            if(!message.member) return
+            if (!message.member) return
             for (let key in excepciones) {
                 if (
                     message.member.roles.cache.some(
-                        (role: Role) => role.id === excepciones[key as keyof Excepciones] 
+                        (role: Role) => role.id === excepciones[key as keyof Excepciones]
                     )
                 )
                     return;
             }
-            if(message.channel instanceof TextChannel != true) return
+            if (message.channel instanceof TextChannel != true) return
+            if (/^\.\s*dl\s+https/i.test(message.content)) return
             if (message.channel.parentId === "813564411628355625") return; //administracion
             if (message.channel.parentId === "1169624626188521563") return; // registro principales
             if (message.channel.parentId === "1120080747668197436") return; // registro secundarios
@@ -82,10 +83,10 @@ export default {
 
 async function action(message: Message, client: Client, args: string) {
     try {
-        if(message)
+        if (message)
             await message.delete();
         const avatarPhoto = `https://cdn.discordapp.com/avatars/${message.author.id}/${message.author.avatar}.png`;
-        if(!client.user) return
+        if (!client.user) return
         const botAvatar = client.user.displayAvatarURL();
         const botsChannel = client.channels.cache.find(
             (channel) => channel.id === config.backupChannel
@@ -110,7 +111,7 @@ async function action(message: Message, client: Client, args: string) {
         if (message.author.bot) return;
 
         //envia aviso del mensaje borrado
-        if(message.channel instanceof TextChannel != true) return
+        if (message.channel instanceof TextChannel != true) return
         message.channel.sendTyping()
         await message.channel
             .send(`<@${message.author.id}>` + aviso)
@@ -121,7 +122,7 @@ async function action(message: Message, client: Client, args: string) {
             });
 
         // Hace un backup en el dm si esta abierto o en un canal del servidor
-        if(!message.member) return
+        if (!message.member) return
         await message.member.user
             .createDM()
             .then((dm) => {
@@ -132,8 +133,8 @@ async function action(message: Message, client: Client, args: string) {
                     // Envia el backup en el canal de bots
                     if (err.code == 50007) {
                         if (isNumberInMessage(message)) return;
-                        if(!botsChannel) return
-                        if(botsChannel instanceof TextChannel != true || botsChannel instanceof DMChannel) return
+                        if (!botsChannel) return
+                        if (botsChannel instanceof TextChannel != true || botsChannel instanceof DMChannel) return
                         botsChannel.sendTyping()
                         botsChannel.send({
                             content: `<@${message.author.id}> ${aviso}`,
@@ -152,8 +153,8 @@ async function action(message: Message, client: Client, args: string) {
             });
 
         //logea la situacion
-    } catch (err:any) {
-        if(err.code == 10008) return
+    } catch (err: any) {
+        if (err.code == 10008) return
         client.errorLogger(err, client, "error", process.cwd() + " ");
     }
 }

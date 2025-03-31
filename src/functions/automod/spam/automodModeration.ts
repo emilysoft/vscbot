@@ -2,8 +2,9 @@ import { Message, TextChannel } from "discord.js"
 import Client from "../../../interfaces/ICustomClient.js"
 import Iautomod from "../../../interfaces/Iautomod.js"
 import sendDM from "../../lib/sendDM.js";
+import logger from "../../logger.js";
 const REGEX_CRYPTO = /(hello|hi|i'll|i will).*(help|teach).*(earn|profit|crypto).*(\d{1,3}k\$?|doubts|the first|\d{1,3} hours).*(crypto|commission|profit)/gim;
-const REGEX_DISCORD_INVITE = /(https?:\/\/)?(www\.)?(((discord(app)?)\.com\/invite)|((discord(app)?)\.gg))/gim;
+const REGEX_DISCORD_INVITE = /(https?:\/\/)?(discord(?:app)?\.com\/invite\/|discord\.gg\/)([a-zA-Z0-9-_]+)([^\s\/]*)?/gim;
 const REGEX_DISCORD_INVITE_SPAM = /(porn|teen|adobe|leaks|onlyfans|giveaway)/gim
 const REGEX_STEAM_SCAM = /(gift\s+\d{2}\$|\d{2}\$\s+(gift|(from )?steam))[\s\S]+https/gim
 const REGEX_NICOLAS_MADURO = /viva\s+(maduro|chavez)/gim
@@ -14,6 +15,7 @@ export default {
     ignoreBots: true,
     execute: async function (message: Message, client: Client) {
         try {
+            logger(`ejecutando automod: ${this.name}`)
             // ignore nit and loq
             if (message.author.id == "690796358579257424") return
             if (message.author.id == "302249242469335060") return
@@ -48,6 +50,7 @@ export default {
 
 
 async function discordInvite(message: Message, content: string, regex: RegExp, client: Client) {
+    logger("ejecutando automod discordinvite")
     if (!message.member) return
     if (!message.guild) return
     if (content.match(regex) == null) return
@@ -67,7 +70,7 @@ async function discordInvite(message: Message, content: string, regex: RegExp, c
             message,
             client,
             "Cuenta hackeada",
-            "Ha sido kickeado por enviar spam."
+            "Ha sido kickeado por enviar spam"
         );
     } else {
         // mutear para revisar a fondo en el gulag
@@ -89,12 +92,13 @@ async function discordInvite(message: Message, content: string, regex: RegExp, c
             message,
             client,
             "Mensaje con discord invite",
-            "Ha sido muteado por enviar una Discord invite."
+            "Ha sido muteado por enviar una Discord invite"
         );
     }
 
 }
 async function antiScam(message: Message, content: string, regex: RegExp, client: Client) {
+    logger("ejecutando automod antiScam")
     if (!message.member) return
     if (!message.guild) return
     if (content.match(regex) == null) return
@@ -104,11 +108,12 @@ async function antiScam(message: Message, content: string, regex: RegExp, client
         message,
         client,
         "Cuenta hackeada",
-        "Ha sido kickeado por enviar scam."
+        "Ha sido kickeado por enviar scam"
     );
 }
 
 async function nicolasMaduro(message: Message, content: string, regex: RegExp, client: Client) {
+    logger("ejecutando automod nicolasMaduro")
     if (content.match(regex) == null) return
     if (message.guild?.id != "813538324320092161") return
     if (!message.member) return

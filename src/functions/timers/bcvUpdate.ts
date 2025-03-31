@@ -25,19 +25,20 @@ const module = async (now: Date, client: Client) => {
                     embeds: [embed],
                 });
             }
-        } else {
-            if (hour == 9 && minutes == 0) 
-                return sendMessage(client, channel, role);
-            if (hour == 13 && minutes == 35) sendMessage(client, channel);
-            if (hour == 17 && minutes == 0) {
-                const embed = await getBCVdata(client);
-                if (channel instanceof TextChannel != true || !embed) return;
-                await channel.send({
-                    content: "Última actualización del día",
-                    embeds: [embed],
-                });
-            }
         }
+        //else {
+        //    if (hour == 9 && minutes == 0) 
+        //        return sendMessage(client, channel, role);
+        //    if (hour == 13 && minutes == 35) sendMessage(client, channel);
+        //    if (hour == 17 && minutes == 0) {
+        //        const embed = await getBCVdata(client);
+        //        if (channel instanceof TextChannel != true || !embed) return;
+        //        await channel.send({
+        //            content: "Última actualización del día",
+        //            embeds: [embed],
+        //        });
+        //    }
+        //}
     } catch (err) {
         client.errorLogger(err, client, "error", process.cwd() + " ");
     }
@@ -47,8 +48,7 @@ async function sendMessage(client: Client, channel: TextChannel, rol = "") {
     const embed1 = await getBCVdata(client);
 
     if (channel instanceof TextChannel != true) return;
-    if(!embed1) return
-    channel.sendTyping();
+    if (!embed1) return
     await channel.send({
         content: `Ya subió el dólar marico! ${rol}`,
         //files: [getData()],

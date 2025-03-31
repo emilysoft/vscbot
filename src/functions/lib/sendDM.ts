@@ -22,8 +22,8 @@ export default async function sendDM(message: Message, mensaje: string) {
             text: `${name} | ${invite}`,
             iconURL: botAvatar,
         });
-    await message.member.user.createDM().then((dm) => {
-        dm.send({
+    await message.member.user.createDM().then(async (dm) => {
+        await dm.send({
             embeds: [embed],
         });
     });

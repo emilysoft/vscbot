@@ -1,9 +1,5 @@
-export default async function (prompt:string) {
-    let response;
-    fetch(`https://gemini-rest.vercel.app/api/?prompt=${encodeURIComponent(prompt)}`)
+export default async function (prompt: string) {
+    return await fetch(`https://gemini-rest.vercel.app/api/?prompt=${encodeURIComponent(prompt)}`)
         .then(res => res.json())
-        .then(res => {
-            response = res.response
-        })
-    return response
+        .then(res => res.response)
 }
