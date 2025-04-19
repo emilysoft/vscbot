@@ -9,7 +9,7 @@
     "    try {",
     "",
     "    } catch (err) {",
-    "        errorLogger(err, client, \"error\");",
+    "        errorLogger(err, message.client, \"error\");",
     "    }",
     "};",
     ""
