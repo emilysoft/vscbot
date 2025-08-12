@@ -14,7 +14,7 @@ export default (client:Client) => {
             .readdirSync(path.join(process.cwd(), `dist/functions/automod/${folder}`))
             .filter((file) => file.endsWith("js"));
         for (const file of automodFiles) {
-            let filePath = path.join(
+            const filePath = path.join(
                 process.cwd(),
                 `dist/functions/automod/${folder}/${file}`
             );

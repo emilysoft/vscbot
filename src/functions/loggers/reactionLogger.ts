@@ -1,6 +1,7 @@
 import { MessageReaction, TextChannel, User } from "discord.js";
 
-const module = (messageReaction:MessageReaction, user:User, type:string) => {
+
+const module = async (messageReaction: MessageReaction, user: User, type: string) => {
     let typeMessage = "";
     if (type == "add") {
         typeMessage = "fue agregado";
@@ -9,7 +10,6 @@ const module = (messageReaction:MessageReaction, user:User, type:string) => {
     } else {
         throw new Error("Error al especificar el tipo de evento");
     }
-    const today = new Date();
     const now = new Date();
     const date = now.getDate();
     const month = now.getMonth() + 1;
@@ -18,7 +18,7 @@ const module = (messageReaction:MessageReaction, user:User, type:string) => {
     const minutes = now.getMinutes();
 
     const authorID = user.id;
-    if(messageReaction.message.channel instanceof TextChannel != true) return
+    if (messageReaction.message.channel instanceof TextChannel != true) return
     const channelName = messageReaction.message.channel.name;
     const userName = user.username;
     const emoji = messageReaction.emoji;

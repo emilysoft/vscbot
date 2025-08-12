@@ -1,5 +1,5 @@
 import { ChatInputCommandInteraction, Message, EmbedBuilder, SlashCommandBuilder, ColorResolvable } from "discord.js"
-import config from "../../config.json" with {type:"json"}
+import config from "../../config.json" with {type: "json"}
 import Client from "./../../interfaces/ICustomClient.js"
 import ICommand from "../../interfaces/command.js"
 const module: ICommand = {
@@ -9,20 +9,22 @@ const module: ICommand = {
         .setName("help")
         .setDescription("Mira una lista de comandos"),
     slashCommand: true,
+    cooldown: 2,
+    allowEdited: false,
     messageCommand: true,
-    async execute(interaction: ChatInputCommandInteraction, client:Client) {
+    async execute(interaction: ChatInputCommandInteraction, client: Client) {
         const avatarPhoto = interaction.user.displayAvatarURL();
         help(interaction, avatarPhoto, interaction.user.tag, client);
     },
-    async run(message: Message, client:Client) {
+    async run(message: Message, client: Client) {
         const avatarPhoto = message.author.displayAvatarURL();
         help(message, avatarPhoto, message.author.tag, client);
     },
 };
 
-async function help(interaction:Message | ChatInputCommandInteraction, avatarPhoto: string, authorTag: string, client:Client) {
+async function help(interaction: Message | ChatInputCommandInteraction, avatarPhoto: string, authorTag: string, client: Client) {
     try {
-        const descriptions : string[] = [];
+        const descriptions: string[] = [];
         client.commands.each((command) => {
             if (command.slashCommand || command.messageCommand)
                 descriptions.push(
@@ -32,7 +34,7 @@ async function help(interaction:Message | ChatInputCommandInteraction, avatarPho
         const embed = new EmbedBuilder()
             .setColor(config.EMBED_COLOR as ColorResolvable)
             .setTitle(`Comandos de ${interaction.client.user.username}`)
-            .setAuthor({ name: authorTag, iconURL: avatarPhoto})
+            .setAuthor({ name: authorTag, iconURL: avatarPhoto })
             .setDescription(descriptions.join("\n"))
             .setFooter({
                 text: interaction.client.user.username,

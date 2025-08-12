@@ -14,7 +14,8 @@ export default {
     name: "antiTextWall",
     ignoreBots: false,
     vscOnly: true,
-    execute: async function (message: Message, client: Client) {
+    allowEdited: true,
+    execute: async function(message: Message, client: Client) {
         try {
             const limiteCaracteres = 600;
             const excepciones: Excepciones = {
@@ -37,7 +38,7 @@ export default {
             )
                 return; //evitar owner
             if (!message.member) return
-            for (let key in excepciones) {
+            for (const key in excepciones) {
                 if (
                     message.member.roles.cache.some(
                         (role: Role) => role.id === excepciones[key as keyof Excepciones]
@@ -61,7 +62,7 @@ export default {
             //COMPROBACION
             if (message.content.length > 0) {
                 // contenido en texto
-                let args = message.content;
+                const args = message.content;
 
                 // antinewlines
                 if (message.author.bot && args.match(/(.*\n){10,}/gm))
@@ -70,7 +71,7 @@ export default {
                 if (args.length > limiteCaracteres) action(message, client, args);
             } else if (message.embeds.length > 0) {
                 // embeds
-                let args = message.embeds[0].description;
+                const args = message.embeds[0].description;
                 if (args)
                     if (args.length > limiteCaracteres)
                         action(message, client, args);

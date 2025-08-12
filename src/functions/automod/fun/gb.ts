@@ -2,10 +2,11 @@ import { Message } from "discord.js";
 import Client from "../../../interfaces/ICustomClient.js"
 
 export default {
-    name:"gb",
+    name: "gb",
     vscOnly: true,
     ignoreBots: true,
-    execute: async function(message:Message,client:Client) {
+    allowEdited: false,
+    execute: async function (message: Message, client: Client) {
         try {
             const regex = /\.\s*t\s+g\s*b/gim;
             if (message.content.match(regex) != null) await message.delete();

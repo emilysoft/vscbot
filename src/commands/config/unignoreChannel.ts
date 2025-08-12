@@ -1,8 +1,10 @@
-import {SlashCommandBuilder } from "discord.js"
+import { SlashCommandBuilder } from "discord.js"
 import ICommand from "../../interfaces/command.js"
 const module: ICommand = {
     name: "unignore",
     description: "unignore channels",
+    cooldown: 5,
+    allowEdited: false,
     slashCommand: false,
     messageCommand: false,
     data: new SlashCommandBuilder()

@@ -1,0 +1,36 @@
+{
+  "parser": "@typescript-eslint/parser",
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "parserOptions": {
+    "ecmaVersion": 2021,
+    "sourceType": "module",
+    "project": "./tsconfig.json"
+  },
+  "rules": {
+    // Reglas para el estilo de código
+    "indent": [
+      "error",
+      2
+    ], // Forzar indentación de 2 espacios
+    "quotes": [
+      "error",
+      "double"
+    ], // Forzar el uso de comillas dobles
+    "semi": [
+      "error",
+      "always"
+    ], // Opcional: Forzar punto y coma al final de las declaraciones
+    // Aquí puedes añadir o sobrescribir otras reglas personalizadas
+    // Por ejemplo, para evitar variables no usadas
+    "no-unused-vars": "warn",
+    "@typescript-eslint/no-unused-vars": [
+      "warn",
+      {
+        "argsIgnorePattern": "^_"
+      }
+    ]
+  }
+}

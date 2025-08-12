@@ -2,16 +2,18 @@ import { ChatInputCommandInteraction, Message, SlashCommandBuilder } from "disco
 import getBCVdata from "../../functions/lib/getBCVdata.js"
 import Client from "../../interfaces/ICustomClient.js"
 import ICommand from "../../interfaces/command.js"
-const module:ICommand = {
+const module: ICommand = {
     name: "bcv",
     description: "Obtiene tasas del Sistema Bancario (Bs/USD).",
     //category: "utility",
     data: new SlashCommandBuilder()
         .setName("bcv")
         .setDescription("Obtiene tasas del Sistema Bancario (Bs/USD)."),
+    allowEdited: false,
     slashCommand: false,
+    cooldown: 5,
     messageCommand: true,
-    async execute(interaction: ChatInputCommandInteraction, client:Client) {
+    async execute(interaction: ChatInputCommandInteraction, client: Client) {
         try {
             interaction
                 .reply({
@@ -22,7 +24,7 @@ const module:ICommand = {
                 })
                 .then(async () => {
                     const embed = await getBCVdata(client);
-                    if(!embed) return interaction.editReply({
+                    if (!embed) return interaction.editReply({
                         content: "Error al cargar",
                         allowedMentions: { repliedUser: false },
                     });
@@ -37,7 +39,7 @@ const module:ICommand = {
             client.errorLogger(err, client, "error", process.cwd() + " ");
         }
     },
-    async run(message: Message, client:Client) {
+    async run(message: Message, client: Client) {
         try {
             //message
             //    .reply({
@@ -46,16 +48,16 @@ const module:ICommand = {
             //            repliedUser: false,
             //        },
             //    })
-                //.then(async (msg) => {
-                    const embed = await getBCVdata(client);
-                    if(!embed) return  
-                    //msg.edit({
-                    await message.reply({
-                        content: "",
-                        embeds: [embed],
-                        allowedMentions: { repliedUser: false },
-                    });
-                //});
+            //.then(async (msg) => {
+            const embed = await getBCVdata(client);
+            if (!embed) return
+            //msg.edit({
+            await message.reply({
+                content: "",
+                embeds: [embed],
+                allowedMentions: { repliedUser: false },
+            });
+            //});
         } catch (err) {
             client.errorLogger(err, client, "error", process.cwd() + " ");
         }

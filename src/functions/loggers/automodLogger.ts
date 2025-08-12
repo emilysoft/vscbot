@@ -10,7 +10,7 @@ const module = async (message: Message, client: Client, reason: string, descript
             .setColor(config.EMBED_COLOR as ColorResolvable)
             .setTitle(`${reason}`)
             .setAuthor({ name: message.author.tag, iconURL: avatarPhoto })
-            .setDescription(`${description} en <#${message.channelId}>`)
+            .setDescription(`${description}.`)
             .setTimestamp()
             .setFooter({
                 text: `user ID: ${message.author.id}`,

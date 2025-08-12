@@ -25,7 +25,7 @@ export default {
 
         if (isNumberInMessage(message)) {
             try {
-                for (let inmune in inmunidad) {
+                for (const inmune in inmunidad) {
                     if(!message.member) return
                     if (
                         message.member.roles.cache.some(

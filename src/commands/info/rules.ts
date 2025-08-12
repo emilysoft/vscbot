@@ -8,6 +8,8 @@ const module: ICommand = {
     name: "rules",
     description: "Muestra las reglas",
     slashCommand: false,
+    cooldown: 4,
+    allowEdited: false,
     messageCommand: true,
     data: new SlashCommandBuilder()
         .setName("rules")
@@ -41,7 +43,7 @@ function rules(message: Message) {
                     .setImage(
                         "https://cdn.discordapp.com/attachments/988431659059781632/1024488333402968084/line-neon.gif"
                     );
-                let messageResponse = {
+                const messageResponse = {
                     embeds: [embed],
                 };
                 if (message.reference) {

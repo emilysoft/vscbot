@@ -40,7 +40,7 @@ export default {
             if (channel.id === "853387980335874078") return; //debates
             if (channel.id === "1005354020333948988") return; //basados
 
-            for (let regex in regexs) {
+            for (const regex in regexs) {
                 if (content.match(regexs[regex as keyof Regexs]) != null) {
                     if(message.author.id == "302249242469335060") return
                     await message.delete();

@@ -2,21 +2,21 @@ import Client from "../interfaces/ICustomClient.js"
 import fs from "node:fs"
 import path from "node:path"
 import chalk from "chalk"
-export default (client:Client) => {
+export default (client: Client) => {
     const eventsPath = path.join(process.cwd(), "dist/events");
     const eventFolders = fs.readdirSync(eventsPath);
     console.warn(chalk.whiteBright("Loading events"));
     for (const folder of eventFolders) {
-        let eventFiles = fs
+        const eventFiles = fs
             .readdirSync(path.join(process.cwd(), `dist/events/${folder}`))
             .filter((file) => file.endsWith(".js"));
 
         for (const file of eventFiles) {
-            let filePath = path.join(process.cwd(), `dist/events/${folder}/${file}`);
+            const filePath = path.join(process.cwd(), `dist/events/${folder}/${file}`);
             import(filePath).then(event => {
                 event = event.default
                 if ("name" in event && "execute" in event) {
-                    console.warn(
+                    console.log(
                         chalk.greenBright(`[EVENT LOADED] ${event.name}.`)
                     );
                     if (event.once) {

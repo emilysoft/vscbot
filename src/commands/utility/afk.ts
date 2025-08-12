@@ -8,8 +8,10 @@ const module: ICommand = {
         .addStringOption((option) =>
             option.setName("razón").setDescription("texto")
         ),
-    description: "Establece tu estado AFK", 
+    description: "Establece tu estado AFK",
+    allowEdited: false,
     slashCommand: true,
+    cooldown: 5,
     messageCommand: true,
     async execute(interaction: ChatInputCommandInteraction) {
         afk(interaction, interaction.user.id)

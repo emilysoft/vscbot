@@ -11,7 +11,7 @@ export default (client:Client) => {
             .readdirSync(path.join(process.cwd(), `dist/commands/${folder}`))
             .filter((file) => file.endsWith("js"));
         for (const file of commandFiles) {
-            let filePath = path.join(
+            const filePath = path.join(
                 process.cwd(),
                 `dist/commands/${folder}/${file}`
             );

@@ -6,6 +6,7 @@ export default {
     name: "ia",
     vscOnly: true,
     ignoreBots: true,
+    allowEdited: true,
     execute: async function (message: Message, client: Client) {
         try {
             if (message.channel.id != "1073774467282641038") return
@@ -31,7 +32,7 @@ export default {
             }
 
             const response = await ia(prompt)
-            if(!response) return message.reply("hubo un error con la API, intenta de nuevo") 
+            if (!response) return message.reply("hubo un error con la API, intenta de nuevo")
             client.iaUser.set(message.author.id, response)
             sendMessage(message, response)
         } catch (err) {
@@ -49,10 +50,10 @@ async function sendMessage(message: Message, mensaje: string) {
             .replace(/@here/gim, "here"),
         allowedMentions: { parse: [], repliedUser: false }
     })
-    let start = mensaje.slice(0, 2000)
+    const start = mensaje.slice(0, 2000)
         .replace(/@everyone/gim, "everyone")
         .replace(/@here/gim, "here")
-    let end = mensaje.slice(2000)
+    const end = mensaje.slice(2000)
 
     await message.reply(start)
         .then(msg => {

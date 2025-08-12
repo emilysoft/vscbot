@@ -10,7 +10,7 @@ export default {
         try {
             const { author, content } = message;
             if (author.id != "282859044593598464") return;
-            if(message.channel.id == "813538324320092164") return
+            if(message.channel.id == "813538324320092164" || message.channel.id == "1345943077470076979") return
             if(content.match(/virgo/gim) != null)
             {
                 setTimeout(async () => {

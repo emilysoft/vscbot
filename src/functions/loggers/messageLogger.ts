@@ -1,8 +1,6 @@
 import { Message, TextChannel } from "discord.js";
-import fs from "fs"
-import path from "path"
 import Client from "../../interfaces/ICustomClient.js"
-
+import { DB_User, DB_Channel, DB_Server } from "../../db/Idatabase.js";
 const module = async (message: Message, type: string, client: Client) => {
     try {
         const categories = [
@@ -12,7 +10,7 @@ const module = async (message: Message, type: string, client: Client) => {
             "1122175563688317058",
         ];
         if (message.content.match(/^\$wa/) != null) return
-        const { channel } = message;
+        const { channel, guild } = message;
         if (channel instanceof TextChannel != true) return
         if (channel.id == "821067797157118013") return //mudae
         if (channel.parentId == "1169624626188521563") return //registro principales
@@ -58,21 +56,13 @@ const module = async (message: Message, type: string, client: Client) => {
         const log1 = `[${typeLog}][${date}/${month}/${year}][${hours}:${minutes}][${authorID}][${channelName}] ${userName}: ${messageContent}`;
         console.log(log1);
 
-        fs.writeFile(
-            path.join(process.cwd(), `/logs/out/${year}-${month}-${date}.log`),
-            `${log1}\n`,
-            { flag: "a+" },
-            (err) => {
-                if (err) client.errorLogger(err, client, "error", process.cwd() + " ");
-            }
-        );
+        if (!message.guild) return
+        if (message.guild.id != "813538324320092161") return
         if (categories.includes(message.channel.parentId as string)) {
-            if (!message.guild) return
-            const log = `${typeLog} __[#${channelName.replace(/[^a-zA-Z0-9\-]+/, "")}](<https://discord.com/channels/${message.guild.id}/${message.channel.id}/${message.id}>)__ **${userName}**: ${messageContent} ||userID:[${authorID}]||`;
+            const log = `${typeLog} __[#${channelName.replace(/[^a-zA-Z0-9-]+/, "")}](<https://discord.com/channels/${message.guild.id}/${message.channel.id}/${message.id}>)__ **${userName}**: ${messageContent} ||userID:[${authorID}]||`;
             const { guild } = message;
             if (!guild) return
             //onlyvsc
-            if (message.guild.id != "813538324320092161") return
             const channel = guild.channels.cache.get("1160325903461666927")
             if (!channel) return
             if (channel instanceof TextChannel)
@@ -83,6 +73,71 @@ const module = async (message: Message, type: string, client: Client) => {
                         .replace(/@here/gim, "@!here")
                 );
         }
+
+        if (type != "create") return
+
+        let server_db: DB_Server | undefined;
+        let channel_db: DB_Channel | undefined;
+        let user_db: DB_User | undefined;
+        let owner_db: DB_User | undefined;
+
+        const { author } = message
+        if (!guild || !author) return
+
+        //creacion dueño del server
+        owner_db = await client.db.users.get(guild.ownerId) as DB_User
+        if (!owner_db) {
+            const owner = await guild.fetchOwner();
+            if (!owner) return
+            owner_db = await client.db.users.create({
+                user_id: guild.ownerId,
+                username: owner.user.username
+            })
+        }
+        if (!owner_db?.id) throw new Error("error al intentar crear un dueño en la db")
+
+        //creacion dueño del mensaje 
+        user_db = await client.db.users.get(author.id) as DB_User
+        if (!user_db) {
+            user_db = await client.db.users.create({
+                user_id: author.id,
+                username: author.username
+            })
+        }
+        if (!user_db) throw new Error("error en este peo")
+
+        // creacion del server
+        server_db = await client.db.guild.get(guild.id) as DB_Server
+        if (!server_db) {
+            server_db = await client.db.guild.create({
+                server_id: guild.id,
+                name: guild.name,
+                owner_id: owner_db.id,
+                creation_date: guild.createdAt.toString()
+            })
+        }
+        if (!server_db?.id) throw new Error("error al intentar crear un servidor en la db")
+
+        channel_db = await client.db.channels.get({ item_id: message.channel.id }) as DB_Channel
+        if (!channel_db) {
+            channel_db = await client.db.channels.create({
+                channel_id: message.channel.id,
+                server_id: server_db.id,
+                name: message.channel.name
+            })
+        }
+        if (!channel_db?.id) throw new Error("error al guardar el canal")
+        if (!user_db?.id) throw new Error("error al guardar usuario")
+
+        await client.db.logs.create({
+            server_id: server_db.id,
+            channel_id: channel_db.id,
+            user_id: user_db.id,
+            interaction: message.content,
+            logType: "MESSAGE CREATED",
+            creation_date: `${date}/${month}/${year}_${hours}:${minutes}`
+        })
+
     } catch (err) {
         client.errorLogger(err, client, "error", process.cwd() + " ");
     }

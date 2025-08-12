@@ -13,7 +13,7 @@ export async function analyzeChat(channel: TextChannel, limit: number = 50): Pro
             .join('\n');
 
         // Crear el prompt para la IA
-        const prompt = `Analiza los siguientes mensajes de un chat de Discord y dime de qué se está hablando. Responde de manera resumida, permitete responder al menos con 600 caracteres:\n\n${formattedMessages}`;
+        const prompt = `Analiza los siguientes mensajes de un chat de Discord y dime de qué se está hablando. Responde de manera resumida, no expliques el ambiente del chat ni concluyas nada, permitete responder maximo con 600 caracteres:\n\n${formattedMessages}`;
 
         // Obtener la respuesta de la IA
         const response = await ia(prompt);

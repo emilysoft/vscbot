@@ -1,5 +1,5 @@
 import { Message, SlashCommandBuilder } from "discord.js"
-import config from "../../config.json" with {type:"json"}
+import config from "../../config.json" with {type: "json"}
 import ICommand from "../../interfaces/command.js"
 import Client from "../../interfaces/ICustomClient.js"
 const module: ICommand = {
@@ -8,6 +8,8 @@ const module: ICommand = {
     description: "Reemplaza caracteres de un mensaje",
     slashCommand: false,
     messageCommand: true,
+    cooldown: 2,
+    allowEdited: false,
     data: new SlashCommandBuilder()
         .setName("replace")
         .setDescription("Reemplaza caracteres de un mensaje"),
@@ -21,7 +23,7 @@ const module: ICommand = {
     },
 };
 
-async function replace(message:Message, client:Client) {
+async function replace(message: Message, client: Client) {
     if (config.OWNERS_ID.includes(message.author.id)) {
         if (message.reference) {
             await message.channel.messages
@@ -35,16 +37,16 @@ async function replace(message:Message, client:Client) {
                             .slice(1)
                             .join(" ")
                             .match(/(.*)-to/)
-                        if(!match) return
-                            arg1 =  match[0].replace(/\s*-to/, "");
+                        if (!match) return
+                        arg1 = match[0].replace(/\s*-to/, "");
                         match = args
                             .split(/ +/)
                             .slice(1)
                             .join(" ")
                             .match(/-to(.*)/)
-                        if(!match) return
-                            arg2 = match[0].replace(/-to\s*/, "");
-                        if(!arg1 || !arg2) return  
+                        if (!match) return
+                        arg2 = match[0].replace(/-to\s*/, "");
+                        if (!arg1 || !arg2) return
                         const regex = new RegExp(arg1, "gim");
                         const result = msg.content.replace(regex, arg2);
                         message.reply(result);

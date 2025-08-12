@@ -13,17 +13,19 @@ const module: ICommand = {
     data: new SlashCommandBuilder()
         .setName("gel")
         .setDescription("Busca algo en geldooru"),
+    cooldown: 5,
+    allowEdited: false,
     description: "Busca algo en geldooru",
     messageCommand: true,
     slashCommand: false,
-    async run(message: Message, client:Client) {
+    async run(message: Message, client: Client) {
         geldooru(message, client);
     },
 };
 
-async function geldooru(message: Message, client:Client) {
+async function geldooru(message: Message, client: Client) {
     try {
-        const {channel } = message;
+        const { channel } = message;
         if (!channel) return;
         const channelId = channel.id;
         if (!channelsAllowed.includes(channelId)) return;

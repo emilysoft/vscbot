@@ -12,7 +12,7 @@ export default {
     execute: function(message:Message,client:Client) {
         try {
             if (message.channel.id == "1024260771326197781") return;
-            for (let regex of badWordsRegexed) {
+            for (const regex of badWordsRegexed) {
                 if (message.content.match(regex) != null) {
                     sendMessage(message);
                     break;

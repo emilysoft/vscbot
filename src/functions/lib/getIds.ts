@@ -1,9 +1,9 @@
-export default (content:string) => {
+export default (content: string) => {
     const regex = /\d{18,20}/;
     const args = content.split(/\s+/);
-    let ids: string[] = [];
+    const ids: string[] = [];
     args.forEach((arg) => {
-        let match = arg.match(regex);
+        const match = arg.match(regex);
         if (match != null) {
             ids.push(match[0]);
         }

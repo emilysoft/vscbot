@@ -34,16 +34,20 @@ const module: IEvents = {
             //comandos de texto
             if (message.content.startsWith(config.prefix)) {
                 const commands = client.messageCommands;
-                const arg = message.content
+                const commandName = message.content
+                    .substring(1)
+                    .split(/ +/)[0]
+                const args = message.content
                     .substring(1)
                     .split(/ +/)
-                    .slice(0, 1)
-                    .join("")
-                    .toLowerCase();
-                if (!commands.has(arg)) return
-                const cmd = commands.get(arg)
+                    .slice(1)
+                    .join(" ")
+
+                if (!commands.has(commandName)) return
+                const cmd = commands.get(commandName)
                 if (!cmd || !cmd.run) return
-                await cmd.run(message, client, arg);
+                console.log(`ejecutando comando ${cmd.name}`)
+                await cmd.run(message, client, args);
             }
         } catch (err) {
             client.errorLogger(err, client, "error", process.cwd() + " ");

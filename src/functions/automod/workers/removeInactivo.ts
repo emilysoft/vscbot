@@ -15,7 +15,7 @@ export default {
                     .then(async () => {
                         await message.delete();
                         if(!message.guild) return
-                        let log = message.guild.channels.cache.get(
+                        const log = message.guild.channels.cache.get(
                             "1088423410905919550"
                         );
                         if(log instanceof TextChannel) 

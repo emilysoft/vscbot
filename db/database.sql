@@ -1,248 +1,171 @@
--- Tabla de usuarios
+-- #####################################################################
+-- # 1. TABLAS PRINCIPALES (ENTIDADES FUNDAMENTALES)
+-- #####################################################################
+
+-- Tabla de usuarios (participantes de todos los servidores)
 CREATE TABLE users (
-    `id` INT PRIMARY KEY AUTO_INCREMENT,
-    `user_id` BIGINT(20) NOT NULL,
-    `username` VARCHAR(32) NOT NULL,
-    `display_name` VARCHAR(32) DEFAULT 0
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL UNIQUE,
+    username VARCHAR NOT NULL,
 );
 
--- Tabla de servidores
+-- Tabla de servidores (gremios o comunidades)
 CREATE TABLE servers (
-    `id` INT PRIMARY KEY AUTO_INCREMENT,
-    `name` VARCHAR(100) NOT NULL,
-    `owner_id` INT,
-    FOREIGN KEY (`owner_id`) REFERENCES users(id),
-    `creation_date` DATETIME NOT NULL
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    server_id INTEGER NOT NULL UNIQUE,
+    name VARCHAR NOT NULL,
+    owner_id INTEGER,
+    creation_date TEXT NOT NULL,
+    FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
--- Tabla de roles
+-- Tabla de roles dentro de un servidor
 CREATE TABLE roles (
-    `id` INT PRIMARY KEY AUTO_INCREMENT,
-    `server_id` INT,
-    FOREIGN KEY (`server_id`) REFERENCES servers(id),
-    `name` VARCHAR(100) NOT NULL,
-    `color` VARCHAR(7) DEFAULT '#000000'
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    role_id INTEGER NOT NULL UNIQUE,
+    server_id INTEGER NOT NULL,
+    name VARCHAR NOT NULL,
+    FOREIGN KEY (server_id) REFERENCES servers(id) ON DELETE CASCADE
 );
 
--- Tabla de canales
+CREATE TABLE customRoles (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    server_id INTEGER NOT NULL,
+    role_id INTEGER NOT NULL
+    FOREIGN KEY (server_id) REFERENCES servers(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE
+);
+-- Tabla de canales dentro de un servidor
 CREATE TABLE channels (
-    `id` INT PRIMARY KEY AUTO_INCREMENT,
-    `server_id` INT,
-    FOREIGN KEY (`server_id`) REFERENCES servers(id),
-    `name` VARCHAR(100),
-    `type` INT(2),
-    `nsfw` BOOLEAN DEFAULT false
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    channel_id TEXT NOT NULL UNIQUE,
+    server_id INTEGER NOT NULL,
+    name VARCHAR NOT NULL,
+    FOREIGN KEY (server_id) REFERENCES servers(id) ON DELETE CASCADE
 );
 
+-- Tabla de categorías de canales dentro de un servidor
 CREATE TABLE categories (
-    `id` INT PRIMARY KEY AUTO_INCREMENT,
-    `server_id` INT,
-    FOREIGN KEY (`server_id`) REFERENCES servers(id),
-    `name` VARCHAR(100)
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    category_id INTEGER NOT NULL UNIQUE,
+    server_id INTEGER NOT NULL,
+    name VARCHAR NOT NULL,
+    FOREIGN KEY (server_id) REFERENCES servers(id) ON DELETE CASCADE
 );
 
--- tabla de regex para autoresponds y automod
-CREATE TABLE regexs (
-    `id` INT PRIMARY KEY AUTO_INCREMENT,
-    `regex` TEXT NOT NULL
+---
+
+-- #####################################################################
+-- # 2. TABLAS DE CONFIGURACIÓN Y FUNCIONALIDADES
+-- #####################################################################
+
+-- Tabla para configuraciones generales del bot por servidor
+CREATE TABLE server_settings (
+    server_id INTEGER PRIMARY KEY,
+    prefix VARCHAR DEFAULT '!',
+    FOREIGN KEY (server_id) REFERENCES servers(id) ON DELETE CASCADE
 );
 
--- Tabla de configuraciones del bot
-CREATE TABLE settings_bot (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    `server_id` INT,
-    FOREIGN KEY (`server_id`) REFERENCES servers(id),
-    `prefix` VARCHAR(3),
-    `message_log` BOOLEAN DEFAULT false,
-    `join_id_log` BOOLEAN DEFAULT false,
-    `timezone` VARCHAR(50)
+-- Tabla para configurar los canales de logs
+CREATE TABLE logs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    server_id INTEGER NOT NULL,
+    channel_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    interaction TEXT NOT NULL,
+    log_type TEXT NOT NULL,
+    FOREIGN KEY (server_id) REFERENCES servers(id) ON DELETE CASCADE,
+    FOREIGN KEY (channel_id) REFERENCES channels(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- tablas de log channels
-CREATE TABLE log_channels (
-    `id` INT PRIMARY KEY AUTO_INCREMENT,
-    `server_id` INT,
-    `channel_id` INT,
-    FOREIGN KEY (`server_id`) REFERENCES servers(id),
-    FOREIGN KEY (`channel_id`) REFERENCES channels(id)
+-- Tabla para canales donde se permite la funcionalidad de 'likes'
+-- CREATE TABLE likeable_channels (
+--     id INTEGER PRIMARY KEY AUTOINCREMENT,
+--     server_id INTEGER NOT NULL,
+--     channel_id INTEGER NOT NULL,
+--     emoji TEXT NOT NULL,
+--     FOREIGN KEY (server_id) REFERENCES servers(id) ON DELETE CASCADE,
+--     FOREIGN KEY (channel_id) REFERENCES channels(id) ON DELETE CASCADE,
+--     UNIQUE(server_id, channel_id)
+-- );
+
+-- Tabla para baneos específicos de la plataforma
+CREATE TABLE server_bans (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    server_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    reason TEXT DEFAULT NULL,
+    ban_date TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (server_id) REFERENCES servers(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE(server_id, user_id)
 );
 
--- tablas de join channels
-CREATE TABLE log_join_channels (
-    `id` INT PRIMARY KEY AUTO_INCREMENT,
-    `server_id` INT,
-    `channel_id` INT,
-    FOREIGN KEY (`server_id`) REFERENCES servers(id),
-    FOREIGN KEY (`channel_id`) REFERENCES channels(id)
+---
+
+-- #####################################################################
+-- # 3. SISTEMA DE AUTOMOD Y LISTAS NEGRAS
+-- #####################################################################
+
+-- Tabla UNIFICADA de listas negras.
+CREATE TABLE blacklists (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    server_id INTEGER NOT NULL,
+    entity_id INTEGER NOT NULL,
+    entity_type TEXT NOT NULL,
+    scope TEXT NOT NULL,
+    FOREIGN KEY (server_id) REFERENCES servers(id) ON DELETE CASCADE,
+    UNIQUE(server_id, entity_id, entity_type, scope)
 );
+
+-- Tabla principal de configuraciones del automod.
+CREATE TABLE automod_settings (
+    server_id INTEGER PRIMARY KEY,
+    crypto_enabled BOOLEAN DEFAULT 0,
+    invite_enabled BOOLEAN DEFAULT 0,
+    links_enabled BOOLEAN DEFAULT 0,
+    scam_enabled BOOLEAN DEFAULT 0,
+    textwall_enabled BOOLEAN DEFAULT 0,
+    images_perms_reminder_enabled BOOLEAN DEFAULT 0,
+    FOREIGN KEY (server_id) REFERENCES servers(id) ON DELETE CASCADE
+);
+
+-- Tabla de enlace UNIFICADA para todas las excepciones del automod.
+CREATE TABLE automod_ignored_entities (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    server_id INTEGER NOT NULL,
+    module TEXT NOT NULL,
+    entity_id INTEGER NOT NULL,
+    entity_type TEXT NOT NULL,
+    FOREIGN KEY (server_id) REFERENCES servers(id) ON DELETE CASCADE,
+    UNIQUE(server_id, module, entity_id, entity_type)
+);
+
+-- Tabla para las expresiones regulares (regex)
+CREATE TABLE regexes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    server_id INTEGER NOT NULL,
+    name VARCHAR NOT NULL,
+    pattern TEXT NOT NULL,
+    FOREIGN KEY (server_id) REFERENCES servers(id) ON DELETE CASCADE
+);
+
+---
+
+-- #####################################################################
+-- # 4. TABLAS DE ESTADÍSTICAS Y AUDITORÍA
+-- #####################################################################
 
 -- Tabla de estadísticas de uso de comandos
 CREATE TABLE command_stats (
-    `id` INT PRIMARY KEY AUTO_INCREMENT,
-    `command_name` VARCHAR(30),
-    `server_id` INT,
-    FOREIGN KEY (`server_id`) REFERENCES servers(id),
-    `usage_count` INT NOT NULL,
-    `last_usage` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- tabla de canales ignoradas por el automod
-CREATE TABLE blacklist_automod_channels (
-    `id` INT PRIMARY KEY AUTO_INCREMENT,
-    `server_id` INT,
-    `channel_id` INT,
-    FOREIGN KEY (`server_id`) REFERENCES servers(id),
-    FOREIGN KEY (`channel_id`) REFERENCES channels(id)
-);
-
--- tabla de categorias ignoradas por el automod
-CREATE TABLE blacklist_automod_categories (
-    `id` INT PRIMARY KEY AUTO_INCREMENT,
-    `server_id` INT,
-    `category_id` INT,
-    FOREIGN KEY (`server_id`) REFERENCES servers(id),
-    FOREIGN KEY (`category_id`) REFERENCES categories(id)
-);
-
--- tabla de categorias ignoradas por el automod
-CREATE TABLE blacklist_automod_roles (
-    `id` INT PRIMARY KEY AUTO_INCREMENT,
-    `server_id` INT,
-    `role_id` INT,
-    FOREIGN KEY (`server_id`) REFERENCES servers(id),
-    FOREIGN KEY (`role_id`) REFERENCES roles(id)
-);
-
--- Usuarios baneados
-CREATE TABLE banned_users (
-    `id` INT PRIMARY KEY AUTO_INCREMENT,
-    `user_id` INT,
-    `server_id` INT,
-    FOREIGN KEY (`user_id`) REFERENCES users(id),
-    FOREIGN KEY (`server_id`) REFERENCES servers(id)
-);
-
--- tabla de canales ignorados por comandos 
-CREATE TABLE blacklist_cmds_channels (
-    `id` INT PRIMARY KEY AUTO_INCREMENT,
-    `server_id` INT,
-    `channel_id` INT,
-    FOREIGN KEY (`server_id`) REFERENCES servers(id),
-    FOREIGN KEY (`channel_id`) REFERENCES channels(id)
-);
-
--- tabla de categorias ignoradas por comandos 
-CREATE TABLE blacklist_cmds_categories (
-    `id` INT PRIMARY KEY AUTO_INCREMENT,
-    `server_id` INT,
-    `category_id` INT,
-    FOREIGN KEY (`server_id`) REFERENCES servers(id),
-    FOREIGN KEY (`category_id`) REFERENCES categories(id)
-);
-
--- tabla de categorias ignoradas por comandos 
-CREATE TABLE blacklist_cmds_roles (
-    `id` INT PRIMARY KEY AUTO_INCREMENT,
-    `server_id` INT,
-    `role_id` INT,
-    FOREIGN KEY (`server_id`) REFERENCES servers(id),
-    FOREIGN KEY (`role_id`) REFERENCES roles(id)
-);
-
--- tabla de canales donde los mensajes tienen para dar likes 
-CREATE TABLE likes_channels (
-    `id` INT PRIMARY KEY AUTO_INCREMENT,
-    `server_id` INT,
-    `channel_id` INT,
-    FOREIGN KEY (`server_id`) REFERENCES servers(id),
-    FOREIGN KEY (`channel_id`) REFERENCES channels(id)
-);
-
---- CONFIGURACIONES DEL AUTOMOD ----
--- tabla de configuraciones automod
-CREATE TABLE settings_automod (
-    `id` INT PRIMARY KEY AUTO_INCREMENT,
-    `server_id` INT,
-    FOREIGN KEY (`server_id`) REFERENCES servers(id),
-    `crypto` BOOLEAN DEFAULT false,
-    `invite` BOOLEAN DEFAULT false,
-    `ban_username` BOOLEAN DEFAULT false,
-    `no_links` BOOLEAN DEFAULT false,
-    `scamming` BOOLEAN DEFAULT false,
-    `images_perms_reminder` BOOLEAN DEFAULT false,
-    `new_channel` BOOLEAN DEFAULT false,
-    `textwall` BOOLEAN DEFAULT false
-);
-
--- tabla de configuraciones del anti crypto automod 
-CREATE TABLE settings_crypto (
-    `id` INT PRIMARY KEY AUTO_INCREMENT,
-    `server_id` INT,
-    `roles_ignored` TEXT NOT NULL,
-    `users_ignored` TEXT NOT NULL,
-    `channels_ignored` TEXT NOT NULL,
-    `categories_ignored` TEXT NOT NULL,
-    FOREIGN KEY (`server_id`) REFERENCES servers(id)
-);
-
--- tabla de configuraciones del anti invite automod 
-CREATE TABLE settings_invite (
-    `id` INT PRIMARY KEY AUTO_INCREMENT,
-    `server_id` INT,
-    `roles_ignored` TEXT NOT NULL,
-    `users_ignored` TEXT NOT NULL,
-    `channels_ignored` TEXT NOT NULL,
-    `categories_ignored` TEXT NOT NULL,
-    FOREIGN KEY (`server_id`) REFERENCES servers(id)
-);
-
--- tabla de configuraciones del anti link automod 
-CREATE TABLE settings_links (
-    `id` INT PRIMARY KEY AUTO_INCREMENT,
-    `server_id` INT,
-    `roles_ignored` TEXT NOT NULL,
-    `users_ignored` TEXT NOT NULL,
-    `channels_ignored` TEXT NOT NULL,
-    `categories_ignored` TEXT NOT NULL,
-    FOREIGN KEY (`server_id`) REFERENCES servers(id)
-);
-
--- tabla de configuraciones del anti scam automod 
-CREATE TABLE settings_scamming (
-    `id` INT PRIMARY KEY AUTO_INCREMENT,
-    `server_id` INT,
-    `roles_ignored` TEXT NOT NULL,
-    `users_ignored` TEXT NOT NULL,
-    `channels_ignored` TEXT NOT NULL,
-    `categories_ignored` TEXT NOT NULL,
-    FOREIGN KEY (`server_id`) REFERENCES servers(id)
-);
-
--- tabla de configuraciones del automod avisa a un usuario cuando no puede enviar imagenes 
-CREATE TABLE settings_images_perms (
-    `id` INT PRIMARY KEY AUTO_INCREMENT,
-    `server_id` INT,
-    `user_id` INT,
-    FOREIGN KEY (`server_id`) REFERENCES servers(id),
-    FOREIGN KEY (`user_id`) REFERENCES users(id)
-);
-
-CREATE TABLE settings_new_channel (
-    `id` INT PRIMARY KEY AUTO_INCREMENT,
-    `server_id` INT,
-    `roles_ignored` TEXT NOT NULL,
-    `users_ignored` TEXT NOT NULL,
-    `channels_ignored` TEXT NOT NULL,
-    `categories_ignored` TEXT NOT NULL,
-    FOREIGN KEY (`server_id`) REFERENCES servers(id)
-);
-
-CREATE TABLE settings_textwall(
-    `id` INT PRIMARY KEY AUTO_INCREMENT,
-    `server_id` INT,
-    `roles_ignored` TEXT NOT NULL,
-    `users_ignored` TEXT NOT NULL,
-    `channels_ignored` TEXT NOT NULL,
-    `categories_ignored` TEXT NOT NULL,
-    FOREIGN KEY (`server_id`) REFERENCES servers(id)
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    server_id INTEGER NOT NULL,
+    command_name VARCHAR NOT NULL,
+    usage_count INTEGER NOT NULL DEFAULT 1,
+    last_used TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (server_id) REFERENCES servers(id) ON DELETE CASCADE,
+    UNIQUE(server_id, command_name)
 );

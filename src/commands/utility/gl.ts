@@ -15,7 +15,9 @@ const module: ICommand = {
     data: new SlashCommandBuilder()
         .setName("gl")
         .setDescription("cambiar de general"),
+    cooldown: 1,
     slashCommand: false,
+    allowEdited: false,
     messageCommand: true,
     async run(message: Message, client: Client) {
         try {
@@ -31,7 +33,7 @@ const module: ICommand = {
                 await member.roles.remove(GENERAL_2)
                 await member.roles.add(GENERAL_1)
                 channel = message.client.channels.cache.get(GENERAL_CHANNEL_1)
-            }  else {
+            } else {
                 await member.roles.add(GENERAL_2)
             }
             if (channel instanceof TextChannel != true) return

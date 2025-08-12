@@ -1,14 +1,22 @@
-import { EmbedBuilder, AttachmentBuilder, Message, TextChannel, ColorResolvable } from "discord.js"
-import config from "../../config.json" with {type:"json"}
-import path from "path"
-import { writeFile, unlink } from "fs/promises"
+import { Guild, EmbedBuilder, AttachmentBuilder, Message, TextChannel, ColorResolvable } from "discord.js"
+import config from "../../config.json" with {type: "json"}
 import Client from "../../interfaces/ICustomClient.js"
-const module = async (message:Message, client:Client) => {
+import { downloadFromURL, clearDownload } from "../lib/download.js"
+import dotenv from "dotenv"
+dotenv.config()
+const MAIN_SERVER = process.env.MAIN_SERVER
+
+
+const module = async (message: Message, client: Client) => {
     try {
         if (message.author.bot) return;
         if (message.channel.id == "1024260771326197781") return;
         if (message.attachments.size == 0) return;
-        if(!message.member || !message.guild) return
+        if (!message.member || !message.guild) return
+        const { guild } = message
+        if (!(guild instanceof Guild)) return
+        if (guild.id != MAIN_SERVER) return
+
         const avatarPhoto = message.member.displayAvatarURL();
         const botAvatar = message.client.user.displayAvatarURL();
         const botsChannel = message.guild.channels.cache.find(
@@ -21,7 +29,7 @@ const module = async (message:Message, client:Client) => {
             switch (attachment.contentType) {
                 case "image/jpeg":
                 case "image/png":
-                    let embed = [
+                    const embed = [
                         embedBuilder(
                             fileName + ".png",
                             avatarPhoto,
@@ -29,25 +37,17 @@ const module = async (message:Message, client:Client) => {
                             message
                         ),
                     ];
-                    let file = new AttachmentBuilder(
-                        `functions/automod/messageCreate/temp/${
-                            fileName + ".png"
-                        }`
-                    );
-                    await downloadAttach(attachment.url, "png", fileName).then(
-                        async () => {
-                            if(botsChannel instanceof TextChannel != true) return
+                    await downloadFromURL(attachment.url, "png", fileName).then(
+                        async (filePath) => {
+                            if (!filePath) return
+                            if (botsChannel instanceof TextChannel != true) return
                             await botsChannel
                                 .send({
                                     embeds: embed,
-                                    files: [file],
+                                    files: [new AttachmentBuilder(filePath)],
                                 })
                                 .then(() => {
-                                    unlink(
-                                        path.join(
-                                            process.cwd(),`dist/functions/automod/messageCreate/temp/${fileName}.png`
-                                        )
-                                    );
+                                    clearDownload(filePath)
                                 });
                         }
                     );
@@ -71,22 +71,17 @@ const module = async (message:Message, client:Client) => {
                             iconURL: botAvatar,
                         });
 
-                    await downloadAttach(attachment.url, "mp4", fileName).then(
-                        async () => {
-                            if(botsChannel instanceof TextChannel != true) return
+                    await downloadFromURL(attachment.url, "mp4", fileName).then(
+                        async (filePath) => {
+                            if (!filePath) return
+                            if (botsChannel instanceof TextChannel != true) return
                             await botsChannel
                                 .send({
                                     embeds: [embed2],
-                                    files: [
-                                        `functions/automod/messageCreate/temp/${fileName}.mp4`,
-                                    ],
+                                    files: [filePath],
                                 })
                                 .then(() => {
-                                    unlink(
-                                        path.join(
-                                            process.cwd(), `dist/functions/automod/messagecreate/temp/${fileName}.mp4`
-                                        )
-                                    );
+                                    clearDownload(filePath)
                                 });
                         }
                     );
@@ -101,7 +96,7 @@ const module = async (message:Message, client:Client) => {
     }
 };
 
-function embedBuilder(imageURL: string, avatarPhoto: string, botAvatar: string, message:Message) {
+function embedBuilder(imageURL: string, avatarPhoto: string, botAvatar: string, message: Message) {
     return new EmbedBuilder()
         .setColor(config.EMBED_COLOR as ColorResolvable)
         .setTitle(message.author.username)
@@ -118,14 +113,6 @@ function embedBuilder(imageURL: string, avatarPhoto: string, botAvatar: string, 
             text: `author: ${message.author.id} | Message ID: ${message.id}`,
             iconURL: botAvatar,
         });
-}
-
-async function downloadAttach(url:string, format:string, name:string) {
-
-    let outPath = path.join(process.cwd(), `dist/functions/automod/messagecreate/temp/${name}.${format}`);
-    await fetch(url)
-        .then((x) => x.arrayBuffer())
-        .then((x) => writeFile(outPath, Buffer.from(x)));
 }
 
 export default module

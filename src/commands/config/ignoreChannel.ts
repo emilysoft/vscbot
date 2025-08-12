@@ -1,8 +1,10 @@
-import {SlashCommandBuilder } from "discord.js"
+import { SlashCommandBuilder } from "discord.js"
 import ICommand from "../../interfaces/command.js"
 const module: ICommand = {
     name: "ignore",
-    description:"ignora canales del automod",
+    cooldown: 5,
+    description: "ignora canales del automod",
+    allowEdited: false,
     slashCommand: false,
     messageCommand: false,
     data: new SlashCommandBuilder()

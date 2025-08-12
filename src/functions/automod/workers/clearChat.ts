@@ -1,4 +1,4 @@
-import { Message, Guild, TextChannel } from "discord.js";
+import { Message, TextChannel } from "discord.js";
 import Client from "../../../interfaces/ICustomClient.js";
 import Iautomod from "../../../interfaces/Iautomod.js";
 
@@ -6,12 +6,20 @@ export default {
     name: "clearChat",
     ignoreBots: false,
     vscOnly: false,
+    allowEdited: false,
     execute: function (message: Message, client: Client) {
         try {
             if (!message.guild) return
-            if (message.guild.id == "813538324320092161") {
+            const { channel } = message
+            if (!(channel instanceof TextChannel)) return
+            const channelName = channel.name
+            if (message.guild.id == "813538324320092161" || channelName.includes("general")) {
+                //general
                 clearNSB(message, "813538324320092164");
+                //general 2
+                clearNSB(message, "1345943077470076979");
                 clearNSB(message, "853387980335874078");
+
                 return
             }
             //neetoons

@@ -3,12 +3,13 @@ import vscChannels from "./vsc_channels.json" with {type: "json"}
 import Iautomod from "../../../interfaces/Iautomod.js"
 import Client from "../../../interfaces/ICustomClient.js"
 const linkRegex =
-    /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/;
+    /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/;
 const intentos = new Map();
 export default {
     name: "newThread",
     vscOnly: true,
     ignoreBots: true,
+    allowEdited: false,
     execute: async function (message: Message, client: Client) {
         try {
             //if (message.type === 21 || message.type === 18) return  //  threadStarterMessage || // threadCreated

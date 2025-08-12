@@ -1,16 +1,21 @@
-import {    ColorResolvable, EmbedBuilder, Message, TextChannel } from "discord.js"
-import config from "../../config.json" with {type:"json"}
+import { Guild, ColorResolvable, EmbedBuilder, Message, TextChannel } from "discord.js"
+import config from "../../config.json" with {type: "json"}
+import dotenv from "dotenv"
 const categories = [
     "813538324320092162",
     "836011738662961162",
     "813564125380214785",
     "1122175563688317058",
 ];
-const module = async (message:Message) => {
+dotenv.config()
+const MAIN_SERVER = process.env.MAIN_SERVER
+const module = async (message: Message) => {
     const { guild, author, attachments, channel, content } = message;
+    if (!(guild instanceof Guild)) return
+    if (guild.id != MAIN_SERVER) return
     let messageContent = "";
     if (message.content.length) messageContent = content;
-    if(channel instanceof TextChannel != true) return
+    if (channel instanceof TextChannel != true) return
     if (!categories.includes(channel.parentId as string)) return;
     if (attachments.size > 0) {
 
@@ -28,10 +33,10 @@ const module = async (message:Message) => {
             .setFooter({
                 text: author.id,
             });
-        if(!guild) return
+        if (!guild) return
         const channelRespond = guild.channels.cache.get("1160325903461666927")
-        if(channelRespond instanceof TextChannel != true) return
-            channelRespond.send({ embeds: [embed] });
+        if (channelRespond instanceof TextChannel != true) return
+        channelRespond.send({ embeds: [embed] });
     }
 };
 

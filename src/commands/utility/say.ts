@@ -1,12 +1,14 @@
-import {  SlashCommandBuilder, TextChannel } from "discord.js"
-import config from "../../config.json" with {type:"json"}
+import { SlashCommandBuilder, TextChannel } from "discord.js"
+import config from "../../config.json" with {type: "json"}
 import ICommand from "../../interfaces/command.js"
 const module: ICommand = {
     name: "say",
     //category: "utility",
     description: "Di algo por medio del bot",
     slashCommand: true,
+    cooldown: 1,
     messageCommand: true,
+    allowEdited: false,
     data: new SlashCommandBuilder()
         .setName("say")
         .setDescription("Di algo por medio del bot")
@@ -18,7 +20,7 @@ const module: ICommand = {
             const authorID = interaction.user.id;
             if (!config.OWNERS_ID.some((id) => id === authorID)) return;
             const args = interaction.options.getString("texto", true);
-            if(interaction.channel instanceof TextChannel != true ) return
+            if (interaction.channel instanceof TextChannel != true) return
             await interaction.channel.send(args).then(async () => {
                 interaction.reply({
                     content: "Mensaje enviado",
@@ -33,7 +35,7 @@ const module: ICommand = {
         try {
             const authorID = message.author.id;
             if (!config.OWNERS_ID.some((id) => id === authorID)) return;
-            if(message)
+            if (message)
                 await message.delete();
             const args = message.content
                 .substring(1)
@@ -44,7 +46,7 @@ const module: ICommand = {
                 message.reply("Por favor especifique algo");
                 return;
             }
-            if(message.channel instanceof TextChannel != true ) return
+            if (message.channel instanceof TextChannel != true) return
             message.channel.send(args);
         } catch (err) {
             client.errorLogger(err, client, "error", process.cwd() + " ");

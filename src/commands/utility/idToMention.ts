@@ -11,20 +11,22 @@ const module: ICommand = {
         .addStringOption((option) =>
             option.setName("id").setDescription("ingrese una id")
         ),
+    allowEdited: false,
+    cooldown: 2,
     slashCommand: true,
     messageCommand: true,
     async execute(interaction, client) {
         try {
             // it works if the user has the encargadorrol
-            if(!interaction.guild) return
+            if (!interaction.guild) return
             const guild = client.guilds.cache.get(interaction.guild.id)
             const member = guild?.members.cache.get(interaction.user.id)
-            if(!member) return
-            if(member.roles.cache.some((role:Role) => role.id === modId)) return
+            if (!member) return
+            if (member.roles.cache.some((role: Role) => role.id === modId)) return
 
             const input = interaction.options.getString("id", true);
             getMention(interaction, input);
-        } catch (err:any) {
+        } catch (err: any) {
             if (err.code == "CommandInteractionOptionNotFound") {
                 interaction.reply({
                     content: "Introduzca los datos requeridos",
@@ -46,7 +48,7 @@ const module: ICommand = {
     },
 };
 
-function getMention(interaction:ChatInputCommandInteraction | Message, input:string) {
+function getMention(interaction: ChatInputCommandInteraction | Message, input: string) {
     const ids = getIds(input);
     const respond = [];
     for (const id of ids) {

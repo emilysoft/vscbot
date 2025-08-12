@@ -1,4 +1,4 @@
-import {Message} from "discord.js"
+import { Message } from "discord.js"
 import { SlashCommandBuilder } from "discord.js"
 import update from "../../functions/lib/allConnected.js"
 import Client from "../../interfaces/ICustomClient.js"
@@ -10,15 +10,17 @@ const module: ICommand = {
     data: new SlashCommandBuilder()
         .setName("emote")
         .setDescription("Add emotes"),
+    allowEdited: false,
+    cooldown: 0,
     slashCommand: false,
     messageCommand: true,
-    async run(message:Message,  client:Client) {
+    async run(message: Message, client: Client) {
         try {
             const newDate = new Date(); // Get current date
-            newDate.setHours(0, 0, 0, 0); 
+            newDate.setHours(0, 0, 0, 0);
             update(newDate, client)
         } catch (err) {
-            client.errorLogger(err,client, "error", process.cwd() + " ");
+            client.errorLogger(err, client, "error", process.cwd() + " ");
         }
     },
 }

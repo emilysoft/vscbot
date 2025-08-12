@@ -1,4 +1,4 @@
-import config from "../../config.json" with {type:"json"}
+import config from "../../config.json" with {type: "json"}
 import { Message, ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js"
 import chalk from "chalk"
 import Client from "../../interfaces/ICustomClient.js"
@@ -7,6 +7,8 @@ const module: ICommand = {
     name: "shutdown",
     description: "Apagas el bot",
     slashCommand: true,
+    allowEdited: false,
+    cooldown: 1,
     messageCommand: true,
     data: new SlashCommandBuilder()
         .setName("shutdown")
@@ -21,31 +23,31 @@ const module: ICommand = {
             });
         }
     },
-    async run(message: Message, client:Client) {
+    async run(message: Message, client: Client) {
         if (config.OWNERS_ID[0] == message.author.id) {
             shutdown(message, client);
         }
     },
 };
 
-async function shutdown(interaction: ChatInputCommandInteraction | Message, client:Client) {
+async function shutdown(interaction: ChatInputCommandInteraction | Message, client: Client) {
     try {
         await interaction.reply({
             content: "Apagando bot...",
             allowedMentions: { repliedUser: false },
         });
         interaction.client.destroy();
-        if(interaction instanceof ChatInputCommandInteraction) {
-        console.log(
-            chalk.bgRed.white(
-                `EL BOT HA SIDO APAGADO POR ${interaction.user.username}`
-            )
-        );
+        if (interaction instanceof ChatInputCommandInteraction) {
+            console.log(
+                chalk.bgRed.white(
+                    `EL BOT HA SIDO APAGADO POR ${interaction.user.username}`
+                )
+            );
         } else {
-        console.log(
-            chalk.bgRed.white(
-                `EL BOT HA SIDO APAGADO POR ${interaction.author.username}`
-            ));
+            console.log(
+                chalk.bgRed.white(
+                    `EL BOT HA SIDO APAGADO POR ${interaction.author.username}`
+                ));
         }
 
     } catch (err) {

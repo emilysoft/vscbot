@@ -10,6 +10,8 @@ const module: ICommand = {
         .setName("contexto")
         .setDescription("Analiza los últimos mensajes del canal y explica de qué se está hablando"),
     description: "Analiza el contexto del chat usando IA",
+    cooldown: 60 * 5,
+    allowEdited: false,
     messageCommand: false,
     slashCommand: true,
     async execute(interaction: ChatInputCommandInteraction, client: Client) {

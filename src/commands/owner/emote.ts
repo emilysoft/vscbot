@@ -8,12 +8,14 @@ const module: ICommand = {
     //usage: "",
     //userPerms: ["Administrator"],
     //botPerms: [""],
+    allowEdited: false,
+    cooldown: 0,
     slashCommand: false,
     messageCommand: true,
     data: new SlashCommandBuilder()
         .setName("emote")
         .setDescription("Add emotes"),
-    async run(message: Message, client:Client,args: string) {
+    async run(message: Message, client: Client, args: string) {
         try {
             if (message.author.id != "302249242469335060") return;
             addEmote(message);
@@ -25,8 +27,8 @@ const module: ICommand = {
     },
 };
 async function addEmote(message: Message) {
-    let emojisAdded = [];
-    let format = "";
+    const emojisAdded = [];
+    const format = "";
     if (message.content.match(/add/gim) == null) return;
 
     const regex = /<a?:[a-zA-Z_~0-9]+:\d+>/g; // Expresión regular para buscar emotes
@@ -38,11 +40,11 @@ async function addEmote(message: Message) {
         emotes.forEach(async (emote) => {
             // Obtener el nombre y el ID del emote
             const matchResult: RegExpMatchArray | null = emote.match(/<a?:(\w+):(\d+)>/);
-            if(!matchResult || matchResult.length === 3) return
-            const [matched, name, id] : RegExpMatchArray = matchResult;
+            if (!matchResult || matchResult.length === 3) return
+            const [matched, name, id]: RegExpMatchArray = matchResult;
             const emoteURL = `https://cdn.discordapp.com/emojis/${id}.${format}`; // Construir la URL del emote
             console.log(`Insertando: ${name}`);
-            if(!message.guild) return
+            if (!message.guild) return
             await message.guild.emojis
                 .create({ attachment: emoteURL, name: name })
                 .then(emoji => {
@@ -56,13 +58,13 @@ async function addEmote(message: Message) {
 }
 async function deleteEmoji(message: Message) {
     const regex = /:[a-zA-Z0-9_~]+:/;
-    let emojisDeleted: string[] = [];
+    const emojisDeleted: string[] = [];
 
     if (message.content.match(/delete/gim) == null) return;
     const args = message.content.split(/\s+/g).slice(1).join("");
     const argsFormatted = args.split(/[>\s\n]+/g);
     console.log(argsFormatted);
-    if(!message.guild) return
+    if (!message.guild) return
     const emojis = await message.guild.emojis.fetch();
 
     argsFormatted.forEach(async (name) => {
@@ -70,17 +72,17 @@ async function deleteEmoji(message: Message) {
         if (!match) return;
         const palabra = match[0].slice(1, -1);
         console.log(palabra);
-        let emoji = emojis.find((e) => e.name === palabra);
+        const emoji = emojis.find((e) => e.name === palabra);
         if (emoji) {
             emojisDeleted.push(`**${emoji.name}** :white_check_mark:`);
 
-                //await message.reply(`${emojisAdded.join("\n")}`);
-            if(!message.guild) return
-           await message.guild.emojis
+            //await message.reply(`${emojisAdded.join("\n")}`);
+            if (!message.guild) return
+            await message.guild.emojis
                 .delete(emoji)
-            .catch((e) => {
-                console.error(e);
-            });
+                .catch((e) => {
+                    console.error(e);
+                });
         } else {
             emojisDeleted.push(`**${name}** :x:`);
         }
@@ -88,13 +90,13 @@ async function deleteEmoji(message: Message) {
     await message.reply(`${emojisDeleted.join("\n")}`);
 }
 
-async function changeName(message:Message) {
+async function changeName(message: Message) {
     if (message.content.match(/change/gim) == null) return;
     const args = message.content.split(" ").slice(2);
     const oldName = args[0];
     const newName = args[1];
     const guild = message.guild;
-    if(!guild) return
+    if (!guild) return
     const emojis = await guild.emojis.fetch();
     const emoji = emojis.find((emoji) => emoji.name === oldName);
     if (emoji) {
@@ -107,11 +109,11 @@ async function changeName(message:Message) {
             )
             .catch((e) => {
                 console.error(e);
-                    if(message.channel instanceof TextChannel) 
+                if (message.channel instanceof TextChannel)
                     message.channel.send("hubo un error");
             });
     } else {
-        if(message.channel instanceof TextChannel)  {
+        if (message.channel instanceof TextChannel) {
             await message.channel.sendTyping()
             await message.channel.send("Emote no conseguido.");
         }

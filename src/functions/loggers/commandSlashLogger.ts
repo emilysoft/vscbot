@@ -9,14 +9,14 @@ const module = async (interaction: ChatInputCommandInteraction) => {
 
     const commandName = interaction.commandName;
     const authorID = interaction.user.id;
-    if(!interaction.channel) return
+    if (!interaction.channel) return
     const channel = interaction.channel;
 
-    if(channel instanceof TextChannel != true) return
+    if (channel instanceof TextChannel != true) return
     const channelName = channel.name;
     const userName = interaction.user.username;
     console.log(
-        `[COMMAND SLASH][${date}/${month}/${year}][${hours}:${minutes}][${authorID}][${channelName}] ${userName}: \/${commandName}`
+        `[COMMAND SLASH][${date}/${month}/${year}][${hours}:${minutes}][${authorID}][${channelName}] ${userName}: /${commandName}`
     );
 };
 
