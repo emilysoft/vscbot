@@ -5,7 +5,6 @@ import config from "../../config.json" with {type: "json"}
 import client from "../../index-vsc.js"
 import IEvents from "../../interfaces/iEvents.js"
 import logger from "../../functions/logger.js"
-const LOGGER_STATUS = true
 const module: IEvents = {
     name: Events.MessageCreate,
     async execute(message: Message) {
@@ -25,10 +24,16 @@ const module: IEvents = {
                     return logger(`❌${message.channel.name} | ${automod.name}: no bots`)
                 else logger(`✅${message.channel.name} | ${automod.name}: si bots`)
 
-                if (!automod.vscOnly && message.guild.id != "813538324320092161")
-                    return logger(`❌$${message.channel.name} | ${automod.name}: no vsc`)
-                else logger(`✅${message.channel.name} | ${automod.name}: si vsc`)
-                return automod.execute(message, client)
+                // Si es un automod exclusivo de VSC y el mensaje viene del servidor de VSC
+                if (automod.vscOnly && message.guild.id === "813538324320092161") {
+                    automod.execute(message, client);
+                }
+
+                // Si NO es un automod exclusivo de VSC y el mensaje NO viene del servidor de VSC
+                if (!automod.vscOnly && message.guild.id !== "813538324320092161") {
+                    automod.execute(message, client);
+                }
+
             })
 
             //comandos de texto

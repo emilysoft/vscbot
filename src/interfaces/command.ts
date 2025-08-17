@@ -3,7 +3,8 @@ import {
     ChatInputCommandInteraction,
     Message,
     SharedSlashCommandOptions,
-    SlashCommandSubcommandsOnlyBuilder
+    SlashCommandSubcommandsOnlyBuilder,
+    AutocompleteInteraction
 }
     from "discord.js"
 import Client from "../interfaces/ICustomClient.js"
@@ -17,6 +18,7 @@ export default interface ICommand {
     slashCommand: boolean,
     allowEdited: boolean,
     messageCommand: boolean,
+    autocomplete?(interaction: AutocompleteInteraction): Promise<void>,
     execute?(interaction: ChatInputCommandInteraction, client: Client): Promise<void>,
     run?(message: Message, client: Client, args?: string): Promise<void>
 }

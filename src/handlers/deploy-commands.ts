@@ -1,10 +1,13 @@
 import { REST, Routes } from "discord.js";
-import config from "../config.json" with {type: "json"};
+//import config from "../config.json" with {type: "json"};
 import fs from "node:fs";
 import path from "node:path";
 import chalk from "chalk";
-
+import dotenv from "dotenv";
+dotenv.config();
 const commands: any = [];
+const CLIENT_ID = process.env.CLIENT_ID
+const MAIN_SERVER = process.env.MAIN_SERVER
 
 // Función principal asíncrona para manejar toda la lógica
 async function main() {
@@ -79,8 +82,9 @@ async function cargar() {
         const rest = new REST({ version: "10" }).setToken(token);
 
         // The put method is used to fully refresh all commands in the guild with the current set
+        if (CLIENT_ID == undefined || MAIN_SERVER == undefined) throw new Error("erro falta client_id or main_server")
         const data: any = await rest.put(
-            Routes.applicationGuildCommands(config.clientId, config.guildId),
+            Routes.applicationGuildCommands(CLIENT_ID, MAIN_SERVER),
             { body: commands }
         );
 

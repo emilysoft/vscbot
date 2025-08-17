@@ -13,3 +13,4 @@ useless
 daemon
 **.log
 .env
+tsconfig.tsbuildinfo
