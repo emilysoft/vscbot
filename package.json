@@ -6,7 +6,7 @@
   "scripts": {
     "start": "npm run clear && npm run build && node .",
     "pm2": "pm2 start dist/index-vsc.js",
-    "dev": "npm run clear && tsx watch src/index-vsc.ts",
+    "dev": "npm run clear && npm run build && tsx watch src/index-vsc.ts",
     "build": "npm run clear && tsc --build",
     "clear": "rm -rf dist/**"
   },

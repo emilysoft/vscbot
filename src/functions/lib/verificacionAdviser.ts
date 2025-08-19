@@ -6,10 +6,6 @@ dotenv.config();
 const UNVERIFIED_ROLE_ID = '1260331890406068325';
 const WELCOME_CHANNEL_ID = '1345943077470076979';
 const PING_CHANNEL_ID = '813538324320092164';
-const WEBHOOK_URL = process.env.WEBHOOK_WELCOME_CHANNEL;
-if (!WEBHOOK_URL) throw new Error("error al encontrar el webhook url")
-const webhookClient = new WebhookClient({ url: WEBHOOK_URL });
-
 // --- Seguimiento para el Saludo Grupal ---
 const recentVerifications = new Map<string, { timestamp: number, userTag: string }>();
 const GROUP_THRESHOLD = 2; // Cantidad de personas para el saludo grupal
@@ -21,6 +17,10 @@ const TIME_WINDOW = 30 * 1000; // 30 segundos
  * @param newMember El miembro después de la actualización.
  */
 async function handleWelcomeMessages(oldMember: GuildMember, newMember: GuildMember) {
+    const WEBHOOK_URL = process.env.WEBHOOK_WELCOME_CHANNEL;
+    if (!WEBHOOK_URL) return
+    const webhookClient = new WebhookClient({ url: WEBHOOK_URL });
+
     const guild = newMember.guild;
     if (guild.id != '813538324320092161') return
     // Verifica si el miembro ya no tiene el rol no verificado

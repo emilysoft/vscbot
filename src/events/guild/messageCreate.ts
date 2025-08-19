@@ -28,7 +28,7 @@ const module: IEvents = {
                     if (automod.exclusive && isExclusiveServer)
                         return true
 
-                    if (automod.exclusive != isExclusiveServer)
+                    if (!automod.exclusive && !isExclusiveServer)
                         return true
                 })
                 .map(automod => automod.execute(message, client));
