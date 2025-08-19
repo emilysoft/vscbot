@@ -161,7 +161,9 @@ export async function handleImageScam(
     }
 
 
-    const attachmentUrls = content.match(regex)
+    const match = content.match(regex)
+    if (match == null) return false
+    const attachmentUrls = match[0].split(/\s+/gim)
     // Verificar si el mensaje tiene 4 o más archivos adjuntos
     if (attachmentUrls && attachmentUrls.length == 4) {
         await member.timeout(7 * 24 * 60 * 60 * 1000)
