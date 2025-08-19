@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, TextChannel } from "discord.js"
-import config from "../../config.json" with {type: "json"}
+import config from "../../config/config.json" with {type: "json"}
 import ICommand from "../../interfaces/command.js"
 const module: ICommand = {
     name: "say",
@@ -21,7 +21,7 @@ const module: ICommand = {
             if (!config.OWNERS_ID.some((id) => id === authorID)) return;
             const args = interaction.options.getString("texto", true);
             if (interaction.channel instanceof TextChannel != true) return
-            await interaction.channel.send(args).then(async () => {
+            interaction.channel.send(args).then(async () => {
                 interaction.reply({
                     content: "Mensaje enviado",
                     ephemeral: true,
@@ -36,7 +36,7 @@ const module: ICommand = {
             const authorID = message.author.id;
             if (!config.OWNERS_ID.some((id) => id === authorID)) return;
             if (message)
-                await message.delete();
+                message.delete();
             const args = message.content
                 .substring(1)
                 .split(/ +/)

@@ -10,9 +10,9 @@ const NSB_CHANNEL = "1112164583344443433";
 
 export default {
     name: "deleteThatShit",
-    vscOnly: true,
+    exclusive: true,
     ignoreBots: false,
-    execute: async function(message: Message, client: Client) {
+    execute: async function (message: Message, client: Client) {
         const { channel, author } = message;
 
         // Validar que el canal sea un TextChannel de inmediato.
@@ -50,19 +50,19 @@ async function handleGeneralChannel(message: Message): Promise<void> {
 
     // Borrar mensajes que empiezan con ".dl" o ">dl"
     if (/^(\.|>)\s*dl/i.test(content)) {
-        await message.delete();
+        message.delete();
         return;
     }
 
     // Borrar mensajes que empiezan con "=" y no son de un bot (ej. =fm)
     if (content.startsWith("=") && !author.bot) {
-        await message.delete();
+        message.delete();
         return;
     }
 
     // Borrar mensajes del bot "fmbot" después de 3 segundos
     if (author.id === FMBOT_USER_ID) {
-        setTimeout(async () => await message.delete(), 3000);
+        setTimeout(async () => message.delete(), 3000);
     }
 }
 
@@ -85,7 +85,7 @@ async function handleNSBBot(message: Message): Promise<void> {
         if (!guild) return
         const botsChannel = await guild.channels.fetch(NSB_CHANNEL)
         if (!(botsChannel instanceof TextChannel)) return
-        await botsChannel.send(`<@${guild.ownerId}>\n${message.content}`)
+        botsChannel.send(`<@${guild.ownerId}>\n${message.content}`)
         return;
     }
     // Manejar embeds con errores
@@ -114,7 +114,7 @@ async function deleteTempMessage(message: Message, delay: number): Promise<void>
 
             // Realizar el borrado masivo
             if (message.channel instanceof TextChannel && messagesToDelete.length > 0) {
-                await message.channel.bulkDelete(messagesToDelete);
+                message.channel.bulkDelete(messagesToDelete);
             }
         } catch (err: any) {
             // Silenciar el error si el mensaje ya fue borrado

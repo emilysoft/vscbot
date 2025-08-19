@@ -5,10 +5,10 @@ const regex =
     /(puedo|deja)\s+(pasar|enviar|mandar)\s+(unas\s+|una\s+)?(imagenes|capturas?|imagen|foto|fotos|videos|m(e|o)m(o|e)s)/gim;
 export default {
     name: "attachmentPermissionAdviser",
-    vscOnly: false,
+    exclusive: false,
     ignoreBots: true,
     allowEdited: true,
-    execute: function (message: Message, client: Client) {
+    execute: async function (message: Message, client: Client) {
         try {
             if (!message.member) return
             if (!message.guild) return

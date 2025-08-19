@@ -1,15 +1,15 @@
-import badWords from "./badWords.json" with {type:"json"}
+import badWords from "../../../config/badWords.json" with {type: "json"}
 import { ColorResolvable, EmbedBuilder, Message, TextChannel } from "discord.js"
-import config from "../../../config.json" with {type:"json"}
+import config from "../../../config/config.json" with {type: "json"}
 import Client from "../../../interfaces/ICustomClient.js"
 const badWordsRegexed = badWords.map((word) => new RegExp(word, "gim"));
 import Iautomod from "../../../interfaces/Iautomod.js"
 
 export default {
-    name:"bannedWords",
-    vscOnly: true,
+    name: "bannedWords",
+    exclusive: true,
     ignoreBots: true,
-    execute: function(message:Message,client:Client) {
+    execute: async function(message: Message, client: Client) {
         try {
             if (message.channel.id == "1024260771326197781") return;
             for (const regex of badWordsRegexed) {
@@ -22,10 +22,10 @@ export default {
             client.errorLogger(err, client, "error", process.cwd() + " ");
         }
     }
-} as Iautomod 
+} as Iautomod
 
-function sendMessage(message:Message) {
-    if(!message.member || !message.guild) return
+function sendMessage(message: Message) {
+    if (!message.member || !message.guild) return
     const avatarPhoto = message.member.displayAvatarURL();
     const botAvatar = message.client.user.displayAvatarURL();
     const botsChannel = message.guild.channels.cache.find(
@@ -47,7 +47,7 @@ function sendMessage(message:Message) {
             iconURL: botAvatar,
         });
 
-    if(botsChannel instanceof TextChannel)
+    if (botsChannel instanceof TextChannel)
         botsChannel.send({
             embeds: [embed],
         });

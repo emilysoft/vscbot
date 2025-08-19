@@ -1,5 +1,5 @@
 import { Message, SlashCommandBuilder, ChatInputCommandInteraction } from "discord.js"
-import cats from "./cats.json" with {type: "json"}
+import cats from "../../config/cats.json" with {type: "json"}
 import Client from "./../../interfaces/ICustomClient.js"
 import ICommand from "../../interfaces/command.js"
 const module: ICommand = {
@@ -23,7 +23,7 @@ const module: ICommand = {
 async function getCats(interaction: Message | ChatInputCommandInteraction, client: Client) {
     try {
         const cat = cats[Math.ceil(Math.random() * cats.length)];
-        await interaction.reply({
+        interaction.reply({
             allowedMentions: {
                 repliedUser: false,
             },

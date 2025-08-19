@@ -1,4 +1,4 @@
-import config from "../../config.json" with {type: "json"}
+import config from "../../config/config.json" with {type: "json"}
 import { Message, SlashCommandBuilder } from "discord.js"
 import Client from "../../interfaces/ICustomClient.js"
 import ICommand from "../../interfaces/command.js"
@@ -15,7 +15,7 @@ const module: ICommand = {
         .setDescription("borras todos los bots"),
     async run(message: Message, client: Client) {
         if (config.OWNERS_ID[0] == message.author.id || message.member?.roles.cache.has("813979041027457044")) {
-            await message.delete()
+            message.delete()
             clearBots(message)
         }
     },

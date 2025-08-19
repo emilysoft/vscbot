@@ -43,17 +43,18 @@ export default class DatabaseManager {
     }
 
     private async createTables() {
-        // USERS
-        await this.db.run(
-            `CREATE TABLE IF NOT EXISTS users (
+        const queries = [
+            // USERS
+            this.db.run(
+                `CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id TEXT NOT NULL UNIQUE,
                 username VARCHAR NOT NULL
             );`
-        )
-        // SERVERS
-        await this.db.run(
-            `CREATE TABLE IF NOT EXISTS servers (
+            ),
+            // SERVERS
+            this.db.run(
+                `CREATE TABLE IF NOT EXISTS servers (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 server_id TEXT NOT NULL UNIQUE,
                 name VARCHAR NOT NULL,
@@ -61,20 +62,20 @@ export default class DatabaseManager {
                 creation_date TEXT NOT NULL,
                 FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE SET NULL
             );`
-        )
-        //ROLES
-        await this.db.run(
-            `CREATE TABLE IF NOT EXISTS roles (
+            ),
+            //ROLES
+            this.db.run(
+                `CREATE TABLE IF NOT EXISTS roles (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 role_id TEXT NOT NULL UNIQUE,
                 server_id INTEGER NOT NULL,
                 name VARCHAR NOT NULL,
                 FOREIGN KEY (server_id) REFERENCES servers(id) ON DELETE CASCADE
             );`
-        )
-        //CUSTOM ROLES
-        await this.db.run(
-            `CREATE TABLE IF NOT EXISTS customRoles (
+            ),
+            //CUSTOM ROLES
+            this.db.run(
+                `CREATE TABLE IF NOT EXISTS customRoles (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id INTEGER NOT NULL,
                 server_id INTEGER NOT NULL,
@@ -83,10 +84,10 @@ export default class DatabaseManager {
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
                 FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE
             );`
-        )
-        // LOGS 
-        await this.db.run(
-            `CREATE TABLE IF NOT EXISTS logs (
+            ),
+            // LOGS 
+            this.db.run(
+                `CREATE TABLE IF NOT EXISTS logs (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 server_id INTEGER NOT NULL,
                 channel_id INTEGER,
@@ -98,7 +99,9 @@ export default class DatabaseManager {
                 FOREIGN KEY (channel_id) REFERENCES channels(id) ON DELETE CASCADE,
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             );`
-        )
+            )
+        ]
+        await Promise.all(queries)
     }
     /**
      * Obtiene la configuración de un servidor por su ID interno.

@@ -1,6 +1,6 @@
 import { ColorResolvable, EmbedBuilder, TextChannel } from "discord.js"
-import config from "../../config.json"  with {type:"json"}
-const module = async (channel:TextChannel) => {
+import config from "../../config/config.json"  with {type: "json"}
+const module = async (channel: TextChannel) => {
     if (channel.name.startsWith("ticket")) return;
     if (channel.parentId == "1122175563688317058") return;
     const botAvatar = channel.client.user.displayAvatarURL();
@@ -18,6 +18,6 @@ const module = async (channel:TextChannel) => {
             text: channel.client.user.username,
             iconURL: botAvatar,
         });
-    await channel.send({ embeds: [embed] });
+    channel.send({ embeds: [embed] });
 };
 export default module

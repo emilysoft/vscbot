@@ -1,5 +1,5 @@
 import { Message, EmbedBuilder, ColorResolvable } from "discord.js";
-import config from "./../../config.json" with {type: "json"}
+import config from "./../../config/config.json" with {type: "json"}
 export default async function sendDM(message: Message, mensaje: string) {
     if (!message.member) return
     if (!message.guild) return
@@ -22,8 +22,8 @@ export default async function sendDM(message: Message, mensaje: string) {
             text: `${name} | ${invite}`,
             iconURL: botAvatar,
         });
-    await message.member.user.createDM().then(async (dm) => {
-        await dm.send({
+    message.member.user.createDM().then(async (dm) => {
+        dm.send({
             embeds: [embed],
         });
     });

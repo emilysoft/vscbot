@@ -1,63 +1,66 @@
 import { Message, TextChannel } from "discord.js";
-import Client from "../../../interfaces/ICustomClient.js"
-import Iautomod from "../../../interfaces/Iautomod.js"
-type Regexs = {
+import Client from "../../../interfaces/ICustomClient.js";
+import Iautomod from "../../../interfaces/Iautomod.js";
+
+// Lista de ID de usuarios que no serán afectados por el automod.
+const IGNORED_USERS = new Set(["302249242469335060", "690796358579257424"]);
+
+// Lista de ID de canales y categorías que no serán afectados.
+const IGNORED_CHANNELS_AND_CATEGORIES = new Set([
+    "821067797157118013", // mudae
+    "1005354020333948988", // basados (duplicado)
+    "853387980335874078", // debates
+    "813564411628355625", // administracion
+    "874730574089187359", // extralaborales
+    "1120080747668197436", // registro secundarios
+]);
+
+// ID del rol que otorga inmunidad.
+const IMMUNITY_ROLE_ID = "1120750038440738868";
+
+type BannedRegexs = {
     raid: RegExp;
     loli: RegExp;
+    // Agrega más regex aquí si es necesario
 };
-const regexs: Regexs = {
-    raid: /\br+[\n\s\.\-_]*[4а@aäąàáạ]+[\n\s\.\-_]*[iіI1!¡|ïí]+[\n\s\.\-_]*(d|ɗ)/gim,
-    loli: /\b(l)[\n\s\-_\.]*[oоοօȯọỏơóòö0°\s\n]+[\n\s\-_\.]*(l)+[\n\s\-_\.]*[i!¡|ïí1](s|z)?(((c|k)[\n\s\-_\.]*[oоοօȯọỏơóòö0°\s\n]+[\n\s\-_\.]*n)|\b)/gim
+
+const bannedRegexs: BannedRegexs = {
+    raid: /\br+[\n\s.\-_]*[4a@aäąàáạ]+[\n\s.\-_]*[iіI1!¡|ïí]+[\n\s.\-_]*(d|ɗ)/gim,
+    loli: /\b(l)[\n\s-.]*[oоοօȯọỏơóòö0°\s\n]+[\n\s-.]*(l)+[\n\s-.]*[i!¡|ïí1](s|z)?(((c|k)[\n\s-.]*[oоοօȯọỏơóòö0°\s\n]+[\n\s-.]*n)|\b)/gim
 };
-//    godkermit:gg
-//        /(q(\n+)?(u|υ|ü|ú|ù)?|k|q)(\n+)?[eеẹėéè3]+(\n+)?(r|l|m|n)(\n+)?m(\n+)?((1|i|!|¡|\||ï|í)|y)(\n+)?/gim,
 
 export default {
-    name:"bannedWords",
-    vscOnly: true,
+    name: "bannedWords",
+    exclusive: true,
     ignoreBots: true,
-    execute: async function(message:Message,client:Client) {
-        try { 
-            //if (
-            //    message.author.id == "302249242469335060" ||
-            //    message.author.id == "690796358579257424"
-            //)
-            const { content, channel, author } = message;
-            if (!message.member) return;
-            const member = await message.member.fetch();
-            if (
-                member.roles.cache.some((role) => role.id === "1120750038440738868")
-            )
-                return;
-            if(channel instanceof TextChannel != true) return
-            if (channel.name.startsWith("ticket")) return; //evitar canales de tickets
-            if (channel.id == "821067797157118013") return; //mudae
-            if (channel.id == "1005354020333948988") return; //basados
-            if (author.id == "268478587651358721") return; //MonitoRSS
-            if (channel.parentId === "813564411628355625") return; //administracion
-            if (channel.parentId === "874730574089187359") return; //extralaborales
-            if (channel.parentId === "1120080747668197436") return; //registro secundarios
-            if (channel.id === "853387980335874078") return; //debates
-            if (channel.id === "1005354020333948988") return; //basados
+    execute: async function (message: Message, client: Client) {
+        try {
+            const { content, channel, author, member } = message;
 
-            for (const regex in regexs) {
-                if (content.match(regexs[regex as keyof Regexs]) != null) {
-                    if(message.author.id == "302249242469335060") return
-                    await message.delete();
-                    await member.timeout(60 * 1000, "Palabra bloqueada");
-                    //logea la situacion
+            // Verificaciones iniciales para salir temprano.
+            if (!member || !(channel instanceof TextChannel)) return;
+            if (member.roles.cache.has(IMMUNITY_ROLE_ID) || IGNORED_USERS.has(author.id)) return;
+            if (IGNORED_CHANNELS_AND_CATEGORIES.has(channel.id) || IGNORED_CHANNELS_AND_CATEGORIES.has(channel.parentId as string)) return;
+            if (channel.name.startsWith("ticket")) return;
+
+            for (const regex of Object.values(bannedRegexs)) {
+                if (regex.test(content)) {
+                    message.delete();
+                    member.timeout(60 * 1000, "Palabra bloqueada");
+
+                    // Llama a la función del logger para registrar la situación.
                     client.automodLogger(
                         message,
                         client,
                         "Palabra bloqueada",
-                        `<@${message.author.id}>: ${message.content}`
+                        `<@${author.id}>: ${content}`
                     );
                     break;
                 }
             }
-        } catch (err:any) {
-            if(err.code == 10008) return
-            client.errorLogger(err, client, "error", process.cwd() + " ");
+        } catch (err: any) {
+            if (err.code === 10008) return; // Mensaje ya borrado, no es un error crítico.
+            client.errorLogger(err, client, "error", process.cwd());
         }
     }
-} as Iautomod
+} as Iautomod;

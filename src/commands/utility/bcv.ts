@@ -52,7 +52,7 @@ const module: ICommand = {
             const embed = await getBCVdata(client);
             if (!embed) return
             //msg.edit({
-            await message.reply({
+            message.reply({
                 content: "",
                 embeds: [embed],
                 allowedMentions: { repliedUser: false },

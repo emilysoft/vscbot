@@ -1,0 +1,65 @@
+import { Pagination } from 'discord-pagination-embed'
+import {
+    EmbedBuilder,
+    SlashCommandBuilder,
+    Message,
+    TextChannel
+} from "discord.js";
+import ICommand from "../../interfaces/command.js";
+import Client from "../../interfaces/ICustomClient.js";
+const module: ICommand = {
+    name: "mercadolibre",
+    description: "busca enmercadolibre",
+    data: new SlashCommandBuilder()
+        .setName("ml")
+        .setDescription("busca en mercadolibre"),
+    slashCommand: false,
+    allowEdited: false,
+    messageCommand: true,
+    async run(message: Message, client: Client) {
+        try {
+            const member = message.member;
+            if (!member) return;
+            if (message.channel instanceof TextChannel != true) return
+            // Aquí es donde crearemos nuestro embed paginado
+            const imageUrls = [
+                'https://via.placeholder.com/600x400/FF5733/FFFFFF?text=Imagen+1', // Reemplaza con tus URLs de imagen
+                'https://via.placeholder.com/600x400/33FF57/FFFFFF?text=Imagen+2',
+                'https://via.placeholder.com/600x400/3357FF/FFFFFF?text=Imagen+3',
+                'https://via.placeholder.com/600x400/F0F0F0/000000?text=Imagen+4',
+                'https://via.placeholder.com/600x400/ABCDEF/123456?text=Imagen+5'
+            ];
+
+            // Crea un array de embeds, uno para cada imagen
+            const embeds = imageUrls.map((url, index) => {
+                return new EmbedBuilder()
+                    .setColor('#0099ff')
+                    .setTitle(`Mi Galería de Imágenes`)
+                    .setDescription(`Esta es la imagen ${index + 1} de ${imageUrls.length}.`)
+                    .setImage(url) // Aquí se establece la imagen para el embed
+                    .setFooter({ text: `Página ${index + 1}/${imageUrls.length}` });
+            });
+
+            // Crea la paginación
+            const pagination = new Pagination(message.channel, embeds)
+                .setAuthor({ name: client.user.username, iconURL: client.user.displayAvatarURL() })
+                .setThumbnail(client.user.displayAvatarURL())
+                .setPageIndicator(true) // Muestra el indicador de página (Ej: 1/5)
+                .setTimeout(60000) // Tiempo en milisegundos antes de que los botones desaparezcan (1 minuto)
+                .setDisabledNavigationEmojis(['delete']) // Puedes deshabilitar ciertos emojis de navegación
+                .setFunctionEmojis({ // Define emojis para la navegación (opcional, los predeterminados suelen ser buenos)
+                    '⏪': (user, page) => page > 0 ? page - 1 : page,
+                    '⏩': (user, page) => page < embeds.length - 1 ? page + 1 : page,
+                });
+
+            // Inicia la paginación
+            await pagination.build();
+
+        } catch (err) {
+            client.errorLogger(err, client, "error", process.cwd() + " ");
+        }
+    },
+};
+
+export default module;
+

@@ -1,5 +1,5 @@
 import { Guild, EmbedBuilder, AttachmentBuilder, Message, TextChannel, ColorResolvable } from "discord.js"
-import config from "../../config.json" with {type: "json"}
+import config from "../../config/config.json" with {type: "json"}
 import Client from "../../interfaces/ICustomClient.js"
 import { downloadFromURL, clearDownload } from "../lib/download.js"
 import dotenv from "dotenv"

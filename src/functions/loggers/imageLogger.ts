@@ -1,5 +1,5 @@
 import { Guild, ColorResolvable, EmbedBuilder, Message, TextChannel } from "discord.js"
-import config from "../../config.json" with {type: "json"}
+import config from "../../config/config.json" with {type: "json"}
 import dotenv from "dotenv"
 const categories = [
     "813538324320092162",

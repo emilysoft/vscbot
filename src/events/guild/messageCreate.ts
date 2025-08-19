@@ -1,58 +1,50 @@
+// refactorizado para usar Promise.all
 import { Events, Message, TextChannel } from "discord.js"
 import Client from "../../interfaces/ICustomClient.js"
 import messageLogger from "../../functions/loggers/messageLogger.js"
-import config from "../../config.json" with {type: "json"}
+import config from "../../config/config.json" with {type: "json"}
 import client from "../../index-vsc.js"
 import IEvents from "../../interfaces/iEvents.js"
-import logger from "../../functions/logger.js"
+
 const module: IEvents = {
     name: Events.MessageCreate,
     async execute(message: Message) {
         try {
-            // evita que actue sobre si mismo
-            if (!client.user) return
-            if (message.author.id == client.user.id) return;
-            if (!message.guild || message.channel instanceof TextChannel != true) return;
+            // Evita que el bot actúe sobre sí mismo
+            if (!client.user || message.author.id === client.user.id) return;
+            if (!message.guild || !(message.channel instanceof TextChannel)) return;
             messageLogger(message, "create", client as Client);
 
-            //automod
-            client.automod.forEach(automod => {
-                if (!message.guild) return
-                if (message.channel instanceof TextChannel != true) return
+            // Automod
+            const automodPromises = client.automod
+                .filter(automod => {
+                    // Ignora bots si la configuración lo indica
+                    if (message.author.bot && automod.ignoreBots) {
+                        return false;
+                    }
 
-                if (message.author.bot && automod.ignoreBots)
-                    return logger(`❌${message.channel.name} | ${automod.name}: no bots`)
-                else logger(`✅${message.channel.name} | ${automod.name}: si bots`)
+                    // Filtra por servidores: solo VSC o solo otros
+                    const isExclusiveServer = message.guild!.id === "813538324320092161";
+                    if (automod.exclusive && isExclusiveServer)
+                        return true
 
-                // Si es un automod exclusivo de VSC y el mensaje viene del servidor de VSC
-                if (automod.vscOnly && message.guild.id === "813538324320092161") {
-                    automod.execute(message, client);
-                }
-
-                // Si NO es un automod exclusivo de VSC y el mensaje NO viene del servidor de VSC
-                if (!automod.vscOnly && message.guild.id !== "813538324320092161") {
-                    automod.execute(message, client);
-                }
-
-            })
-
-            //comandos de texto
+                    if (automod.exclusive != isExclusiveServer)
+                        return true
+                })
+                .map(automod => automod.execute(message, client));
+            // Ejecuta todas las promesas de automod de forma concurrente
+            await Promise.all(automodPromises);
+            // Comandos de texto
             if (message.content.startsWith(config.prefix)) {
                 const commands = client.messageCommands;
-                const commandName = message.content
-                    .substring(1)
-                    .split(/ +/)[0]
-                const args = message.content
-                    .substring(1)
-                    .split(/ +/)
-                    .slice(1)
-                    .join(" ")
+                const [commandName, ...argsArray] = message.content.substring(1).split(/ +/);
+                const args = argsArray.join(" ");
 
-                if (!commands.has(commandName)) return
-                const cmd = commands.get(commandName)
-                if (!cmd || !cmd.run) return
-                console.log(`ejecutando comando ${cmd.name}`)
-                await cmd.run(message, client, args);
+                const cmd = commands.get(commandName);
+                if (cmd && cmd.run) {
+                    console.log(`Ejecutando comando ${cmd.name}`);
+                    await cmd.run(message, client, args);
+                }
             }
         } catch (err) {
             client.errorLogger(err, client, "error", process.cwd() + " ");
@@ -61,6 +53,4 @@ const module: IEvents = {
     },
 };
 
-export default module
-
-
+export default module;

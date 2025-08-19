@@ -32,7 +32,7 @@ const module: IEvents = {
 
                         if (now < expirationTime) {
                             const timeLeft = (expirationTime - now) / 1000;
-                            await interaction.reply({ content: `Por favor, espera ${timeLeft.toFixed(1)} segundos antes de volver a usar \`${command.name}\`.`, ephemeral: true });
+                            interaction.reply({ content: `Por favor, espera ${timeLeft.toFixed(1)} segundos antes de volver a usar \`${command.name}\`.`, ephemeral: true });
                             return;
                         }
                     }

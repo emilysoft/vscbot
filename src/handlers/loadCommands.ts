@@ -1,17 +1,17 @@
-import {Collection} from "discord.js"
+import { Collection } from "discord.js"
 import Client from "../interfaces/ICustomClient.js"
-import fs from "node:fs"
 import path from "node:path"
 import chalk from "chalk"
-export default (client:Client) => {
+import fs from "node:fs/promises";
+export default async (client: Client) => {
     client.messageCommands = new Collection()
     console.log(chalk.whiteBright("Loading message commands"));
-    const commandFolders = fs.readdirSync(
+    const commandFolders = await fs.readdir(
         path.join(process.cwd(), "dist/commands")
     );
     for (const folder of commandFolders) {
-        const commandFiles = fs
-            .readdirSync(path.join(process.cwd(), `dist/commands/${folder}`))
+        const commandFiles = (await fs
+            .readdir(path.join(process.cwd(), `dist/commands/${folder}`)))
             .filter((file) => file.endsWith("js"));
         for (const file of commandFiles) {
             const filePath = path.join(

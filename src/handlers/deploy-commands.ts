@@ -1,6 +1,6 @@
 import { REST, Routes } from "discord.js";
 //import config from "../config.json" with {type: "json"};
-import fs from "node:fs";
+import fs from "node:fs/promises";
 import path from "node:path";
 import chalk from "chalk";
 import dotenv from "dotenv";
@@ -12,11 +12,11 @@ const MAIN_SERVER = process.env.MAIN_SERVER
 // Función principal asíncrona para manejar toda la lógica
 async function main() {
     // Grab the SlashCommandBuilder#toJSON() output of each command's data for deployment
-    const commandFolders = fs.readdirSync(path.join(process.cwd(), "dist/commands"));
+    const commandFolders = await fs.readdir(path.join(process.cwd(), "dist/commands"));
 
     for (const folder of commandFolders) {
-        const commandFiles = fs
-            .readdirSync(path.join(process.cwd(), `dist/commands/${folder}`))
+        const commandFiles = (await fs
+            .readdir(path.join(process.cwd(), `dist/commands/${folder}`)))
             .filter((file) => file.endsWith("js"));
 
         for (const file of commandFiles) {

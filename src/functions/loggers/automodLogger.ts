@@ -1,5 +1,5 @@
 import { ColorResolvable, EmbedBuilder, Message, TextChannel } from "discord.js"
-import config from "../../config.json" with {type: "json"}
+import config from "../../config/config.json" with {type: "json"}
 import Client from "../../interfaces/ICustomClient.js"
 const module = async (message: Message, client: Client, reason: string, description: string) => {
     try {
@@ -20,7 +20,7 @@ const module = async (message: Message, client: Client, reason: string, descript
             (channel) => channel.id === logChannelId
         );
         if (channel instanceof TextChannel)
-            await channel.send({ embeds: [exampleEmbed] });
+            channel.send({ embeds: [exampleEmbed] });
     } catch (err) {
         client.errorLogger(err, client, "error", process.cwd() + " ");
     }

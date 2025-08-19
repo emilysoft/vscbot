@@ -1,5 +1,5 @@
 import { Message, SlashCommandBuilder } from "discord.js"
-import config from "../../config.json" with {type: "json"}
+import config from "../../config/config.json" with {type: "json"}
 import ICommand from "../../interfaces/command.js"
 import Client from "../../interfaces/ICustomClient.js"
 const module: ICommand = {

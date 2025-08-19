@@ -71,7 +71,7 @@ async function geldooru(message: Message, client: Client) {
                                 data.post[
                                     Math.floor(Math.random() * data.post.length)
                                 ].file_url;
-                            await message
+                            message
                                 .reply({
                                     content: image,
                                     allowedMentions: {
@@ -86,7 +86,7 @@ async function geldooru(message: Message, client: Client) {
                         } else {
                             msg =
                                 "No se encontró lo especificado, intenta algo como genshin_impact futanari";
-                            await message
+                            message
                                 .reply({
                                     content: msg,
                                     allowedMentions: {

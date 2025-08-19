@@ -1,4 +1,4 @@
-import config from "../../config.json" with {type: "json"}
+import config from "../../config/config.json" with {type: "json"}
 import { Message, ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js"
 import chalk from "chalk"
 import Client from "../../interfaces/ICustomClient.js"
@@ -17,7 +17,7 @@ const module: ICommand = {
         if (config.OWNERS_ID[0] == interaction.user.id) {
             shutdown(interaction, client);
         } else {
-            await interaction.reply({
+            interaction.reply({
                 content: "Solo el owner puede apagar el bot",
                 ephemeral: true,
             });
@@ -32,7 +32,7 @@ const module: ICommand = {
 
 async function shutdown(interaction: ChatInputCommandInteraction | Message, client: Client) {
     try {
-        await interaction.reply({
+        interaction.reply({
             content: "Apagando bot...",
             allowedMentions: { repliedUser: false },
         });

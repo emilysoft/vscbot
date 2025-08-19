@@ -1,5 +1,5 @@
 import { Message, Role, TextChannel } from "discord.js"
-import vscChannels from "./vsc_channels.json" with {type: "json"}
+import vscChannels from "../../..//config/vsc_channels.json" with {type: "json"}
 import Iautomod from "../../../interfaces/Iautomod.js"
 import Client from "../../../interfaces/ICustomClient.js"
 const linkRegex =
@@ -7,7 +7,7 @@ const linkRegex =
 const intentos = new Map();
 export default {
     name: "newThread",
-    vscOnly: true,
+    exclusive: true,
     ignoreBots: true,
     allowEdited: false,
     execute: async function (message: Message, client: Client) {
@@ -29,7 +29,7 @@ export default {
                     if (intentos.get(message.author.id) === 2) {
                         if (!message.member) return
                         if (!muted) return
-                        await message.member.roles
+                        message.member.roles
                             .add(
                                 muted,
                                 `usar mal el canal <#${message.channel.id}>`
@@ -66,7 +66,7 @@ export default {
                 }
             }
             if (channelOptions.thread) {
-                await message.startThread({
+                message.startThread({
                     name: message.author.username,
                     reason: "Comienzo del hilo",
                 });

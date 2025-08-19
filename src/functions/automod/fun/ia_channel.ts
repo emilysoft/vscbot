@@ -4,7 +4,7 @@ import Iautomod from "../../../interfaces/Iautomod.js"
 import ia from "./../../lib/ia.js"
 export default {
     name: "ia",
-    vscOnly: true,
+    exclusive: true,
     ignoreBots: true,
     allowEdited: true,
     execute: async function (message: Message, client: Client) {
@@ -14,7 +14,7 @@ export default {
 
             const ask = message.content
             if (!ask) return
-            await message.channel.sendTyping()
+            message.channel.sendTyping()
             const reply = message.reference?.messageId
             let prompt = ""
             if (reply) {
@@ -44,7 +44,7 @@ export default {
 
 async function sendMessage(message: Message, mensaje: string) {
     if (mensaje == "") return
-    if (mensaje.length < 2000) return await message.reply({
+    if (mensaje.length < 2000) return message.reply({
         content: mensaje
             .replace(/@everyone/gim, "everyone")
             .replace(/@here/gim, "here"),
@@ -55,7 +55,7 @@ async function sendMessage(message: Message, mensaje: string) {
         .replace(/@here/gim, "here")
     const end = mensaje.slice(2000)
 
-    await message.reply(start)
+    message.reply(start)
         .then(msg => {
             sendMessage(msg, end)
         })

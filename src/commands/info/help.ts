@@ -1,5 +1,5 @@
 import { ChatInputCommandInteraction, Message, EmbedBuilder, SlashCommandBuilder, ColorResolvable } from "discord.js"
-import config from "../../config.json" with {type: "json"}
+import config from "../../config/config.json" with {type: "json"}
 import Client from "./../../interfaces/ICustomClient.js"
 import ICommand from "../../interfaces/command.js"
 const module: ICommand = {
@@ -40,7 +40,7 @@ async function help(interaction: Message | ChatInputCommandInteraction, avatarPh
                 text: interaction.client.user.username,
                 iconURL: interaction.client.user.displayAvatarURL(),
             });
-        await interaction.reply({
+        interaction.reply({
             embeds: [embed],
             allowedMentions: { repliedUser: false },
         });

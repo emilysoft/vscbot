@@ -5,16 +5,16 @@ const regex =
     /(puedo|deja)\s+(pasar|enviar|mandar)\s+(unas\s+|una\s+)?(imagenes|capturas?|imagen|foto|fotos|videos|m(e|o)m(o|e)s)/gim;
 export default {
     name: "savdDM",
-    vscOnly: false,
+    exclusive: false,
     ignoreBots: true,
     allowEdited: true,
-    execute: async function(message: Message, client: Client) {
+    execute: async function (message: Message, client: Client) {
         try {
             if (!message.content.startsWith(".save")) return;
 
             else if (message.reference) {
                 if (!message.reference.messageId) return
-                await message.channel.messages
+                message.channel.messages
                     .fetch(message.reference.messageId)
                     .then((msg) => {
                         if ((msg.content == "")) {

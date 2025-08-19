@@ -1,8 +1,8 @@
 import { Message, ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder, ColorResolvable } from "discord.js"
-import config from "../../config.json" with {type: "json"}
+import config from "../../config/config.json" with {type: "json"}
 import ICommand from "../../interfaces/command.js"
 import client from "../../index-vsc.js"
-import rule from "../../functions/automod/info/rules.json" with {type: "json"}
+import rule from "../../config/rules.json" with {type: "json"}
 const UNKHOWN_MESSAGE = 10008;
 const module: ICommand = {
     name: "rules",

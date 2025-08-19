@@ -2,7 +2,7 @@ import { Message, Events } from "discord.js"
 import messageLogger from "../../functions/loggers/messageLogger.js"
 import Client from "../../interfaces/ICustomClient.js"
 import client from "./../../index-vsc.js"
-import config from "../../config.json" with {type: "json"}
+import config from "../../config/config.json" with {type: "json"}
 import IEvents from "../../interfaces/iEvents.js"
 import ICommand from "../../interfaces/command.js"
 export default {

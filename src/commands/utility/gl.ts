@@ -18,7 +18,7 @@ const module: ICommand = {
     cooldown: 1,
     slashCommand: false,
     allowEdited: false,
-    messageCommand: true,
+    messageCommand: false,
     async run(message: Message, client: Client) {
         try {
             message.delete()

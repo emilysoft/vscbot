@@ -45,15 +45,14 @@ async function addEmote(message: Message) {
             const emoteURL = `https://cdn.discordapp.com/emojis/${id}.${format}`; // Construir la URL del emote
             console.log(`Insertando: ${name}`);
             if (!message.guild) return
-            await message.guild.emojis
+            message.guild.emojis
                 .create({ attachment: emoteURL, name: name })
                 .then(emoji => {
                     emojisAdded.push(`**${emoji.name}** :white_check_mark:`);
                 })
                 .catch((e) => emojisAdded.push(`**${name}** :x:`));
         });
-        //await message.reply(`${emojisAdded.join("\n")}`);
-        await message.reply(`agregando`);
+        message.reply(`agregando`);
     }
 }
 async function deleteEmoji(message: Message) {
@@ -76,9 +75,8 @@ async function deleteEmoji(message: Message) {
         if (emoji) {
             emojisDeleted.push(`**${emoji.name}** :white_check_mark:`);
 
-            //await message.reply(`${emojisAdded.join("\n")}`);
             if (!message.guild) return
-            await message.guild.emojis
+            message.guild.emojis
                 .delete(emoji)
                 .catch((e) => {
                     console.error(e);
@@ -87,7 +85,7 @@ async function deleteEmoji(message: Message) {
             emojisDeleted.push(`**${name}** :x:`);
         }
     });
-    await message.reply(`${emojisDeleted.join("\n")}`);
+    message.reply(`${emojisDeleted.join("\n")}`);
 }
 
 async function changeName(message: Message) {
@@ -114,8 +112,8 @@ async function changeName(message: Message) {
             });
     } else {
         if (message.channel instanceof TextChannel) {
-            await message.channel.sendTyping()
-            await message.channel.send("Emote no conseguido.");
+            message.channel.sendTyping()
+            message.channel.send("Emote no conseguido.");
         }
 
     }

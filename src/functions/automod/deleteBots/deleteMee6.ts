@@ -3,7 +3,7 @@ import Client from "../../../interfaces/ICustomClient.js"
 import Iautomod from "../../../interfaces/Iautomod.js"
 export default {
     name: "deleteMee6",
-    vscOnly: true,
+    exclusive: true,
     ignoreBots: false,
     execute: async function (message: Message, client: Client) {
         try {
@@ -13,7 +13,7 @@ export default {
                 content.match(/1023633373731766312/gim) == null &&
                 message.embeds.length == 0
             ) {
-                await message.delete();
+                message.delete();
             }
         } catch (err: any) {
             if (err.code == 10008) return

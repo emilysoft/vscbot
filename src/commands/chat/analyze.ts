@@ -15,7 +15,7 @@ const module: ICommand = {
     messageCommand: false,
     slashCommand: true,
     async execute(interaction: ChatInputCommandInteraction, client: Client) {
-        await analyze(interaction, client);
+        analyze(interaction, client);
     },
     async run(message: Message, client: Client) {
         // No implementado por ahora
@@ -41,7 +41,7 @@ async function analyze(interaction: ChatInputCommandInteraction, client: Client)
             )
             .setTimestamp();
 
-        await interaction.followUp({
+        interaction.followUp({
             embeds: [embed],
             ephemeral: true,
         });

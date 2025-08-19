@@ -1,6 +1,6 @@
 import Client from "../../interfaces/ICustomClient.js"
 import { ColorResolvable, EmbedBuilder } from "discord.js"
-import config from "../../config.json" with {type: "json"}
+import config from "../../config/config.json" with {type: "json"}
 const link = "https://www.bcv.org.ve/";
 
 const twitterPhoto =

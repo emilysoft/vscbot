@@ -5,9 +5,9 @@ import Iautomod from "../../../interfaces/Iautomod.js";
 export default {
     name: "clearChat",
     ignoreBots: false,
-    vscOnly: false,
+    exclusive: false,
     allowEdited: false,
-    execute: function (message: Message, client: Client) {
+    execute: async function (message: Message, client: Client) {
         try {
             if (!message.guild) return
             const { channel } = message

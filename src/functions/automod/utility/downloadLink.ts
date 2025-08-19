@@ -7,7 +7,7 @@ const regex =
     /https?:\/\/(?:www\.)?facebook\.com\/(?:(?:watch\/?\?v=)|(?:share\/(v|r)\/)|(?:[a-zA-Z0-9.]+\/videos\/)|(?:reel\/))[a-zA-Z0-9]+\/?/gim
 export default {
     name: "downloadLink",
-    vscOnly: false,
+    exclusive: false,
     ignoreBots: true,
     allowEdited: false,
     execute: async function (message: Message, client: Client) {
@@ -19,8 +19,9 @@ export default {
             if (/^(>|\.)\s*dl/.test(message.content)) return
             const match = message.content.match(regex)
             if (!match) return
-            await message.suppressEmbeds(true)
-            await message.channel.sendTyping();
+            message.channel.sendTyping();
+            message.suppressEmbeds(true)
+            message.suppressEmbeds(true)
             const link = match[0]
             new VideoDownloader(message, false).downloadFacebookVideo(link)
         } catch (err) {

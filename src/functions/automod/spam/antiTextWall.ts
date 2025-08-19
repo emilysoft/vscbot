@@ -3,7 +3,7 @@ import Iautomod from "../../../interfaces/Iautomod.js"
 import { ColorResolvable, TextChannel, Message, EmbedBuilder, Role, DMChannel } from "discord.js"
 const aviso = `Mensaje borrado por texto excesivo. Usa <#1112164583344443433>`;
 import isNumberInMessage from "./../../lib/isNumberInMessage.js"
-import config from "../../../config.json" with {type: "json"}
+import config from "../../../config/config.json" with {type: "json"}
 interface Excepciones {
     outOfContextRoleId: string,
     moderacionRoleId: string,
@@ -13,9 +13,9 @@ interface Excepciones {
 export default {
     name: "antiTextWall",
     ignoreBots: false,
-    vscOnly: true,
+    exclusive: true,
     allowEdited: true,
-    execute: async function(message: Message, client: Client) {
+    execute: async function (message: Message, client: Client) {
         try {
             const limiteCaracteres = 600;
             const excepciones: Excepciones = {
@@ -85,7 +85,7 @@ export default {
 async function action(message: Message, client: Client, args: string) {
     try {
         if (message)
-            await message.delete();
+            message.delete();
         const avatarPhoto = `https://cdn.discordapp.com/avatars/${message.author.id}/${message.author.avatar}.png`;
         if (!client.user) return
         const botAvatar = client.user.displayAvatarURL();
@@ -114,7 +114,7 @@ async function action(message: Message, client: Client, args: string) {
         //envia aviso del mensaje borrado
         if (message.channel instanceof TextChannel != true) return
         message.channel.sendTyping()
-        await message.channel
+        message.channel
             .send(`<@${message.author.id}>` + aviso)
             .then(async (msg) => {
                 setTimeout(async () => {
@@ -124,7 +124,7 @@ async function action(message: Message, client: Client, args: string) {
 
         // Hace un backup en el dm si esta abierto o en un canal del servidor
         if (!message.member) return
-        await message.member.user
+        message.member.user
             .createDM()
             .then((dm) => {
                 dm.send({

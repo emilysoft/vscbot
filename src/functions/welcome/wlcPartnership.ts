@@ -1,4 +1,4 @@
-import partnershitpsChannels from "./partnerships.json" with {type: "json"}
+import partnershitpsChannels from "../../config/partnerships.json" with {type: "json"}
 import { GuildMember, TextChannel } from "discord.js";
 import Client from "../../interfaces/ICustomClient.js"
 const module = async (member: GuildMember, client: Client) => {
