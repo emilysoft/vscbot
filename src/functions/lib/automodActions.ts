@@ -54,7 +54,7 @@ export async function handleDiscordInvite(
 ): Promise<true | false> {
     logger("Ejecutando automod discordinvite");
     const { member } = message;
-    if (!member || !content.match(inviteRegex)) return false;
+    if (!member || !inviteRegex.test(content)) return false;
 
     //  Revisa si es un enlace de regalo (gift)
     if (content.includes("promos.discord.gg")) {
@@ -64,14 +64,16 @@ export async function handleDiscordInvite(
     }
 
     //  Revisa si es spam de invitación
-    if (content.match(spamRegex)) {
+    if (spamRegex.test(content)) {
         sendDM(message, ACCOUNT_HACKED_MESSAGE);
         await member.kick("Enviar spam (cuenta hackeada)");
         client.automodLogger(message, client, "Cuenta hackeada", "Ha sido kickeado por enviar spam.");
     }
 
     //  Si no es ninguna de las anteriores, mutea al usuario
-    muteUser(message, client, "una Discord invite");
+    if (message.guild?.id == "813538324320092161") {
+        muteUser(message, client, "una Discord invite");
+    }
     return true
 }
 
