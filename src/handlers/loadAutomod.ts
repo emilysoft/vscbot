@@ -36,6 +36,7 @@ export default async (client: Client): Promise<void> => {
                 const importPromise = import(fileUrl.href)
                     .then(module => {
                         const automod: IAutomod = module.default;
+                        console.log(chalk.yellowBright(`[AUTOMOD LOADED] ${automod.name}`));
                         return automod;
                     })
                     .catch(error => {
