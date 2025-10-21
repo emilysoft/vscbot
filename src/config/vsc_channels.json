@@ -1,8 +1,28 @@
 [
      {
         "id" :"813562445729628170",
-        "name": "galeria",
+        "name": "multimedia",
         "thread": true,
+        "reaction": false,
+        "fileRequired": true,
+        "allowReply": false,
+        "emoji": "<:altoke:885921300810457159>",
+        "imgURL": "https://cdn.discordapp.com/attachments/871264713600823296/1227468189617881118/anuncios.png?ex=662883d5&is=66160ed5&hm=6a6f1b6b17c1993d24081e5717ba0718a7d2189e0d654d25bd2fba0bc03a91b4&"
+    },
+     {
+        "id" :"1405830478480543838",
+        "name": "sugerencias",
+        "thread": true,
+        "reaction": false,
+        "fileRequired": false,
+        "allowReply": false,
+        "emoji": "<:altoke:885921300810457159>",
+        "imgURL": "https://cdn.discordapp.com/attachments/871264713600823296/1227468189617881118/anuncios.png?ex=662883d5&is=66160ed5&hm=6a6f1b6b17c1993d24081e5717ba0718a7d2189e0d654d25bd2fba0bc03a91b4&"
+    },
+     {
+        "id" :"813562445729628170",
+        "name": "memes",
+        "thread": false,
         "reaction": false,
         "fileRequired": true,
         "allowReply": false,
