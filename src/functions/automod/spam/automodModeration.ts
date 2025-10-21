@@ -22,7 +22,7 @@ const REGEX_DISCORD_INVITE_SPAM = /(join|sexcam|babe|porn|teen|adobe|leaks|onlyf
 const REGEX_STEAM_SCAM = /(gift\s+\d{2}\$|\d{2}\$\s+(gift|(from )?steam))[\s\S]+https/gim;
 const REGEX_NICOLAS_MADURO = /viva\s+(maduro|chavez)/gim;
 const REGEX_WHATSAPP_TELEGRAM = /https:\/\/((telegram|t)\.me|wa\.me\/\d+)/gim;
-const REGEX_IMAGE_SCAM = /^(https:\/\/(media|cdn)\.discordapp\.(net|com)\/attachments\/\d+\/\d+\/\d\.(jpg|png|jpeg)([\w\W]+)?){4}$/gim
+const REGEX_IMAGE_SCAM = /^(https:\/\/(media|cdn)\.discordapp\.(net|com)\/attachments\/\d+\/\d+\/(image|\d)\.(jpg|png|jpeg)([\w\W]+)?){4}$/gim
 const REGEX_URL = /https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)/gim
 // ---
 //  Configuración del módulo de automoderación
@@ -62,9 +62,8 @@ export default {
 
             // agarra el contenido del automod logger de discord
             const content = message.embeds[0].description;
-            if (!content) {
-                return;
-            }
+            if (content == null) return
+            if (content.length == 0) return
 
             //  Ignorar GIFs de Tenor, se manejan aparte con un timeout
             if (content.includes("tenor.com")) {

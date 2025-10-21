@@ -14,21 +14,26 @@ enum Emoji {
     WOW = "<:wow:1116468515399012434>",
     HEART = "❤",
     THUMBS_UP = "👍",
-    THUMBS_DOWN = "👎"
+    THUMBS_DOWN = "👎",
+    XDV = "<:xdv:1294723363914121278>",
+    PERRO_SUS = "<:perrosus:1292992110953500757>",
+    XDDD = "<:xd1:1116468526430032043>"
 }
 
 // Centraliza las IDs de los canales y las reacciones
 const CHANNEL_CONFIG = {
-    "1013280756757430364": [Emoji.SMASH, Emoji.PASS],
-    "942934915396288542": [Emoji.SMASH, Emoji.PASS],
-    "1230709697129091102": [Emoji.SMASH, Emoji.PASS],
-    "1172695535468150814": [Emoji.SMASH, Emoji.PASS],
-    "1391598283897573446": [Emoji.SMASH, Emoji.PASS],
-    "868499065984393308": [Emoji.SMASH, Emoji.PASS],
-    "813562445729628170": [Emoji.KEK, Emoji.HEART, Emoji.WEABOLIKE, Emoji.WOW],
-    "813562363243921459": [Emoji.XD, Emoji.KEK],
-    "813970132191674398": [Emoji.HEART],
-    "1321222701775454218": [Emoji.HEART],
+    "1013280756757430364": [Emoji.SMASH, Emoji.PASS], //nsfw
+    "942934915396288542": [Emoji.SMASH, Emoji.PASS], //nsfw
+    "1230709697129091102": [Emoji.SMASH, Emoji.PASS], //nsfw
+    "1172695535468150814": [Emoji.SMASH, Emoji.PASS], //nsfw
+    "1391598283897573446": [Emoji.SMASH, Emoji.PASS], //nsfw
+    "868499065984393308": [Emoji.SMASH, Emoji.PASS], //nsfw
+    "813562445729628170": [Emoji.KEK, Emoji.HEART, Emoji.WEABOLIKE, Emoji.WOW], //multimedia
+    "813562363243921459": [Emoji.XD, Emoji.KEK], // memes-old
+    "813970132191674398": [Emoji.HEART], // arte
+    "1321222701775454218": [Emoji.HEART], //fotos 24-31
+    "1409143372052037744": [Emoji.KEK, Emoji.XDDD, Emoji.XDV, Emoji.PERRO_SUS], // memes
+    "1405830478480543838": [Emoji.THUMBS_UP, Emoji.THUMBS_DOWN] //sugerencias 
 };
 
 const module: Iautomod = {
@@ -36,7 +41,12 @@ const module: Iautomod = {
     exclusive: true,
     ignoreBots: true,
     allowEdited: false,
-    execute: async function (message: Message, client: Client) {
+    execute: async function(message: Message, client: Client) {
+        if (message.channel.id == "1405830478480543838") {
+            message.react(Emoji.THUMBS_UP)
+            message.react(Emoji.THUMBS_DOWN)
+            return
+        }
         if (message.author.bot || (message.attachments.size < 1 && !message.content.match(/https/gim))) {
             return;
         }
