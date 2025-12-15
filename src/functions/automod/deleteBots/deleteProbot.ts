@@ -4,7 +4,7 @@ import Iautomod from "../../../interfaces/Iautomod.js"
 
 export default {
     name: "deleteProbot",
-    exclusive: true,
+    scope: "guild",
     ignoreBots: false,
     execute: async function (message: Message, client: Client) {
         try {

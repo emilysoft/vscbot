@@ -3,7 +3,7 @@ import Client from "../../../interfaces/ICustomClient.js"
 
 export default {
     name: "gb",
-    exclusive: true,
+    scope: "guild",
     ignoreBots: true,
     allowEdited: false,
     execute: async function (message: Message, client: Client) {

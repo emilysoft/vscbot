@@ -10,7 +10,7 @@ const NSB_CHANNEL = "1112164583344443433";
 
 export default {
     name: "deleteThatShit",
-    exclusive: true,
+    scope: "guild",
     ignoreBots: false,
     execute: async function (message: Message, client: Client) {
         const { channel, author } = message;

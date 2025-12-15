@@ -4,7 +4,7 @@ import { Message, TextChannel } from "discord.js"
 export default {
     name: "removeInactivo",
     ignoreBots: true,
-    exclusive: true,
+    scope: "guild",
     execute: function(message: Message, client: Client) {
         try {
             if (message.author.bot) return;

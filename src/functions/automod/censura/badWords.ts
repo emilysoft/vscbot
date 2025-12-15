@@ -7,7 +7,7 @@ import Iautomod from "../../../interfaces/Iautomod.js"
 
 export default {
     name: "bannedWords",
-    exclusive: true,
+    scope: "guild",
     ignoreBots: true,
     execute: async function(message: Message, client: Client) {
         try {

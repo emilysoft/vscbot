@@ -13,7 +13,7 @@ interface Excepciones {
 export default {
     name: "antiTextWall",
     ignoreBots: false,
-    exclusive: true,
+    scope: "guild",
     allowEdited: true,
     execute: async function (message: Message, client: Client) {
         try {

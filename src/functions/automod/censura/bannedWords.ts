@@ -31,7 +31,7 @@ const bannedRegexs: BannedRegexs = {
 
 export default {
     name: "bannedWords",
-    exclusive: true,
+    scope: "guild",
     ignoreBots: true,
     execute: async function (message: Message, client: Client) {
         try {

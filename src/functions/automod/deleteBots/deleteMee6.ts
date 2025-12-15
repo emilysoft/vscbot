@@ -3,7 +3,7 @@ import Client from "../../../interfaces/ICustomClient.js"
 import Iautomod from "../../../interfaces/Iautomod.js"
 export default {
     name: "deleteMee6",
-    exclusive: true,
+    scope: "guild",
     ignoreBots: false,
     execute: async function (message: Message, client: Client) {
         try {

@@ -10,30 +10,39 @@ const module: IEvents = {
     name: Events.MessageCreate,
     async execute(message: Message) {
         try {
+            const guild = message.guild
             // Evita que el bot actúe sobre sí mismo
             if (!client.user || message.author.id === client.user.id) return;
-            if (!message.guild || !(message.channel instanceof TextChannel)) return;
+            if (!guild || !(message.channel instanceof TextChannel)) return;
             messageLogger(message, "create", client as Client);
 
             // Automod
-            const automodPromises = client.automod
+            const automodActions = client.automod
                 .filter(automod => {
                     // Ignora bots si la configuración lo indica
                     if (message.author.bot && automod.ignoreBots) {
                         return false;
                     }
 
-                    // Filtra por servidores: solo VSC o solo otros
-                    const isExclusiveServer = message.guild!.id === "813538324320092161";
-                    if (automod.exclusive && isExclusiveServer)
+                    if(automod.scope == "global") {
                         return true
+                    }
 
-                    if (!automod.exclusive && !isExclusiveServer)
-                        return true
+                    if (automod.scope == "guild") {
+                        if(guild.id == config.guildId) {
+                            return true
+                        }
+                    }
+
+                    return false
                 })
-                .map(automod => automod.execute(message, client));
+            automodActions.forEach(async automod => {
+                console.log(automod.name)
+                await automod.execute( message, client)
+            })
+            
             // Ejecuta todas las promesas de automod de forma concurrente
-            await Promise.all(automodPromises);
+            //await Promise.all(automodPromises);
             // Comandos de texto
             if (message.content.startsWith(config.prefix)) {
                 const commands = client.messageCommands;

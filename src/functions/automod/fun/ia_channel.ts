@@ -4,7 +4,7 @@ import Iautomod from "../../../interfaces/Iautomod.js"
 import ia from "./../../lib/ia.js"
 export default {
     name: "ia",
-    exclusive: true,
+    scope: "guild",
     ignoreBots: true,
     allowEdited: true,
     execute: async function (message: Message, client: Client) {

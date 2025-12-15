@@ -7,7 +7,7 @@ const regex =
     /https?:\/\/(?:www\.)?facebook\.com\/(?:(?:watch\/?\?v=)|(?:share\/(v|r)\/)|(?:[a-zA-Z0-9.]+\/videos\/)|(?:reel\/))[a-zA-Z0-9]+\/?/gim
 export default {
     name: "downloadLink",
-    exclusive: false,
+    scope: "guild",
     ignoreBots: true,
     allowEdited: false,
     execute: async function (message: Message, client: Client) {

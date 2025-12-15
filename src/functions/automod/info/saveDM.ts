@@ -5,7 +5,7 @@ const regex =
     /(puedo|deja)\s+(pasar|enviar|mandar)\s+(unas\s+|una\s+)?(imagenes|capturas?|imagen|foto|fotos|videos|m(e|o)m(o|e)s)/gim;
 export default {
     name: "savdDM",
-    exclusive: false,
+    scope: "global",
     ignoreBots: true,
     allowEdited: true,
     execute: async function (message: Message, client: Client) {

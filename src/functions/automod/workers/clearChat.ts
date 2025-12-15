@@ -5,25 +5,27 @@ import Iautomod from "../../../interfaces/Iautomod.js";
 export default {
     name: "clearChat",
     ignoreBots: false,
-    exclusive: false,
+    scope: "global",
     allowEdited: false,
     execute: async function (message: Message, client: Client) {
         try {
             if (!message.guild) return
             const { channel } = message
             if (!(channel instanceof TextChannel)) return
-            const channelName = channel.name
-            if (message.guild.id == "813538324320092161" || channelName.includes("general")) {
+            if (message.guild.id == "813538324320092161" &&
+                 message.channel.id == "813538324320092164"  ||
+                 message.channel.id == "1345943077470076979" ||
+                 message.channel.id == "853387980335874078"
+                ) {
                 //general
                 clearNSB(message, "813538324320092164");
                 //general 2
                 clearNSB(message, "1345943077470076979");
                 clearNSB(message, "853387980335874078");
-
                 return
             }
             //neetoons
-            if (message.guild.id == "811827256489541643") {
+            if (message.guild.id == "811827256489541643" && message.channel.id == "871386967726772234") {
                 clearNSB(message, "871386967726772234");
             }
         } catch (err: any) {
@@ -59,6 +61,7 @@ async function clearNSB(message: Message, channelId: string) {
     if (messagesToDelete.length == 0) return;
 
     setTimeout(async () => {
+        console.log("limpiando chat")
         await channel.bulkDelete(messagesToDelete);
     }, 3 * 60 * 1000);
 }

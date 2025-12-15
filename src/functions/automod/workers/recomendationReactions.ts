@@ -38,7 +38,7 @@ const CHANNEL_CONFIG = {
 
 const module: Iautomod = {
     name: "recomendationReactions",
-    exclusive: true,
+    scope: "guild",
     ignoreBots: true,
     allowEdited: false,
     execute: async function(message: Message, client: Client) {

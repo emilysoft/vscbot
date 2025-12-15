@@ -13,7 +13,7 @@ interface IInmunidad {
 const inmunidad: IInmunidad = Inmunidad;
 export default {
     name: "removePhoneNumbers",
-    exclusive: true,
+    scope: "guild",
     ignoreBots: true,
     execute: async function (message: Message, client: Client) {
         if (message.channel instanceof TextChannel != true) return
