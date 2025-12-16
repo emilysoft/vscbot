@@ -24,7 +24,7 @@ client
             `Dont possible connect with discord - Reason: "${err.message}"`
         )
     );
-client.on("ready", async () => {
+client.on("clientReady", async () => {
     api()
     console.log("iniciado")
 });

@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 dotenv.config();
 const client = new Client();
 
-client.on("ready", async () => {
+client.on("clientReady", async () => {
     try {
         await client.db.connect();
 
@@ -196,4 +196,3 @@ client
 //}
 //
 //
-
