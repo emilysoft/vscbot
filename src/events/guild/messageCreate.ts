@@ -37,7 +37,6 @@ const module: IEvents = {
                     return false
                 })
             automodActions.forEach(async automod => {
-                console.log(automod.name)
                 await automod.execute( message, client)
             })
             
