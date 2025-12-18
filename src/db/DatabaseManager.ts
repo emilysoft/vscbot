@@ -6,7 +6,7 @@ import RoleManager from "./RoleManager.js"
 import ChannelManager from "./channelManager.js"
 import LogsManager from "./logManager.js"
 import { DB_ServerSettings } from './Idatabase.js'
-
+import LevelManager from "../functions/levels/levelManager.js"
 
 export default class DatabaseManager {
     private db!: SQLiteDatabase;
@@ -16,9 +16,9 @@ export default class DatabaseManager {
     roles: RoleManager;
     channels: ChannelManager;
     logs: LogsManager;
+    levels: LevelManager;
 
     constructor(private dbPath: string) { }
-
 
     private instance() {
         this.users = new UserManager(this.db)
@@ -26,6 +26,7 @@ export default class DatabaseManager {
         this.roles = new RoleManager(this.db, this)
         this.channels = new ChannelManager(this.db)
         this.logs = new LogsManager(this.db)
+        this.levels = new LevelManager(this.db)
     }
 
     /**
@@ -85,7 +86,7 @@ export default class DatabaseManager {
                 FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE
             );`
             ),
-            // LOGS 
+            // LOGS
             this.db.run(
                 `CREATE TABLE IF NOT EXISTS logs (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -99,6 +100,19 @@ export default class DatabaseManager {
                 FOREIGN KEY (channel_id) REFERENCES channels(id) ON DELETE CASCADE,
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             );`
+            ),
+            // LEVELS
+            this.db.run(
+                `CREATE TABLE IF NOT EXISTS levels (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER,
+                server_id INTEGER,
+                xp INTEGER,
+                level INTEGER,
+                last_message TEXT NOT NULL,
+                FOREIGN KEY (server_id) REFERENCES servers(id) ON DELETE CASCADE,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+                );`
             )
         ]
         await Promise.all(queries)

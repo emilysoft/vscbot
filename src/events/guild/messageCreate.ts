@@ -5,6 +5,7 @@ import messageLogger from "../../functions/loggers/messageLogger.js"
 import config from "../../config/config.json" with {type: "json"}
 import client from "../../index-vsc.js"
 import IEvents from "../../interfaces/iEvents.js"
+import LevelSystem from "../../functions/levels/levelSystem.js"
 
 const module: IEvents = {
     name: Events.MessageCreate,
@@ -15,7 +16,7 @@ const module: IEvents = {
             if (!client.user || message.author.id === client.user.id) return;
             if (!guild || !(message.channel instanceof TextChannel)) return;
             messageLogger(message, "create", client as Client);
-
+            LevelSystem.processMessage(message, client);
             // Automod
             const automodActions = client.automod
                 .filter(automod => {
@@ -39,9 +40,7 @@ const module: IEvents = {
             automodActions.forEach(async automod => {
                 await automod.execute( message, client)
             })
-            
-            // Ejecuta todas las promesas de automod de forma concurrente
-            //await Promise.all(automodPromises);
+
             // Comandos de texto
             if (message.content.startsWith(config.prefix)) {
                 const commands = client.messageCommands;

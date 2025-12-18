@@ -1,6 +1,6 @@
 import { DB_User } from './Idatabase.js'
 import { Database as SQLiteDatabase } from 'sqlite';
-
+import { User } from "discord.js"
 export default class UserManager {
     private db!: SQLiteDatabase
     update: UserUpdate
@@ -10,18 +10,23 @@ export default class UserManager {
         this.update = new UserUpdate(this.db);
     }
 
-    public async get(user_id?: string): Promise<DB_User | Promise<DB_User[]> | undefined> {
-        if (user_id) {
-            return await this.db.get<DB_User>(`SELECT * FROM users WHERE user_id = ?`, user_id)
+    public async get(user?: User): Promise<DB_User | Promise<DB_User[]> | undefined> {
+        if (user) {
+            const result = await this.db.get<DB_User>(`SELECT * FROM users WHERE user_id = ?`, user.id)
+
+            if(result == undefined) {
+                return await this.create(user)
+            }
+            return result
         } else {
             return await this.db.all<DB_User[]>(`SELECT * FROM users`)
         }
     }
 
-    public async create(user: DB_User): Promise<DB_User | undefined> {
+    private async create(user: User): Promise<DB_User | undefined> {
         const result = await this.db.run(
             `INSERT INTO users (user_id, username) VALUES (?, ?)`,
-            user.user_id,
+            user.id,
             user.username,
         );
         return await this.db.get<DB_User>(`SELECT * FROM users WHERE id = ?`, result.lastID)

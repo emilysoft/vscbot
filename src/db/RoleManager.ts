@@ -1,4 +1,4 @@
-import { DB_Role, DB_CustomRole, DB_User, DB_Server, SearchData } from './Idatabase.js'
+import { DB_Role, DB_CustomRole, DB_User, DB_Server} from './Idatabase.js'
 import { Database as SQLiteDatabase } from 'sqlite';
 import { Guild, Role, User } from 'discord.js'
 import DatabaseManager from "./DatabaseManager.js"
@@ -16,22 +16,24 @@ export default class RoleManager {
         this.databaseManager = databaseManager
     }
 
-    public async get(data: SearchData): Promise<DB_Role | DB_Role[] | undefined> {
-        if (data.item_id) {
-            return await this.db.get<DB_Role>(`SELECT * FROM roles WHERE role_id = ?`, data.item_id)
-        } else if (data.id) {
-            return await this.db.get<DB_Role>(`SELECT * FROM roles WHERE id = ?`, data.id)
+    public async get(role: Role, server: DB_Server ): Promise<DB_Role | DB_Role[] | undefined> {
+        if (role.id) {
+            const result = await this.db.get<DB_Role>(`SELECT * FROM roles WHERE role_id = ?`, role.id)
+
+            if(result == undefined) {
+                return await this.create(role, server)
+            }
         } else {
             return await this.db.all<DB_Role[]>(`SELECT * FROM roles`)
         }
     }
 
-    public async create(role: DB_Role): Promise<DB_Role | undefined> {
+    public async create(role: Role, server: DB_Server): Promise<DB_Role | undefined> {
         const result = await this.db.run(
-            `INSERT INTO roles (role_id, server_id, name) VALUES (?, ?, ?)`,
-            role.role_id,
-            role.server_id,
-            role.name
+            `INSERT INTO roles (role_id, name, server_id) VALUES (?, ?, ?)`,
+            role.id,
+            role.name,
+            server.id
         );
 
         return await this.db.get<DB_Role>(
@@ -60,68 +62,27 @@ class CustomRole {
             r.id,
             r.role_id,
             r.name
-            FROM customRoles AS cr 
+            FROM customRoles AS cr
             JOIN users AS u ON u.id = cr.user_id
             JOIN roles AS r ON r.id = cr.id
             JOIN servers AS s ON s.id = cr.server_id
-        		WHERE u.user_id = ? AND s.server_id = ?`, user_id, server_id)
+            WHERE u.user_id = ? AND s.server_id = ?`, user_id, server_id)
     }
 
     public async create(role: Role, user: User, guild: Guild): Promise<number | undefined> {
-        let
-            user_db,
-            owner_db,
-            server_db,
-            role_db;
 
         const existingRole = await this.get(user.id, guild.id)
         if (existingRole) throw new Error("role personalizado ya existe")
 
 
         //creacion dueño del server
-        owner_db = await this.databaseManager.users.get(guild.ownerId) as DB_User
-        if (!owner_db) {
-            const owner = await guild.fetchOwner();
-            if (!owner) return
-            owner_db = await this.databaseManager.users.create({
-                user_id: guild.ownerId,
-                username: owner.user.username
-            })
-        }
-        if (!owner_db?.id) throw new Error("error al intentar crear un dueño en la db")
+        const owner = await guild.fetchOwner()
+        const user_db = await this.databaseManager.users.get(user) as DB_User
+        const server_db = await this.databaseManager.guild.get(guild, owner.user) as DB_Server
+        const role_db = await this.databaseManager.roles.get(role, server_db) as DB_Role
 
-        //creacion dueño del rol 
-        user_db = await this.databaseManager.users.get(user.id) as DB_User
-        if (!user_db) {
-            user_db = await this.databaseManager.users.create({
-                user_id: user.id,
-                username: user.username
-            })
-        }
-        if (!user_db) throw new Error("error en este peo")
-
-        // creacion del server
-        server_db = await this.databaseManager.guild.get(guild.id) as DB_Server
-        if (!server_db) {
-            server_db = await this.databaseManager.guild.create({
-                server_id: guild.id,
-                name: guild.name,
-                owner_id: owner_db.id,
-                creation_date: guild.createdAt.toString()
-            })
-        }
-        if (!server_db?.id) throw new Error("error al intentar crear un servidor en la db")
-
-        // creacion del rol
-        role_db = await this.databaseManager.roles.get({ item_id: role.id }) as DB_Role
-        if (!role_db) {
-            role_db = await this.databaseManager.roles.create({
-                name: role.name,
-                role_id: role.id,
-                server_id: server_db.id
-            })
-        }
-        if (!role_db?.id) throw new Error("error al intentar crear un rol en la db")
+        if(!user_db || !server_db || !server_db.id || !user_db.id || !role_db || !role_db.id)
+            throw new Error("error al crear custom role")
 
         const result = await this.db.run(
             `INSERT INTO customRoles (user_id, server_id, role_id) VALUES (?, ?, ?)`,

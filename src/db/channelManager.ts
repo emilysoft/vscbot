@@ -1,5 +1,6 @@
-import { DB_Channel, SearchData } from './Idatabase.js'
+import { DB_Channel} from './Idatabase.js'
 import { Database as SQLiteDatabase } from 'sqlite';
+import { TextChannel } from "discord.js"
 
 export default class ChannelManager {
 
@@ -9,25 +10,29 @@ export default class ChannelManager {
         this.db = db;
     }
 
-    public async create(channel: DB_Channel): Promise<DB_Channel | undefined> {
-        const result = await this.db.run(
-            `INSERT INTO channels 
-            (channel_id, server_id, name) VALUES (?, ?, ?)`,
-            channel.channel_id,
-            channel.server_id,
-            channel.name
-        );
-
-        return await this.get({ id: result.lastID }) as DB_Channel;
-    }
-
-    public async get(data: SearchData): Promise<DB_Channel | DB_Channel[] | undefined> {
-        if (data.item_id) {
-            return await this.db.get<DB_Channel>(`SELECT * FROM channels WHERE channel_id = ?`, data.item_id)
-        } else if (data.id) {
-            return await this.db.get<DB_Channel>(`SELECT * FROM channels WHERE id = ?`, data.id)
+    public async get(channel: TextChannel, server_id: number, id?: number): Promise<DB_Channel | DB_Channel[] | undefined> {
+        if (channel) {
+            const result = await this.db.get<DB_Channel>(`SELECT * FROM channels WHERE channel_id = ?`, channel.id)
+            if(result == undefined) {
+                return await this.create(channel, server_id)
+            }
+            return result;
+        } else if (id) {
+            return await this.db.get<DB_Channel>(`SELECT * FROM channels WHERE id = ?`, id)
         } else {
             return await this.db.all<DB_Channel[]>(`SELECT * FROM channels`)
         }
+    }
+
+    private async create(channel: TextChannel, server_id: number): Promise<DB_Channel | undefined> {
+        const result = await this.db.run(
+            `INSERT INTO channels
+            (channel_id, name, server_id) VALUES (?, ?, ?)`,
+            channel.id,
+            channel.name,
+            server_id
+        );
+
+        return await this.db.get<DB_Channel>(`SELECT * FROM channels WHERE id = ?`, result.lastID)
     }
 }
