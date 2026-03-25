@@ -1,8 +1,11 @@
 import {
     ChatInputCommandInteraction,
-    ApplicationCommandOptionType,
-    SlashCommandSubcommandBuilder, Message, EmbedBuilder, SlashCommandBuilder, ColorResolvable
+    Message,
+    EmbedBuilder,
+    SlashCommandBuilder,
+    ColorResolvable
 } from "discord.js"
+
 import config from "../../config/config.json" with {type: "json"}
 import Client from "./../../interfaces/ICustomClient.js"
 import ICommand from "../../interfaces/command.js"

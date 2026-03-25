@@ -1,11 +1,10 @@
-// refactorizado para usar Promise.all
 import { Events, Message, TextChannel } from "discord.js"
 import Client from "../../interfaces/ICustomClient.js"
 import messageLogger from "../../functions/loggers/messageLogger.js"
 import config from "../../config/config.json" with {type: "json"}
 import client from "../../index-vsc.js"
 import IEvents from "../../interfaces/iEvents.js"
-import LevelSystem from "../../functions/levels/levelSystem.js"
+import levelDetector from "../../functions/levels/levelDetector.js"
 
 const module: IEvents = {
     name: Events.MessageCreate,
@@ -16,7 +15,8 @@ const module: IEvents = {
             if (!client.user || message.author.id === client.user.id) return;
             if (!guild || !(message.channel instanceof TextChannel)) return;
             messageLogger(message, "create", client as Client);
-            LevelSystem.processMessage(message, client);
+            await levelDetector(message, client);
+
             // Automod
             const automodActions = client.automod
                 .filter(automod => {

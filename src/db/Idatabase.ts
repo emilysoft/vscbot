@@ -1,3 +1,4 @@
+import { Role } from 'discord.js'
 // Definición de tipos para las tablas de la base de datos
 export interface DB_User {
     id?: number;
@@ -58,7 +59,7 @@ export interface DB_UserLevel {
     id?: number;
     user_id: number;
     server_id: number;
-    total_xp: number;
+    xp: number;
     level: number;
     last_message: string;
 }
@@ -70,4 +71,23 @@ export interface RankData {
     xpToNextLevel: number;
     xpProgress: number; // XP actual en el nivel
     rank?: number; // Posición global o en el servidor
+}
+
+export interface DB_RewardRoles {
+    id?: number;
+    role_id: number;
+    level: number;
+    server_id: number;
+}
+
+export interface DB_AllLogs {
+    userDB_id: number,
+    user_id : string,
+    creation_date: string
+}
+
+export interface IroleData {
+    id?: number
+    role?: Role
+    server?: DB_Server
 }

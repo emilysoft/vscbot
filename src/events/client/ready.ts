@@ -5,7 +5,7 @@ import inactivos from "../../functions/timers/inactivosReminder.js"
 import timer from "../../functions/lib/timer.js"
 import setPresence from "../../functions/lib/setPresence.js"
 import startBot from "../../functions/lib/startBot.js"
-import allConnected from "../../functions/lib/allConnected.js"
+//import allConnected from "../../functions/lib/allConnected.js"
 import Client from "../../interfaces/ICustomClient.js"
 import { clearGulag } from "../../functions/automod/workers/clearChat.js"
 import dotenv from "dotenv";
@@ -44,7 +44,7 @@ const module = {
             timer(hoy, client);
             //bcv(hoy, client);
             inactivos(hoy, client);
-            allConnected(hoy, client)
+            //allConnected(hoy, client)
         }, 1000 * 60);
         if (client.user)
             console.log(`Listo! iniciado como ${client.user.tag}`);

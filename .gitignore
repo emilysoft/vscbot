@@ -14,3 +14,4 @@ daemon
 **.log
 .env
 tsconfig.tsbuildinfo
+.editorconfig

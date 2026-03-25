@@ -64,6 +64,15 @@ export default class DatabaseManager {
                 FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE SET NULL
             );`
             ),
+            this.db.run(
+                `CREATE TABLE IF NOT EXISTS channels (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                channel_id TEXT NOT NULL UNIQUE,
+                server_id INTEGER NOT NULL,
+                name VARCHAR NOT NULL,
+                FOREIGN KEY (server_id) REFERENCES servers(id) ON DELETE CASCADE
+                );`
+            ),
             //ROLES
             this.db.run(
                 `CREATE TABLE IF NOT EXISTS roles (
@@ -113,8 +122,19 @@ export default class DatabaseManager {
                 FOREIGN KEY (server_id) REFERENCES servers(id) ON DELETE CASCADE,
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
                 );`
+            ),
+            this.db.run(
+                `CREATE TABLE IF NOT EXISTS reward_roles (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    role_id INTEGER,
+                    level INTEGER,
+                    server_id INTEGER,
+                    FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE,
+                    FOREIGN KEY (server_id) REFERENCES servers(id) ON DELETE CASCADE
+                );`
             )
         ]
+        //FIXME no es recomendable usar promise debido a que las queries se mandan asincronamente y esto puede tener errores en la creacion de tablas con foreign key
         await Promise.all(queries)
     }
     /**

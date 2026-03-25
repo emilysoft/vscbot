@@ -7,6 +7,7 @@
     "start": "pnpm clear && pnpm build && node .",
     "dev": "pnpm clear && pnpm build && tsx watch src/index-vsc.ts",
     "build": "pnpm clear && tsc --build",
+    "deploy-commands": "node src/handlers/deploy-commands.ts",
     "clear": "rm -rf dist/**"
   },
   "keywords": [],

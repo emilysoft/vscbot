@@ -26,6 +26,7 @@ export default class CustomClient extends Client implements ICustomClient {
         this.automod = new Collection()
         this.errorLogger = errorLoggerlib
         this.automodLogger = automodLoggerlib
-        this.db = new DatabaseManager(`${process.env.DATABASE_DIR}/vscbot.db` || '/var/vscbot/vscbot.db');
+        //this.db = new DatabaseManager(`${process.env.DATABASE_DIR}/vscbot.db` || '/var/vscbot/vscbot.db');
+        this.db = new DatabaseManager(`${process.env.DATABASE_DIR}/vscbot.db`);
     }
 }

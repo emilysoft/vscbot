@@ -13,11 +13,7 @@ export default class UserManager {
     public async get(user?: User): Promise<DB_User | Promise<DB_User[]> | undefined> {
         if (user) {
             const result = await this.db.get<DB_User>(`SELECT * FROM users WHERE user_id = ?`, user.id)
-
-            if(result == undefined) {
-                return await this.create(user)
-            }
-            return result
+            return  result ? result : await this.create(user)
         } else {
             return await this.db.all<DB_User[]>(`SELECT * FROM users`)
         }

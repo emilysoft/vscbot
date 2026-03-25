@@ -1,12 +1,12 @@
 import { DB_User, DB_Server, DB_UserLevel, RankData } from "../../db/Idatabase.js";
 import Client from "../../interfaces/ICustomClient.js"
-import { Message, User, Guild } from "discord.js"
+import { GuildMember, User, Guild } from "discord.js"
 
 export default class LevelSystem {
 
     // Factor de Constante (C) ajustado para 800k XP al Nivel 100
     private static readonly C_FACTOR: number = 0.1118;
-    private static readonly COOLDOWN_MS: number = 30000;
+    private static readonly COOLDOWN_MS: number = 10 * 1000;
 
     // --- CÁLCULOS ESTÁTICOS ---
 
@@ -36,18 +36,24 @@ export default class LevelSystem {
      * Procesa la ganancia de XP de un mensaje.
      * @returns `true` si el usuario subió de nivel, `false` en caso contrario.
      */
-    public static async processMessage(message:Message, client: Client): Promise<boolean> {
-        const {guild, author} = message;
+    public static async processMessage(member:GuildMember, client: Client, messageTimestamp: number = Date.now() ): Promise<boolean> {
+        const {guild, user} = member;
 
         if(!guild) throw new Error("error guild no conseguido")
 
-        const userDB = await client.db.users.get(author) as DB_User;
-        const owner = await guild.fetchOwner()
-        const serverDB = await client.db.guild.get(guild, owner.user) as DB_Server;
+        const userDB = await client.db.users.get(user) as DB_User;
+        let owner = member.guild.members.cache.get(guild.ownerId)
+        if(!owner) {
+            owner = await guild.fetchOwner()
+        }
+        let serverDB = await client.db.guild.get(guild) as DB_Server | undefined;
+        if(!serverDB) {
+            serverDB = await client.db.guild.create(guild, owner.user)
+        }
 
+        if(!userDB) throw new Error("usuario no encontrado en la base de datos")
+        if(!serverDB) throw new Error("server no encontrado en la base de datos")
         if (!userDB || !serverDB || !userDB.id || !serverDB.id) {
-            // Manejo de error: Deberías asegurar su creación antes de llamar a esta función,
-            // como haces en tu código de ejemplo (client.db.users.create, client.db.guild.create).
             console.error("Usuario o Servidor DB no encontrado/creado.");
             return false;
         }
@@ -56,24 +62,25 @@ export default class LevelSystem {
         const serverId = serverDB.id;
 
         // 2. Obtener o Crear registro de Nivel
-        let userLevelDB = await client.db.levels.get(author, guild) as DB_UserLevel;
+        let userLevelDB = await client.db.levels.get(user, guild) as DB_UserLevel | undefined;
+
         if (!userLevelDB) {
-            //userLevelDB = await client.db.userLevels.create({
-            //    user_id: userId,
-            //    server_id: serverId,
-            //    total_xp: 0,
-            //    level: 1,
-            //    last_message: new Date().toISOString()
-            //});
-            // Nuevo usuario siempre devuelve false en la primera ejecución
+            userLevelDB = await client.db.levels.create({
+                user_id: userId,
+                server_id: serverId,
+                xp: 0,
+                level: 1,
+                last_message: new Date(messageTimestamp).toISOString()
+            });
             return false;
         }
 
         // 3. Verificar Cooldown
         const lastMsgTime = new Date(userLevelDB.last_message).getTime();
-        const now = Date.now();
-        if (now - lastMsgTime < LevelSystem.COOLDOWN_MS) {
-            return false; // Cooldown activo, no gana XP
+
+
+        if (messageTimestamp - lastMsgTime < LevelSystem.COOLDOWN_MS) {
+            return false;
         }
 
         // 4. Calcular XP Ganada (Ej: Random entre 15 y 25)
@@ -83,14 +90,14 @@ export default class LevelSystem {
         const previousLevel = userLevelDB.level;
 
         // 6. Actualizar XP y Nivel
-        userLevelDB.total_xp += xpGained;
-        userLevelDB.level = LevelSystem.calculateLevel(userLevelDB.total_xp);
-        userLevelDB.last_message = new Date().toISOString();
+        userLevelDB.xp += xpGained;
+        userLevelDB.level = LevelSystem.calculateLevel(userLevelDB.xp);
+        userLevelDB.last_message = new Date(messageTimestamp).toISOString(); // Actualizar con fecha del log
 
         // 7. Guardar en DB
-        //await client.db.levels.update(userLevelDB);
+        await client.db.levels.update(userLevelDB);
 
-        // 8. Devolver si subió de nivel
+       // 8. Devolver si subió de nivel
         return userLevelDB.level > previousLevel;
     }
 
@@ -99,10 +106,16 @@ export default class LevelSystem {
     /**
      * Prepara los datos para mostrar el rango del usuario.
      */
-    public static async getRankData(client: Client, user:User, guild:Guild): Promise<RankData | null> {
+    public static async getRankData(user:User, guild:Guild, client: Client): Promise<RankData | null> {
         const userDB = await client.db.users.get(user) as DB_User;
-        const owner = await guild.fetchOwner()
-        const serverDB = await client.db.guild.get(guild, owner.user) as DB_Server;
+        let owner = guild.members.cache.get(guild.ownerId)
+        if(!owner) {
+            owner = await guild.fetchOwner()
+        }
+        let serverDB = await client.db.guild.get(guild) as DB_Server | undefined;
+        if(!serverDB) {
+            serverDB = await client.db.guild.create(guild, owner.user)
+        }
 
         if (!userDB || !serverDB || !userDB.id || !serverDB.id) return null;
 
@@ -110,7 +123,7 @@ export default class LevelSystem {
         if (!userLevelDB) return null;
 
         const currentLevel = userLevelDB.level;
-        const totalXp = userLevelDB.total_xp;
+        const totalXp = userLevelDB.xp;
 
         // Calculamos la XP total que necesita el siguiente nivel
         const xpRequiredForNextLevel = LevelSystem.calculateXpNeeded(currentLevel + 1);
@@ -130,8 +143,6 @@ export default class LevelSystem {
             totalXp: totalXp,
             xpToNextLevel: xpToNextLevel,
             xpProgress: xpProgress,
-            // Nota: Para obtener el 'rank', necesitarías una consulta SQL más compleja
-            // a userLevels ordenando por total_xp, lo que va más allá de esta clase.
         };
     }
 }
