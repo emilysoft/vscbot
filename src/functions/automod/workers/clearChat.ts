@@ -63,7 +63,7 @@ async function clearNSB(message: Message, channelId: string) {
     setTimeout(async () => {
         console.log("limpiando chat")
         await channel.bulkDelete(messagesToDelete);
-    }, 3 * 60 * 1000);
+    }, 5 * 60 * 1000);
 }
 
 export async function clearBots(msg: Message) {
@@ -107,27 +107,3 @@ export async function clearGulag(client: Client) {
     console.log(messagesToDelete);
     await channel.bulkDelete(messagesToDelete);
 }
-
-//async function clearComandos(guild: Guild) {
-//    //comandos
-//    const channel = await guild.channels.fetch("1112164583344443433");
-//    if (channel instanceof TextChannel != true) return;
-//    const messages = await channel.messages.fetch();
-//    if (!messages) return;
-//    const messagesToDelete: Array<string> = [];
-//    messages.forEach(async (message) => {
-//        //nekotina o nsb
-//        if (message.author.id != "429457053791158281") return;
-//        if (message.reference?.messageId) {
-//            const repliedMsg = await message.channel.messages.fetch(
-//                message.reference.messageId
-//            );
-//            console.log("debe borrar 1");
-//            messagesToDelete.push(repliedMsg.id);
-//        }
-//        console.log("debe borrar 2");
-//        messagesToDelete.push(message.id);
-//    });
-//    await channel.bulkDelete(messagesToDelete);
-//}
-//

@@ -17,6 +17,13 @@ const module: IEvents = {
             messageLogger(message, "create", client as Client);
             await levelDetector(message, client);
 
+            // la lupa
+            if(message.author.id == "647368715742216193" && message.channel.id == "853387980335874078") {
+                message.react("<:lupa:1155601662258458755>")
+            }
+
+            if(message.channel.id == "1456086627062382643") return // canal de metas
+
             // Automod
             const automodActions = client.automod
                 .filter(automod => {

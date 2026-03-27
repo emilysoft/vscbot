@@ -29,9 +29,4 @@ client.on("clientReady", async () => {
     console.log("iniciado")
 });
 
-//process.on('SIGINT', async () => {
-//    await client.db.close();
-//    client.destroy();
-//    process.exit(0);
-//});
 export default client;

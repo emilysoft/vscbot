@@ -60,9 +60,9 @@ async function handleGeneralChannel(message: Message): Promise<void> {
         return;
     }
 
-    // Borrar mensajes del bot "fmbot" después de 3 segundos
+    // Borrar mensajes del bot "fmbot" después de 1 minuto
     if (author.id === FMBOT_USER_ID) {
-        setTimeout(async () => message.delete(), 3000);
+        setTimeout(async () => message.delete(), 1000 * 60);
     }
 }
 
@@ -125,7 +125,7 @@ async function deleteTempMessage(message: Message, delay: number): Promise<void>
 }
 
 /**
- * Maneja tags de notsobot que no fueron creados debidamente 
+ * Maneja tags de notsobot que no fueron creados debidamente
  * @param message El objeto Message de Discord.
  */
 export async function warningDumpNSBTagCreation(message: Message) {
