@@ -63,7 +63,7 @@ async function clearNSB(message: Message, channelId: string) {
     setTimeout(async () => {
         console.log("limpiando chat")
         await channel.bulkDelete(messagesToDelete);
-    }, 5 * 60 * 1000);
+    }, 3 * 60 * 1000);
 }
 
 export async function clearBots(msg: Message) {

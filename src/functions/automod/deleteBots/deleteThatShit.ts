@@ -5,6 +5,7 @@ import Iautomod from "../../../interfaces/Iautomod.js";
 // IDs para una gestión más limpia
 const GENERAL_CHANNEL_IDS = ["813538324320092164", "1345943077470076979"];
 const FMBOT_USER_ID = "356268235697553409";
+const CHUU_USER_ID = "537353774205894676";
 const NSB_BOT_ID = "439205512425504771";
 const NSB_CHANNEL = "1112164583344443433";
 
@@ -61,8 +62,8 @@ async function handleGeneralChannel(message: Message): Promise<void> {
     }
 
     // Borrar mensajes del bot "fmbot" después de 1 minuto
-    if (author.id === FMBOT_USER_ID) {
-        setTimeout(async () => message.delete(), 1000 * 60);
+    if (author.id === FMBOT_USER_ID || author.id === CHUU_USER_ID ) {
+        setTimeout(async () => message.delete(), 1000 * 60 * 2);
     }
 }
 

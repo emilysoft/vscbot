@@ -18,7 +18,10 @@ const module: IEvents = {
             await levelDetector(message, client);
 
             // la lupa
-            if(message.author.id == "647368715742216193" && message.channel.id == "853387980335874078") {
+            const authorizedUsers = ["647368715742216193"];
+            const targetChannel = "853387980335874078";
+
+            if (authorizedUsers.includes(message.author.id) && message.channel.id === targetChannel) {
                 message.react("<:lupa:1155601662258458755>")
             }
 

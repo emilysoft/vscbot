@@ -65,7 +65,7 @@ const module = async (message: Message, type: string, client: Client) => {
                 const logChannel = guild.channels.cache.get("1160325903461666927");
                 if (logChannel instanceof TextChannel) {
                     await logChannel.send(
-                        logMsg.replace(/<@/gim, "<!@").replace(/@everyone/gim, "@!everyone").replace(/@here/gim, "@!here")
+                        logMsg.replace(/<@/gim, "<!@").replace(/@everyone/gim, "@!everyone").replace(/@here/gim, "@!here".substring(0, 1990))
                     );
                 }
             }
