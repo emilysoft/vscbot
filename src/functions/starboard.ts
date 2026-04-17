@@ -6,9 +6,19 @@ const CONFIG = {
     channelId: '872866069767917598'
 };
 
+const targetChannels = [
+    "813538324320092164", // general
+    "1345943077470076979", // general 2
+    "853387980335874078", // general ccss
+    "1409143372052037744", // memes
+];
+
 const postedMessages = new Set<string>();
 
 const module = async (reaction:MessageReaction, user: User ) => {
+
+    if (!targetChannels.includes(reaction.message.channel.id)) return;
+
     if (reaction.partial) {
         try {
             await reaction.fetch();
