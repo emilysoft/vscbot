@@ -1,10 +1,7 @@
 {
   "prefix": ">",
   "LOGGER_STATUS": true,
-  "OWNERS_ID": [
-    "302249242469335060",
-    "690796358579257424"
-  ],
+  "OWNERS_ID": ["302249242469335060", "690796358579257424"],
   "EMBED_COLOR": "#72EDD8",
   "clientId": "883827073049845801",
   "guildId": "813538324320092161",
@@ -35,5 +32,27 @@
     "bardo": "876095489148325889",
     "ultimas-confesiones": "926515205855383562"
   },
-  "backupChannel": "1112164583344443433"
+  "backupChannel": "1112164583344443433",
+  "DELETE_MESSAGES": {
+    "CHANNELS": {
+      "GENERAL": ["813538324320092164", "1345943077470076979"],
+      "COMMAND": "1112164583344443433",
+      "NSB": "1112164583344443433"
+    },
+    "BOTS": {
+      "NSB": "439205512425504771",
+      "GENERAL_CHANNEL": {
+        "FMBOT": "356268235697553409",
+        "CHUU": "537353774205894676",
+        "MUDAE": "432610292342587392"
+      }
+    },
+    "REGEX": {
+      "DOWNLOAD": "^(\\.|>)\\s*dl",
+      "FMBOT": "^=[a-bA-Z]+$",
+      "COMMNAD_ERROR": "Command Error",
+      "UNKNOWN_TAG": "^⚠️ Unknown Tag$",
+      "EMPTY_TAG": "HTTP Exception: 400"
+    }
+  }
 }
