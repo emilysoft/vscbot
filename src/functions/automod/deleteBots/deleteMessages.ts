@@ -1,6 +1,7 @@
 import { Message, TextChannel } from "discord.js";
 import Client from "../../../interfaces/ICustomClient.js";
 import Iautomod from "../../../interfaces/Iautomod.js";
+import { deleteBulkMessage } from "../../../functions/lib/deleteBulkMessage.js";
 import CONFIGS from "../../../config/config.json" with { type: "json" };
 
 const CONFIG = CONFIGS.DELETE_MESSAGES;
@@ -121,57 +122,4 @@ async function warnOwner({ content, guild }: Message) {
   const botsChannel = await guild.channels.fetch(CONFIG.CHANNELS.NSB);
   if (!(botsChannel instanceof TextChannel)) return;
   await botsChannel.send(`<@${guild.ownerId}>\n${content}`);
-}
-
-// Borra varios mensajes después de un tiempo especificado. Esto lo puedes poner en un /libs
-async function deleteBulkMessage(message: Message, delay = 0) {
-  const messagesToDelete = await getMessagesToDelete(message);
-  if (
-    messagesToDelete.length === 0 ||
-    !(message.channel instanceof TextChannel)
-  )
-    return;
-
-  if (delay === 0) {
-    await message.channel.bulkDelete(messagesToDelete).catch(() => null);
-    return;
-  }
-
-  setTimeout(async () => {
-    if (message.channel instanceof TextChannel) {
-      await message.channel.bulkDelete(messagesToDelete).catch(() => null);
-    }
-  }, delay);
-}
-
-// Esto lo puedes poner en libs
-async function getMessagesToDelete(message: Message): Promise<string[]> {
-  const messagesToDelete: string[] = [message.id];
-
-  if (message.reference?.messageId) {
-    const repliedMsg = await message.channel.messages
-      .fetch(message.reference.messageId)
-      .catch(() => null);
-    if (repliedMsg) {
-      messagesToDelete.push(repliedMsg.id);
-    }
-  }
-
-  return messagesToDelete;
-}
-
-/// saca esta vaina de aqui
-/**
- * Maneja tags de notsobot que no fueron creados debidamente
- * @param message El objeto Message de Discord.
- */
-export async function warningDumpNSBTagCreation(message: Message) {
-  const { attachments, content, author } = message;
-  if (attachments.size == 0) return;
-  if (/^\.\s*t\s+(add|create)/gim.test(content)) {
-    if (!(message.channel instanceof TextChannel)) return;
-    message.channel.send(
-      `<@${author.id}> posiblemente tu tag no se creó bien porque borraste la imagen/video, arregla tu mamada`,
-    );
-  }
 }

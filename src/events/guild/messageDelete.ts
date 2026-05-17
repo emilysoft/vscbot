@@ -1,5 +1,6 @@
 import { Events, Message } from "discord.js";
 import messageLogger from "../../functions/loggers/messageLogger.js";
+import { warningDumpNSBTagCreation } from "../../functions/warningDumpNSBTagCreation.js";
 import attachDelete from "./../../functions/loggers/deleteLogger.js";
 import client from "../../index-vsc.js";
 import IEvents from "../../interfaces/iEvents.js";
@@ -10,6 +11,7 @@ const module: IEvents = {
     try {
       attachDelete(message, client);
       messageLogger(message, "delete", client);
+      warningDumpNSBTagCreation(message);
     } catch (err) {
       client.errorLogger(err, client, "error", process.cwd() + " ");
     }
