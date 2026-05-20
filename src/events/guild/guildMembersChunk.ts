@@ -2,13 +2,13 @@ import { ReadonlyCollection, Snowflake, GuildMember, Events, Guild, GuildMembers
 import client from "../../index-vsc.js"
 import IEvents from "../../interfaces/iEvents.js"
 const module: IEvents = {
-    name: Events.GuildMembersChunk,
-    async execute(members:ReadonlyCollection<Snowflake, GuildMember>, guild:Guild, chunk:GuildMembersChunk) {
-        try {
+  name: Events.GuildMembersChunk,
+  async execute(members:ReadonlyCollection<Snowflake, GuildMember>, guild:Guild, chunk:GuildMembersChunk) {
+    try {
 
-        } catch (err) {
-            client.errorLogger(err, client, 'error')
-        }        
-    }
+    } catch (err) {
+      client.errorLogger(err, client, 'error')
+    }        
+  }
 }
 export default module

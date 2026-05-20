@@ -6,13 +6,13 @@ dotenv.config()
 const MAIN_SERVER = process.env.MAIN_SERVER
 
 const module: IEvents = {
-    name: Events.ChannelCreate,
-    async execute(channel: TextChannel) {
-        const { guild } = channel
-        if (!(guild instanceof Guild)) return
-        if (guild.id != MAIN_SERVER) return
+  name: Events.ChannelCreate,
+  async execute(channel: TextChannel) {
+    const { guild } = channel
+    if (!(guild instanceof Guild)) return
+    if (guild.id != MAIN_SERVER) return
 
-        newChannelAdviser(channel)
-    },
+    newChannelAdviser(channel)
+  },
 };
 export default module

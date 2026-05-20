@@ -4,145 +4,145 @@ import { GuildMember, User, Guild } from "discord.js"
 
 export default class LevelSystem {
 
-    // Factor de Constante (C) ajustado para 800k XP al Nivel 100
-    private static readonly C_FACTOR: number = 0.1118;
-    private static readonly COOLDOWN_MS: number = 10 * 1000;
+  // Factor de Constante (C) ajustado para 800k XP al Nivel 100
+  private static readonly C_FACTOR: number = 0.1118;
+  private static readonly COOLDOWN_MS: number = 10 * 1000;
 
-    // --- CÁLCULOS ESTÁTICOS ---
+  // --- CÁLCULOS ESTÁTICOS ---
 
-    /**
+  /**
      * Calcula el nivel a partir de la XP total.
      * Fórmula: Nivel = floor( C * sqrt(XP_total) )
      */
-    public static calculateLevel(totalXp: number): number {
-        if (totalXp <= 0) return 1;
-        const level = Math.floor(LevelSystem.C_FACTOR * Math.sqrt(totalXp));
-        return Math.max(1, level); // Asegura que el nivel mínimo sea 1
-    }
+  public static calculateLevel(totalXp: number): number {
+    if (totalXp <= 0) return 1;
+    const level = Math.floor(LevelSystem.C_FACTOR * Math.sqrt(totalXp));
+    return Math.max(1, level); // Asegura que el nivel mínimo sea 1
+  }
 
-    /**
+  /**
      * Calcula la XP MÍNIMA total requerida para un nivel objetivo.
      * Fórmula Inversa: XP = (Nivel / C)^2
      */
-    public static calculateXpNeeded(targetLevel: number): number {
-        if (targetLevel <= 1) return 0;
-        const requiredXp = Math.pow((targetLevel / LevelSystem.C_FACTOR), 2);
-        return Math.floor(requiredXp);
-    }
+  public static calculateXpNeeded(targetLevel: number): number {
+    if (targetLevel <= 1) return 0;
+    const requiredXp = Math.pow((targetLevel / LevelSystem.C_FACTOR), 2);
+    return Math.floor(requiredXp);
+  }
 
-    // --- LÓGICA PRINCIPAL DE XP ---
+  // --- LÓGICA PRINCIPAL DE XP ---
 
-    /**
+  /**
      * Procesa la ganancia de XP de un mensaje.
      * @returns `true` si el usuario subió de nivel, `false` en caso contrario.
      */
-    public static async processMessage(member:GuildMember, client: Client, messageTimestamp: number = Date.now() ): Promise<boolean> {
-        const {guild, user} = member;
+  public static async processMessage(member:GuildMember, client: Client, messageTimestamp: number = Date.now() ): Promise<boolean> {
+    const {guild, user} = member;
 
-        if(!guild) throw new Error("error guild no conseguido")
+    if(!guild) throw new Error("error guild no conseguido")
 
-        const userDB = await client.db.users.get(user) as DB_User;
-        let owner = member.guild.members.cache.get(guild.ownerId)
-        if(!owner) {
-            owner = await guild.fetchOwner()
-        }
-        let serverDB = await client.db.guild.get(guild) as DB_Server | undefined;
-        if(!serverDB) {
-            serverDB = await client.db.guild.create(guild, owner.user)
-        }
+    const userDB = await client.db.users.get(user) as DB_User;
+    let owner = member.guild.members.cache.get(guild.ownerId)
+    if(!owner) {
+      owner = await guild.fetchOwner()
+    }
+    let serverDB = await client.db.guild.get(guild) as DB_Server | undefined;
+    if(!serverDB) {
+      serverDB = await client.db.guild.create(guild, owner.user)
+    }
 
-        if(!userDB) throw new Error("usuario no encontrado en la base de datos")
-        if(!serverDB) throw new Error("server no encontrado en la base de datos")
-        if (!userDB || !serverDB || !userDB.id || !serverDB.id) {
-            console.error("Usuario o Servidor DB no encontrado/creado.");
-            return false;
-        }
+    if(!userDB) throw new Error("usuario no encontrado en la base de datos")
+    if(!serverDB) throw new Error("server no encontrado en la base de datos")
+    if (!userDB || !serverDB || !userDB.id || !serverDB.id) {
+      console.error("Usuario o Servidor DB no encontrado/creado.");
+      return false;
+    }
 
-        const userId = userDB.id;
-        const serverId = serverDB.id;
+    const userId = userDB.id;
+    const serverId = serverDB.id;
 
-        // 2. Obtener o Crear registro de Nivel
-        let userLevelDB = await client.db.levels.get(user, guild) as DB_UserLevel | undefined;
+    // 2. Obtener o Crear registro de Nivel
+    let userLevelDB = await client.db.levels.get(user, guild) as DB_UserLevel | undefined;
 
-        if (!userLevelDB) {
-            userLevelDB = await client.db.levels.create({
-                user_id: userId,
-                server_id: serverId,
-                xp: 0,
-                level: 1,
-                last_message: new Date(messageTimestamp).toISOString()
-            });
-            return false;
-        }
+    if (!userLevelDB) {
+      userLevelDB = await client.db.levels.create({
+        user_id: userId,
+        server_id: serverId,
+        xp: 0,
+        level: 1,
+        last_message: new Date(messageTimestamp).toISOString()
+      });
+      return false;
+    }
 
-        // 3. Verificar Cooldown
-        const lastMsgTime = new Date(userLevelDB.last_message).getTime();
+    // 3. Verificar Cooldown
+    const lastMsgTime = new Date(userLevelDB.last_message).getTime();
 
 
-        if (messageTimestamp - lastMsgTime < LevelSystem.COOLDOWN_MS) {
-            return false;
-        }
+    if (messageTimestamp - lastMsgTime < LevelSystem.COOLDOWN_MS) {
+      return false;
+    }
 
-        // 4. Calcular XP Ganada (Ej: Random entre 15 y 25)
-        const xpGained = Math.floor(Math.random() * 10) + 15;
+    // 4. Calcular XP Ganada (Ej: Random entre 15 y 25)
+    const xpGained = Math.floor(Math.random() * 10) + 15;
 
-        // 5. Determinar el Nivel ANTES de la subida
-        const previousLevel = userLevelDB.level;
+    // 5. Determinar el Nivel ANTES de la subida
+    const previousLevel = userLevelDB.level;
 
-        // 6. Actualizar XP y Nivel
-        userLevelDB.xp += xpGained;
-        userLevelDB.level = LevelSystem.calculateLevel(userLevelDB.xp);
-        userLevelDB.last_message = new Date(messageTimestamp).toISOString(); // Actualizar con fecha del log
+    // 6. Actualizar XP y Nivel
+    userLevelDB.xp += xpGained;
+    userLevelDB.level = LevelSystem.calculateLevel(userLevelDB.xp);
+    userLevelDB.last_message = new Date(messageTimestamp).toISOString(); // Actualizar con fecha del log
 
-        // 7. Guardar en DB
-        await client.db.levels.update(userLevelDB);
+    // 7. Guardar en DB
+    await client.db.levels.update(userLevelDB);
 
        // 8. Devolver si subió de nivel
-        return userLevelDB.level > previousLevel;
-    }
+    return userLevelDB.level > previousLevel;
+  }
 
-    // --- LÓGICA DE RANK/TARJETA ---
+  // --- LÓGICA DE RANK/TARJETA ---
 
-    /**
+  /**
      * Prepara los datos para mostrar el rango del usuario.
      */
-    public static async getRankData(user:User, guild:Guild, client: Client): Promise<RankData | null> {
-        const userDB = await client.db.users.get(user) as DB_User;
-        let owner = guild.members.cache.get(guild.ownerId)
-        if(!owner) {
-            owner = await guild.fetchOwner()
-        }
-        let serverDB = await client.db.guild.get(guild) as DB_Server | undefined;
-        if(!serverDB) {
-            serverDB = await client.db.guild.create(guild, owner.user)
-        }
-
-        if (!userDB || !serverDB || !userDB.id || !serverDB.id) return null;
-
-        const userLevelDB = await client.db.levels.get(user, guild) as DB_UserLevel;
-        if (!userLevelDB) return null;
-
-        const currentLevel = userLevelDB.level;
-        const totalXp = userLevelDB.xp;
-
-        // Calculamos la XP total que necesita el siguiente nivel
-        const xpRequiredForNextLevel = LevelSystem.calculateXpNeeded(currentLevel + 1);
-
-        // Calculamos la XP total necesaria para el nivel actual
-        const xpRequiredForCurrentLevel = LevelSystem.calculateXpNeeded(currentLevel);
-
-        // XP que lleva en el nivel actual (el "progreso")
-        const xpProgress = totalXp - xpRequiredForCurrentLevel;
-
-        // XP que falta para el siguiente nivel
-        const xpToNextLevel = xpRequiredForNextLevel - totalXp;
-
-        return {
-            username: userDB.username,
-            level: currentLevel,
-            totalXp: totalXp,
-            xpToNextLevel: xpToNextLevel,
-            xpProgress: xpProgress,
-        };
+  public static async getRankData(user:User, guild:Guild, client: Client): Promise<RankData | null> {
+    const userDB = await client.db.users.get(user) as DB_User;
+    let owner = guild.members.cache.get(guild.ownerId)
+    if(!owner) {
+      owner = await guild.fetchOwner()
     }
+    let serverDB = await client.db.guild.get(guild) as DB_Server | undefined;
+    if(!serverDB) {
+      serverDB = await client.db.guild.create(guild, owner.user)
+    }
+
+    if (!userDB || !serverDB || !userDB.id || !serverDB.id) return null;
+
+    const userLevelDB = await client.db.levels.get(user, guild) as DB_UserLevel;
+    if (!userLevelDB) return null;
+
+    const currentLevel = userLevelDB.level;
+    const totalXp = userLevelDB.xp;
+
+    // Calculamos la XP total que necesita el siguiente nivel
+    const xpRequiredForNextLevel = LevelSystem.calculateXpNeeded(currentLevel + 1);
+
+    // Calculamos la XP total necesaria para el nivel actual
+    const xpRequiredForCurrentLevel = LevelSystem.calculateXpNeeded(currentLevel);
+
+    // XP que lleva en el nivel actual (el "progreso")
+    const xpProgress = totalXp - xpRequiredForCurrentLevel;
+
+    // XP que falta para el siguiente nivel
+    const xpToNextLevel = xpRequiredForNextLevel - totalXp;
+
+    return {
+      username: userDB.username,
+      level: currentLevel,
+      totalXp: totalXp,
+      xpToNextLevel: xpToNextLevel,
+      xpProgress: xpProgress,
+    };
+  }
 }

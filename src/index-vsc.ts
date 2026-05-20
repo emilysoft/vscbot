@@ -18,15 +18,15 @@ process.on("uncaughtException", (e) => console.error(e));
 process.on("uncaughtExceptionMonitor", (e) => console.error(e));
 
 client
-    .login(process.env.TOKEN)
-    .catch((err) =>
-        console.log(
-            `Dont possible connect with discord - Reason: "${err.message}"`
-        )
-    );
+  .login(process.env.TOKEN)
+  .catch((err) =>
+    console.log(
+      `Dont possible connect with discord - Reason: "${err.message}"`
+    )
+  );
 client.on("clientReady", async () => {
-    api()
-    console.log("iniciado")
+  api()
+  console.log("iniciado")
 });
 
 export default client;

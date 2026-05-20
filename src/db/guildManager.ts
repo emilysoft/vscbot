@@ -4,30 +4,30 @@ import DatabaseManager from "./DatabaseManager.js"
 import { Guild, User } from "discord.js"
 
 export default class ServerManager {
-    private db!: SQLiteDatabase
-    databaseManager: DatabaseManager
+  private db!: SQLiteDatabase
+  databaseManager: DatabaseManager
 
-    constructor(db: SQLiteDatabase, databaseManager: DatabaseManager) {
-        this.db = db;
-        this.databaseManager = databaseManager
-    }
+  constructor(db: SQLiteDatabase, databaseManager: DatabaseManager) {
+    this.db = db;
+    this.databaseManager = databaseManager
+  }
 
-    public async get(guild: Guild): Promise<DB_Server | undefined> {
-        return await this.db.get<DB_Server>(`SELECT * FROM servers WHERE server_id = ?`, guild.id)
-    }
+  public async get(guild: Guild): Promise<DB_Server | undefined> {
+    return await this.db.get<DB_Server>(`SELECT * FROM servers WHERE server_id = ?`, guild.id)
+  }
 
-    public async create(server: Guild, owner: User): Promise<DB_Server | undefined> {
-        const owner_db = await this.databaseManager.users.get(owner) as DB_User
-        if(!owner_db.id) throw new Error("error al encontrar el owner para poder crear una fila server")
-        const result = await this.db.run(
-            `INSERT INTO servers (server_id, name, owner_id, creation_date) VALUES (?, ?, ?, ?)`,
-            server.id,
-            server.name,
-            owner_db.id,
-            server.createdAt.toString()
-        );
-        return await this.db.get<DB_Server>(
-            `SELECT * FROM servers WHERE id = ? LIMIT 1`, result.lastID
-        )
-    }
+  public async create(server: Guild, owner: User): Promise<DB_Server | undefined> {
+    const owner_db = await this.databaseManager.users.get(owner) as DB_User
+    if(!owner_db.id) throw new Error("error al encontrar el owner para poder crear una fila server")
+    const result = await this.db.run(
+      `INSERT INTO servers (server_id, name, owner_id, creation_date) VALUES (?, ?, ?, ?)`,
+      server.id,
+      server.name,
+      owner_db.id,
+      server.createdAt.toString()
+    );
+    return await this.db.get<DB_Server>(
+      `SELECT * FROM servers WHERE id = ? LIMIT 1`, result.lastID
+    )
+  }
 }

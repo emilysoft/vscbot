@@ -6,11 +6,11 @@ import dotenv from "dotenv"
 dotenv.config()
 
 const module: IEvents = {
-    name: Events.MessageReactionAdd,
-    async execute(messageReaction: MessageReaction, user: User) {
-        await starboard(messageReaction, user)
-        reactionLogger(messageReaction, user, 'add')
-    }
+  name: Events.MessageReactionAdd,
+  async execute(messageReaction: MessageReaction, user: User) {
+    await starboard(messageReaction, user)
+    reactionLogger(messageReaction, user, 'add')
+  }
 };
 
 export default module
