@@ -132,6 +132,14 @@ export default class DatabaseManager {
                     FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE,
                     FOREIGN KEY (server_id) REFERENCES servers(id) ON DELETE CASCADE
                 );`
+            ),
+            // SERVER SETTINGS
+            this.db.run(
+                `CREATE TABLE IF NOT EXISTS server_settings (
+                    server_id INTEGER PRIMARY KEY,
+                    prefix TEXT NOT NULL DEFAULT '!',
+                    FOREIGN KEY (server_id) REFERENCES servers(id) ON DELETE CASCADE
+                );`
             )
         ]
         //FIXME no es recomendable usar promise debido a que las queries se mandan asincronamente y esto puede tener errores en la creacion de tablas con foreign key

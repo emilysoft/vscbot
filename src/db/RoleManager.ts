@@ -93,7 +93,7 @@ class CustomRole {
             r.name
             FROM customRoles AS cr
             JOIN users AS u ON u.id = cr.user_id
-            JOIN roles AS r ON r.id = cr.id
+            JOIN roles AS r ON r.id = cr.role_id
             JOIN servers AS s ON s.id = cr.server_id
             WHERE u.user_id = ? AND s.server_id = ?`, user_id, server_id)
     }

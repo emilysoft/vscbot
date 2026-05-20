@@ -14,12 +14,12 @@ export default class LogManager {
         if (channel_id != undefined && user_id != undefined) {
             return await this.db.all<DB_Logs_Fetched[]>(
                 `SELECT 
-                chl.name,
+                chl.name AS channel_name,
                 u.username,
                 l.creation_date
                 FROM logs as l 
-                JOIN users AS u ON u.id = l.id
-                JOIN servers AS s ON s.id = l.id 
+                JOIN users AS u ON u.id = l.user_id
+                JOIN servers AS s ON s.id = l.server_id 
                 JOIN channels AS chl ON chl.id = l.channel_id
                 WHERE chl.channel_id = ? AND u.user_id = ? AND s.server_id = ?`,
                 channel_id, user_id, guild_id)
@@ -27,12 +27,12 @@ export default class LogManager {
         } else if (channel_id != undefined) {
             return await this.db.all<DB_Logs_Fetched[]>(
                 `SELECT 
-                chl.name,
+                chl.name AS channel_name,
                 u.username,
                 l.creation_date
                 FROM logs as l 
-                JOIN users AS u ON u.id = l.id
-                JOIN servers AS s ON s.id = l.id 
+                JOIN users AS u ON u.id = l.user_id
+                JOIN servers AS s ON s.id = l.server_id 
                 JOIN channels AS chl ON chl.id = l.channel_id
                 WHERE chl.channel_id = ? AND s.server_id = ?`,
                 channel_id, guild_id)
@@ -40,12 +40,12 @@ export default class LogManager {
         } if (user_id != undefined) {
             return await this.db.all<DB_Logs_Fetched[]>(
                 `SELECT 
-                chl.name,
+                chl.name AS channel_name,
                 u.username,
                 l.creation_date
                 FROM logs as l 
-                JOIN users AS u ON u.id = l.id
-                JOIN servers AS s ON s.id = l.id 
+                JOIN users AS u ON u.id = l.user_id
+                JOIN servers AS s ON s.id = l.server_id 
                 JOIN channels AS chl ON chl.id = l.channel_id
                 WHERE u.user_id = ? AND s.server_id = ?`,
                 user_id, guild_id)

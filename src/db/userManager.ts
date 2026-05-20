@@ -49,7 +49,7 @@ class UserUpdate {
   }
   public async username(user: DB_User): Promise<void> {
     await this.db.run(
-      `UPDATE users SET username = ?, WHERE id = ?`,
+      `UPDATE users SET username = ? WHERE id = ?`,
       user.username,
       user.id,
     );
