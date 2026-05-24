@@ -1,10 +1,13 @@
 import Client from "../interfaces/ICustomClient.js";
 import fs from "node:fs/promises";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import chalk from "chalk";
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const distDir = path.resolve(__dirname, "..");
 
 export default async (client: Client) => {
-  const eventsPath = path.join(process.cwd(), "dist/events");
+  const eventsPath = path.join(distDir, "events");
   const eventFolders = await fs.readdir(eventsPath);
   console.warn(chalk.whiteBright("Loading events"));
 
