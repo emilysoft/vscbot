@@ -34,13 +34,20 @@ export default class DatabaseManager {
      * @returns {Promise<void>}
      */
   public async connect(): Promise<void> {
-    this.db = await open({
-      filename: this.dbPath,
-      driver: sqlite3.Database
-    });
-    this.instance()
-    console.log('Conectado a la base de datos SQLite.');
-    await this.createTables()
+    try {
+      const dbPath = `${this.dbPath}/vscbot.db`
+      console.log(`[vscbot] Initializing database at: ${dbPath}`);
+      this.db = await open({
+        filename: dbPath,
+        driver: sqlite3.Database
+      });
+      this.instance()
+      await this.createTables()
+      console.log('Conectado a la base de datos SQLite.');
+    } catch (err) {
+      console.error(`error al conectar a la base de datos: ${err}`)
+      process.exit(1);
+    }
   }
 
   private async createTables() {

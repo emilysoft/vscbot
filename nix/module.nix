@@ -46,7 +46,7 @@ in {
       wantedBy = ["multi-user.target"];
       environment = {
         DATABASE_DIR = "/var/lib/${cfg.databaseDir}";
-        API_PORT = cfg.port;
+        API_PORT = toString cfg.port;
       };
       serviceConfig = {
         ExecStart = "${cfg.package}/bin/vscbot";
@@ -54,12 +54,13 @@ in {
         RestartSec = 5;
         User = "vscbot";
         Group = "vscbot";
-        StateDirectory = lib.removePrefix "/var/lib/" cfg.databaseDir;
+        StateDirectory = cfg.databaseDir;
         EnvironmentFile = cfg.tokenFile;
         ProtectSystem = "strict";
         ProtectHome = true;
         NoNewPrivileges = true;
         PrivateTmp = true;
+        ReadWritePaths = ["/var/lib/${cfg.databaseDir}"];
       };
     };
   };
