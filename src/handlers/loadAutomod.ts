@@ -6,6 +6,8 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import chalk from "chalk";
 
+const __dirname = path.dirname(new URL(import.meta.url).pathname);
+
 /**
  * Carga de forma asíncrona todas las funciones de automoderación.
  * @param {Client} client La instancia del cliente de Discord.
@@ -14,7 +16,7 @@ export default async (client: Client): Promise<void> => {
   client.automod = new Collection<string, IAutomod>();
   console.log(chalk.whiteBright("🤖 Cargando funciones de automoderación..."));
 
-  const automodPath = path.join(process.cwd(), "dist", "functions", "automod");
+  const automodPath = path.join(__dirname, "..", "functions", "automod");
   let loadedCount = 0;
 
   try {
