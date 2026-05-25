@@ -22,8 +22,8 @@ in {
 
     databaseDir = lib.mkOption {
       type = lib.types.str;
-      default = "/var/lib/discord-bots/vscbot-db";
-      description = "El directorio donde el bot almacenará su base de datos.";
+      default = "vscbot";
+      description = "The name of the state directory under /var/lib where the bot stores its database.";
     };
 
     port = lib.mkOption {
@@ -45,7 +45,7 @@ in {
       after = ["network.target"];
       wantedBy = ["multi-user.target"];
       environment = {
-        DATABASE_DIR = cfg.databaseDir;
+        DATABASE_DIR = "/var/lib/${cfg.databaseDir}";
         API_PORT = cfg.port;
       };
       serviceConfig = {
