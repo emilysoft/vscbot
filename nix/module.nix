@@ -25,6 +25,12 @@ in {
       default = "/var/lib/discord-bots/vscbot-db";
       description = "El directorio donde el bot almacenará su base de datos.";
     };
+
+    port = lib.mkOption {
+      type = lib.types.port;
+      default = 3000;
+      description = "API port";
+    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -40,6 +46,7 @@ in {
       wantedBy = ["multi-user.target"];
       environment = {
         DATABASE_DIR = cfg.databaseDir;
+        API_PORT = cfg.port;
       };
       serviceConfig = {
         ExecStart = "${cfg.package}/bin/vscbot";
