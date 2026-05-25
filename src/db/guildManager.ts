@@ -19,15 +19,15 @@ export default class ServerManager {
   public async create(server: Guild, owner: User): Promise<DB_Server | undefined> {
     const owner_db = await this.databaseManager.users.get(owner) as DB_User
     if(!owner_db.id) throw new Error("error al encontrar el owner para poder crear una fila server")
-    const result = await this.db.run(
-      `INSERT INTO servers (server_id, name, owner_id, creation_date) VALUES (?, ?, ?, ?)`,
+    await this.db.run(
+      `INSERT OR IGNORE INTO servers (server_id, name, owner_id, creation_date) VALUES (?, ?, ?, ?)`,
       server.id,
       server.name,
       owner_db.id,
       server.createdAt.toString()
     );
     return await this.db.get<DB_Server>(
-      `SELECT * FROM servers WHERE id = ? LIMIT 1`, result.lastID
+      `SELECT * FROM servers WHERE server_id = ?`, server.id
     )
   }
 }

@@ -25,14 +25,14 @@ export default class UserManager {
   }
 
   private async create(user: User): Promise<DB_User | undefined> {
-    const result = await this.db.run(
-      `INSERT INTO users (user_id, username) VALUES (?, ?)`,
+    await this.db.run(
+      `INSERT OR IGNORE INTO users (user_id, username) VALUES (?, ?)`,
       user.id,
       user.username,
     );
     return await this.db.get<DB_User>(
-      `SELECT * FROM users WHERE id = ?`,
-      result.lastID,
+      `SELECT * FROM users WHERE user_id = ?`,
+      user.id,
     );
   }
 
