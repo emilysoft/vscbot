@@ -20,7 +20,7 @@ in {
       description = "Path to an environment file containing secrets (e.g., DISCORD_TOKEN).";
     };
 
-    databaseDir = lib.mkOption {
+    dataDir = lib.mkOption {
       type = lib.types.str;
       default = "vscbot";
       description = "The name of the state directory under /var/lib where the bot stores its database.";
@@ -45,7 +45,8 @@ in {
       after = ["network.target"];
       wantedBy = ["multi-user.target"];
       environment = {
-        DATABASE_DIR = "/var/lib/${cfg.databaseDir}";
+        DATABASE_DIR = "/var/lib/${cfg.dataDir}";
+        CUSTOM_ICONS_DIR = "/var/lib/${cfg.dataDir}";
         API_PORT = toString cfg.port;
       };
       serviceConfig = {
@@ -54,13 +55,13 @@ in {
         RestartSec = 5;
         User = "vscbot";
         Group = "vscbot";
-        StateDirectory = cfg.databaseDir;
+        StateDirectory = cfg.dataDir;
         EnvironmentFile = cfg.tokenFile;
         ProtectSystem = "strict";
         ProtectHome = true;
         NoNewPrivileges = true;
         PrivateTmp = true;
-        ReadWritePaths = ["/var/lib/${cfg.databaseDir}"];
+        ReadWritePaths = ["/var/lib/${cfg.dataDir}"];
       };
     };
   };
