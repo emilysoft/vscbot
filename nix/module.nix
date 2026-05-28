@@ -46,7 +46,7 @@ in {
       wantedBy = ["multi-user.target"];
       environment = {
         DATABASE_DIR = "/var/lib/${cfg.dataDir}";
-        CUSTOM_ICONS_DIR = "/var/lib/${cfg.dataDir}";
+        CUSTOM_ICONS_DIR = "/var/lib/${cfg.dataDir}/custom_roles/";
         API_PORT = toString cfg.port;
       };
       serviceConfig = {
@@ -55,13 +55,19 @@ in {
         RestartSec = 5;
         User = "vscbot";
         Group = "vscbot";
-        StateDirectory = cfg.dataDir;
+        StateDirectory = [
+          "${cfg.dataDir}"
+          "${cfg.dataDir}/custom_roles"
+        ];
         EnvironmentFile = cfg.tokenFile;
         ProtectSystem = "strict";
         ProtectHome = true;
         NoNewPrivileges = true;
         PrivateTmp = true;
-        ReadWritePaths = ["/var/lib/${cfg.dataDir}"];
+        ReadWritePaths = [
+          "/var/lib/${cfg.dataDir}"
+          "/var/lib/${cfg.dataDir}/custom_roles"
+        ];
       };
     };
   };
