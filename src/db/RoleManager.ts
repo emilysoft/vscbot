@@ -111,7 +111,7 @@ class CustomRole {
     }
     const serverDB = await this.databaseManager.guild.get(guild) as DB_Server;
     const user_db = await this.databaseManager.users.get(user) as DB_User
-    const role_db = await this.databaseManager.roles.get({role:role, server: serverDB}) as DB_Role
+    const role_db = await this.databaseManager.roles.ensure({role:role, server: serverDB}) as DB_Role
 
     if(!user_db || !serverDB || !serverDB.id || !user_db.id || !role_db || !role_db.id)
       throw new Error("error al crear custom role")
