@@ -38,7 +38,6 @@ async function help(interaction: Message | ChatInputCommandInteraction, avatarPh
 
     const commands = await interaction.guild?.commands.fetch()
     if (!commands) return
-    console.log(commands)
     // Find the command object by its name
 
     // Return the command's ID
