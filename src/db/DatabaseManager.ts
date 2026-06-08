@@ -7,6 +7,7 @@ import ChannelManager from "./channelManager.js"
 import LogsManager from "./logManager.js"
 import { DB_ServerSettings } from './Idatabase.js'
 import LevelManager from "../functions/levels/levelManager.js"
+import EventManager from "./EventManager.js"
 
 export default class DatabaseManager {
   private db!: SQLiteDatabase;
@@ -17,6 +18,7 @@ export default class DatabaseManager {
   channels: ChannelManager;
   logs: LogsManager;
   levels: LevelManager;
+  events: EventManager;
 
   constructor(private dbPath: string) { }
 
@@ -27,6 +29,7 @@ export default class DatabaseManager {
     this.channels = new ChannelManager(this.db)
     this.logs = new LogsManager(this.db)
     this.levels = new LevelManager(this.db)
+    this.events = new EventManager(this.db)
   }
 
   /**
@@ -123,10 +126,69 @@ export default class DatabaseManager {
         prefix TEXT NOT NULL DEFAULT '!',
         FOREIGN KEY (server_id) REFERENCES servers(id) ON DELETE CASCADE
       );`,
-      `CREATE UNIQUE INDEX IF NOT EXISTS idx_levels_user_server ON levels(user_id, server_id);`
+      `CREATE UNIQUE INDEX IF NOT EXISTS idx_levels_user_server ON levels(user_id, server_id);`,
+      `CREATE TABLE IF NOT EXISTS server_event_config (
+        server_id TEXT PRIMARY KEY,
+        enabled INTEGER DEFAULT 0,
+        default_role_id TEXT DEFAULT '',
+        events_channel TEXT DEFAULT '',
+        logs_channel TEXT DEFAULT '',
+        voice_category TEXT DEFAULT '',
+        text_category TEXT DEFAULT '',
+        archive_category TEXT DEFAULT '',
+        use_discord_events INTEGER DEFAULT 0,
+        created_at TEXT DEFAULT (datetime('now'))
+      );`,
+      `CREATE TABLE IF NOT EXISTS events (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        server_id TEXT NOT NULL,
+        name TEXT NOT NULL,
+        description TEXT DEFAULT '',
+        role_id TEXT,
+        channel_id TEXT,
+        custom_message TEXT,
+        use_discord_event INTEGER DEFAULT 0,
+        start_time TEXT NOT NULL,
+        end_time TEXT,
+        recurrence TEXT DEFAULT 'none',
+        activities TEXT DEFAULT '[]',
+        channel_behavior TEXT DEFAULT 'delete',
+        retention_hours INTEGER DEFAULT 0,
+        status TEXT DEFAULT 'scheduled',
+        created_by TEXT,
+        voice_channel_id TEXT,
+        text_channel_id TEXT,
+        message_id TEXT,
+        discord_event_id TEXT,
+        reminder_sent INTEGER DEFAULT 0,
+        created_at TEXT DEFAULT (datetime('now'))
+      );`,
+      `CREATE TABLE IF NOT EXISTS event_participants (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        event_id INTEGER NOT NULL,
+        user_id TEXT NOT NULL,
+        joined_at TEXT NOT NULL,
+        left_at TEXT,
+        duration_sec INTEGER,
+        source TEXT DEFAULT 'voice'
+      );`,
+      `CREATE TABLE IF NOT EXISTS event_activities (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        event_id INTEGER NOT NULL,
+        name TEXT NOT NULL,
+        success_count INTEGER DEFAULT 0,
+        total_count INTEGER DEFAULT 0
+      );`
     ]
     for (const sql of sqls) {
       await this.db.run(sql)
+    }
+    const migrations = [
+      `ALTER TABLE events ADD COLUMN channel_behavior TEXT DEFAULT 'delete'`,
+      `ALTER TABLE events ADD COLUMN retention_hours INTEGER DEFAULT 0`,
+    ]
+    for (const sql of migrations) {
+      try { await this.db.run(sql) } catch { }
     }
   }
   /**

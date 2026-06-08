@@ -6,6 +6,7 @@ import timer from "../../functions/lib/timer.js";
 import setPresence from "../../functions/lib/setPresence.js";
 import Client from "../../interfaces/ICustomClient.js";
 import bcv from "../../functions/timers/bcvUpdate.js";
+import eventCheck from "../../functions/timers/eventCheck.js";
 import { clearGulag } from "../../functions/automod/workers/clearChat.js";
 import dotenv from "dotenv";
 dotenv.config();
@@ -30,6 +31,7 @@ const module = {
       timer(hoy, client);
       bcv(hoy, client);
       inactivos(hoy, client);
+      eventCheck(hoy, client);
     }, 1000 * 60);
     if (client.user) console.log(`Listo! iniciado como ${client.user.tag}`);
   },

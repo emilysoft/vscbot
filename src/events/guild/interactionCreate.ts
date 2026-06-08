@@ -40,6 +40,8 @@ const module: IEvents = {
           timestamps.set(interaction.user.id, now);
           setTimeout(() => timestamps.delete(interaction.user.id), cooldownAmount);
           await command.execute(interaction, client);
+        } else {
+          await command.execute(interaction, client);
         }
 
 
