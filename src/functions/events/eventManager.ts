@@ -1,4 +1,4 @@
-import { TextChannel, VoiceChannel, ChannelType, Guild, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, ColorResolvable, CategoryChannel } from "discord.js";
+import { TextChannel, VoiceChannel, ChannelType, Guild, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, ColorResolvable, CategoryChannel, GuildScheduledEventEntityType, GuildScheduledEventPrivacyLevel } from "discord.js";
 import Client from "../../interfaces/ICustomClient.js";
 import { DB_ScheduledEvent } from "../../db/EventTypes.js";
 import config from "../../config/config.json" with { type: "json" };
@@ -46,6 +46,13 @@ export async function startEvent(client: Client, eventId: number): Promise<void>
     let discordEventId = event.discord_event_id;
     if (event.use_discord_event && !discordEventId) {
       discordEventId = await createDiscordEvent(guild, event, voiceChannel.id);
+    }
+
+    if (discordEventId && eventConfig.events_channel) {
+      const eventsChannel = guild.channels.cache.get(eventConfig.events_channel) as TextChannel | undefined;
+      if (eventsChannel) {
+        await eventsChannel.send(`https://discord.com/events/${guild.id}/${discordEventId}`).catch(() => {});
+      }
     }
 
     await client.db.events.updateEvent(eventId, {
@@ -293,12 +300,18 @@ export async function handleVoiceLeave(client: Client, guildId: string, userId: 
 export async function createDiscordEvent(guild: Guild, event: DB_ScheduledEvent, voiceChannelId?: string): Promise<string | null> {
   try {
     const isExternal = !voiceChannelId;
+    const dbStartTime = new Date(event.start_time).getTime();
+    const now = Date.now();
+    const offset = dbStartTime <= now ? (now + 120000 - dbStartTime) : 0;
+    const finalStartTime = new Date(dbStartTime + offset);
+    const finalEndTime = event.end_time ? new Date(new Date(event.end_time).getTime() + offset) : undefined;
+
     const discordEvent = await guild.scheduledEvents.create({
       name: event.name,
-      scheduledStartTime: event.start_time,
-      scheduledEndTime: event.end_time || undefined,
-      privacyLevel: 2,
-      entityType: isExternal ? 3 : 2,
+      scheduledStartTime: finalStartTime,
+      scheduledEndTime: finalEndTime,
+      privacyLevel: GuildScheduledEventPrivacyLevel.GuildOnly,
+      entityType: isExternal ? GuildScheduledEventEntityType.External : GuildScheduledEventEntityType.Voice,
       description: event.description || undefined,
       ...(isExternal
         ? { entityMetadata: { location: 'En el servidor' } }

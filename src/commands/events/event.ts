@@ -311,10 +311,9 @@ async function handleCreate(interaction: ChatInputCommandInteraction, client: Cl
     if (discordId) {
       discordEventId = discordId;
       if (eventConfig.events_channel) {
-        const eventsChannel = guild.channels.cache.get(eventConfig.events_channel);
-        if (eventsChannel?.isTextBased()) {
-          const inviteLink = `https://discord.com/events/${guild.id}/${discordId}`;
-          await eventsChannel.send(`📅 **${name}** — ${startTime.toLocaleString(DateTime.DATETIME_MED)}\n${inviteLink}`);
+        const eventsChannel = guild.channels.cache.get(eventConfig.events_channel) as TextChannel | undefined;
+        if (eventsChannel) {
+          await eventsChannel.send(`📅 **${name}** — ${startTime.toLocaleString(DateTime.DATETIME_MED)}\nhttps://discord.com/events/${guild.id}/${discordId}`);
         }
       }
     }
@@ -601,7 +600,7 @@ async function handleTest(interaction: ChatInputCommandInteraction, client: Clie
       role_id: null,
       channel_id: null,
       custom_message: null,
-      use_discord_event: 0,
+      use_discord_event: 1,
       start_time: startTime.toISO()!,
       end_time: endTime.toISO()!,
       recurrence: 'none',
