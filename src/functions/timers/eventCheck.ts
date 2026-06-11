@@ -1,5 +1,5 @@
 import Client from "../../interfaces/ICustomClient.js";
-import { startEvent, endEvent, sendReminder, cleanupTextChannel } from "../events/eventManager.js";
+import { startEvent, endEvent, sendReminder, cleanupTextChannel } from "../scheduledEvents/eventManager.js";
 
 const module = async (now: Date, client: Client) => {
   try {

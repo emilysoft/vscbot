@@ -6,18 +6,19 @@ import timer from "../../functions/lib/timer.js";
 import setPresence from "../../functions/lib/setPresence.js";
 import Client from "../../interfaces/ICustomClient.js";
 import bcv from "../../functions/timers/bcvUpdate.js";
-import eventCheck from "../../functions/timers/eventCheck.js";
+import { initScheduler } from "../../functions/timers/eventScheduler.js";
 import { clearGulag } from "../../functions/automod/workers/clearChat.js";
 import dotenv from "dotenv";
 dotenv.config();
-
-let hoy;
 
 const module = {
   name: Events.ClientReady,
   once: true,
   async execute(client: Client) {
     setPresence(client, "");
+
+    await initScheduler(client);
+
     setInterval(
       () => {
         clearGulag(client);
@@ -26,12 +27,10 @@ const module = {
     );
     setInterval(() => {
       setPresence(client);
-      hoy = new Date();
-      //staffSleeping(hoy, client);
+      const hoy = new Date();
       timer(hoy, client);
       bcv(hoy, client);
       inactivos(hoy, client);
-      eventCheck(hoy, client);
     }, 1000 * 60);
     if (client.user) console.log(`Listo! iniciado como ${client.user.tag}`);
   },

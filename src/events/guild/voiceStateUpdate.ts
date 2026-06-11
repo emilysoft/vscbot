@@ -1,7 +1,7 @@
 import { Events, VoiceState } from "discord.js";
 import IEvents from "../../interfaces/iEvents.js";
 import Client from "../../interfaces/ICustomClient.js";
-import { handleVoiceJoin, handleVoiceLeave } from "../../functions/events/eventManager.js";
+import { handleVoiceJoin, handleVoiceLeave } from "../../functions/scheduledEvents/eventManager.js";
 
 const module: IEvents = {
   name: Events.VoiceStateUpdate,

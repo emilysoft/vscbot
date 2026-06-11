@@ -15,8 +15,8 @@ import {
   startEvent,
   endEvent,
   createDiscordEvent,
-  cleanupTextChannel,
-} from "../../functions/events/eventManager.js";
+} from "../../functions/scheduledEvents/eventManager.js";
+import { rescheduleEvent, cancelScheduledEvent } from "../../functions/timers/eventScheduler.js";
 import { DB_ScheduledEvent } from "../../db/EventTypes.js";
 
 const RECURRENCE_CHOICES = [
@@ -353,6 +353,8 @@ async function handleCreate(interaction: ChatInputCommandInteraction, client: Cl
     }
   }
 
+  await rescheduleEvent(client, event.id!);
+
   const embed = new EmbedBuilder()
     .setTitle("✅ Evento creado")
     .setColor(config.EMBED_COLOR as ColorResolvable)
@@ -460,6 +462,7 @@ async function handleEdit(interaction: ChatInputCommandInteraction, client: Clie
   }
 
   await client.db.events.updateEvent(id, updates);
+  await rescheduleEvent(client, id);
   await interaction.reply({ content: `✅ Evento #${id} actualizado.`, ephemeral: true });
 }
 
@@ -470,6 +473,8 @@ async function handleDelete(interaction: ChatInputCommandInteraction, client: Cl
   if (!event) {
     return void interaction.reply({ content: `Evento #${id} no encontrado.`, ephemeral: true });
   }
+
+  await cancelScheduledEvent(id);
 
   await client.db.events.deleteEvent(id);
 
@@ -498,6 +503,7 @@ async function handleForceStart(interaction: ChatInputCommandInteraction, client
     return void interaction.reply({ content: `El evento #${id} no está programado (estado: ${event.status}).`, ephemeral: true });
   }
 
+  await cancelScheduledEvent(id);
   await startEvent(client, id);
   await interaction.reply({ content: `🚀 Evento #${id} ("${event.name}") iniciado.`, ephemeral: true });
 }
@@ -514,6 +520,7 @@ async function handleForceEnd(interaction: ChatInputCommandInteraction, client: 
     return void interaction.reply({ content: `El evento #${id} no está activo (estado: ${event.status}).`, ephemeral: true });
   }
 
+  await cancelScheduledEvent(id);
   await endEvent(client, id);
   await interaction.reply({ content: `🏁 Evento #${id} ("${event.name}") finalizado.`, ephemeral: true });
 }

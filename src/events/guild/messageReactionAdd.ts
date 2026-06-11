@@ -1,7 +1,7 @@
 import { Events, User, MessageReaction } from "discord.js"
 import reactionLogger from "../../functions/loggers/reactionLogger.js"
 import starboard from "../../functions/starboard.js"
-import { handleReactionAdd } from "../../functions/events/eventManager.js"
+import { handleReactionAdd } from "../../functions/scheduledEvents/eventManager.js"
 import Client from "../../interfaces/ICustomClient.js"
 import IEvents from "../../interfaces/iEvents.js"
 import dotenv from "dotenv"

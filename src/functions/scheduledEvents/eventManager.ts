@@ -1,4 +1,18 @@
-import { TextChannel, VoiceChannel, ChannelType, Guild, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, ColorResolvable, CategoryChannel, GuildScheduledEventEntityType, GuildScheduledEventPrivacyLevel } from "discord.js";
+import {
+  TextChannel,
+  VoiceChannel,
+  ChannelType,
+  Guild,
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  EmbedBuilder,
+  ColorResolvable,
+  CategoryChannel,
+  GuildScheduledEventEntityType,
+  GuildScheduledEventPrivacyLevel,
+  GuildScheduledEventStatus,
+} from "discord.js";
 import Client from "../../interfaces/ICustomClient.js";
 import { DB_ScheduledEvent } from "../../db/EventTypes.js";
 import config from "../../config/config.json" with { type: "json" };
@@ -46,12 +60,11 @@ export async function startEvent(client: Client, eventId: number): Promise<void>
     let discordEventId = event.discord_event_id;
     if (event.use_discord_event && !discordEventId) {
       discordEventId = await createDiscordEvent(guild, event, voiceChannel.id);
-    }
-
-    if (discordEventId && eventConfig.events_channel) {
-      const eventsChannel = guild.channels.cache.get(eventConfig.events_channel) as TextChannel | undefined;
-      if (eventsChannel) {
-        await eventsChannel.send(`https://discord.com/events/${guild.id}/${discordEventId}`).catch(() => {});
+      if (discordEventId && eventConfig.events_channel) {
+        const eventsChannel = guild.channels.cache.get(eventConfig.events_channel) as TextChannel | undefined;
+        if (eventsChannel) {
+          await eventsChannel.send(`https://discord.com/events/${guild.id}/${discordEventId}`).catch(() => {});
+        }
       }
     }
 
@@ -63,7 +76,7 @@ export async function startEvent(client: Client, eventId: number): Promise<void>
       status: 'active',
     });
   } catch (err) {
-    client.errorLogger(err, client, "error", `${process.cwd()} events/startEvent`);
+    client.errorLogger(err, client, "error", `${process.cwd()} scheduledEvents/startEvent`);
   }
 }
 
@@ -107,27 +120,43 @@ export async function endEvent(client: Client, eventId: number): Promise<void> {
       }
     }
 
+    if (event.discord_event_id) {
+      try {
+        const discordEvent = await guild.scheduledEvents.fetch(event.discord_event_id);
+        if (discordEvent) {
+          await discordEvent.setStatus(GuildScheduledEventStatus.Completed);
+        }
+      } catch {
+        // Discord event might have been deleted already
+      }
+    }
+
     await client.db.events.updateEvent(eventId, { status: 'ended' });
 
     if (event.retention_hours <= 0) {
       await cleanupTextChannel(client, eventId);
     }
+
+    const voiceCount = await client.db.events.getVoiceParticipantsCount(eventId);
+    if (voiceCount === 0) {
+      await cleanupEvent(client, eventId);
+    }
   } catch (err) {
-    client.errorLogger(err, client, "error", `${process.cwd()} events/endEvent`);
+    client.errorLogger(err, client, "error", `${process.cwd()} scheduledEvents/endEvent`);
   }
 }
 
 export async function cleanupTextChannel(client: Client, eventId: number): Promise<void> {
   const event = await client.db.events.getEvent(eventId);
-  if (!event || event.status !== 'ended') return;
+  if (!event || (event.status !== 'ended' && event.status !== 'completed')) return;
 
   const guild = client.guilds.cache.get(event.server_id);
   if (!guild) return;
 
   const eventConfig = await client.db.events.getConfig(event.server_id);
 
-  try {
-    if (event.text_channel_id) {
+  if (event.text_channel_id) {
+    try {
       const textChannel = guild.channels.cache.get(event.text_channel_id) as TextChannel | undefined;
       if (textChannel) {
         if (event.channel_behavior === 'archive' && eventConfig?.archive_category) {
@@ -136,9 +165,9 @@ export async function cleanupTextChannel(client: Client, eventId: number): Promi
           await textChannel.delete();
         }
       }
+    } catch {
+      // Channel might have been deleted already
     }
-  } catch (err) {
-    client.errorLogger(err, client, "error", `${process.cwd()} events/cleanupTextChannel`);
   }
 }
 
@@ -151,8 +180,8 @@ export async function cleanupEvent(client: Client, eventId: number): Promise<voi
 
   const eventConfig = await client.db.events.getConfig(event.server_id);
 
-  try {
-    if (event.voice_channel_id) {
+  if (event.voice_channel_id) {
+    try {
       const voiceChannel = guild.channels.cache.get(event.voice_channel_id) as VoiceChannel | undefined;
       if (voiceChannel) {
         if (event.channel_behavior === 'archive' && eventConfig?.archive_category) {
@@ -161,15 +190,15 @@ export async function cleanupEvent(client: Client, eventId: number): Promise<voi
           await voiceChannel.delete();
         }
       }
+    } catch {
+      // Channel might have been deleted already
     }
+  }
 
-    await client.db.events.updateEvent(eventId, { status: 'completed' });
+  await client.db.events.updateEvent(eventId, { status: 'completed' });
 
-    if (event.recurrence && event.recurrence !== 'none') {
-      await createNextRecurrence(client, event);
-    }
-  } catch (err) {
-    client.errorLogger(err, client, "error", `${process.cwd()} events/cleanupEvent`);
+  if (event.recurrence && event.recurrence !== 'none') {
+    await createNextRecurrence(client, event);
   }
 }
 
@@ -216,84 +245,100 @@ export async function sendReminder(client: Client, eventId: number): Promise<voi
 
     collector.on('end', async (collected) => {
       if (collected.size === 0) {
-        await msg.edit({
-          content: `No hubo respuesta. El evento "${event.name}" ha sido cancelado. Usa \`/event edit\` para reprogramarlo.`,
-          components: [],
-        });
+        try {
+          await msg.edit({
+            content: `No hubo respuesta. El evento "${event.name}" ha sido cancelado. Usa \`/event edit\` para reprogramarlo.`,
+            components: [],
+          });
+        } catch {
+          // Message might be deleted
+        }
         await client.db.events.updateEvent(eventId, { status: 'cancelled' });
       }
     });
 
     await client.db.events.updateEvent(eventId, { reminder_sent: 1 });
   } catch (err) {
-    client.errorLogger(err, client, "error", `${process.cwd()} events/sendReminder`);
+    client.errorLogger(err, client, "error", `${process.cwd()} scheduledEvents/sendReminder`);
   }
 }
 
 export async function handleReactionAdd(client: Client, messageId: string, userId: string): Promise<void> {
-  const events = await client.db.events.getEventsByStatus('active');
-  const event = events.find(e => e.message_id === messageId);
-  if (!event || !event.id) return;
+  try {
+    const events = await client.db.events.getEventsByStatus('active');
+    const event = events.find(e => e.message_id === messageId);
+    if (!event || !event.id) return;
 
-  const existing = await client.db.events.getParticipantByUserAndEvent(event.id, userId, 'reaction');
-  if (existing) return;
+    const existing = await client.db.events.getParticipantByUserAndEvent(event.id, userId, 'reaction');
+    if (existing) return;
 
-  await client.db.events.addParticipant({
-    event_id: event.id,
-    user_id: userId,
-    joined_at: new Date().toISOString(),
-    left_at: null,
-    duration_sec: null,
-    source: 'reaction',
-  });
+    await client.db.events.addParticipant({
+      event_id: event.id,
+      user_id: userId,
+      joined_at: new Date().toISOString(),
+      left_at: null,
+      duration_sec: null,
+      source: 'reaction',
+    });
+  } catch (err) {
+    client.errorLogger(err, client, "error", `${process.cwd()} scheduledEvents/handleReactionAdd`);
+  }
 }
 
 export async function handleVoiceJoin(client: Client, guildId: string, userId: string, channelId: string): Promise<void> {
-  const events = await client.db.events.getEventsByStatus('active');
-  const event = events.find(e => e.voice_channel_id === channelId && e.server_id === guildId);
-  if (!event || !event.id) return;
+  try {
+    const events = await client.db.events.getEventsByStatus('active');
+    const event = events.find(e => e.voice_channel_id === channelId && e.server_id === guildId);
+    if (!event || !event.id) return;
 
-  const existing = await client.db.events.getParticipantByUserAndEvent(event.id, userId, 'voice');
-  if (existing && !existing.left_at) return;
+    const existing = await client.db.events.getParticipantByUserAndEvent(event.id, userId, 'voice');
+    if (existing && !existing.left_at) return;
 
-  await client.db.events.addParticipant({
-    event_id: event.id,
-    user_id: userId,
-    joined_at: new Date().toISOString(),
-    left_at: null,
-    duration_sec: null,
-    source: 'voice',
-  });
+    await client.db.events.addParticipant({
+      event_id: event.id,
+      user_id: userId,
+      joined_at: new Date().toISOString(),
+      left_at: null,
+      duration_sec: null,
+      source: 'voice',
+    });
+  } catch (err) {
+    client.errorLogger(err, client, "error", `${process.cwd()} scheduledEvents/handleVoiceJoin`);
+  }
 }
 
 export async function handleVoiceLeave(client: Client, guildId: string, userId: string, channelId: string): Promise<void> {
-  const allEvents = await client.db.events.getEventsByGuild(guildId);
-  const events = allEvents.filter(e =>
-    e.voice_channel_id === channelId &&
-    (e.status === 'active' || e.status === 'ended')
-  );
+  try {
+    const allEvents = await client.db.events.getEventsByGuild(guildId);
+    const events = allEvents.filter(e =>
+      e.voice_channel_id === channelId &&
+      (e.status === 'active' || e.status === 'ended')
+    );
 
-  for (const event of events) {
-    if (!event.id) continue;
+    for (const event of events) {
+      if (!event.id) continue;
 
-    const participant = await client.db.events.getParticipantByUserAndEvent(event.id, userId, 'voice');
-    if (participant && participant.id && !participant.left_at) {
-      const leftAt = new Date();
-      const joinedAt = new Date(participant.joined_at);
-      const durationSec = Math.floor((leftAt.getTime() - joinedAt.getTime()) / 1000);
+      const participant = await client.db.events.getParticipantByUserAndEvent(event.id, userId, 'voice');
+      if (participant && participant.id && !participant.left_at) {
+        const leftAt = new Date();
+        const joinedAt = new Date(participant.joined_at);
+        const durationSec = Math.floor((leftAt.getTime() - joinedAt.getTime()) / 1000);
 
-      await client.db.events.updateParticipant(participant.id, {
-        left_at: leftAt.toISOString(),
-        duration_sec: durationSec,
-      });
-    }
+        await client.db.events.updateParticipant(participant.id, {
+          left_at: leftAt.toISOString(),
+          duration_sec: durationSec,
+        });
+      }
 
-    if (event.status === 'ended') {
-      const voiceCount = await client.db.events.getVoiceParticipantsCount(event.id);
-      if (voiceCount === 0) {
-        await cleanupEvent(client, event.id);
+      if (event.status === 'ended') {
+        const voiceCount = await client.db.events.getVoiceParticipantsCount(event.id);
+        if (voiceCount === 0) {
+          await cleanupEvent(client, event.id);
+        }
       }
     }
+  } catch (err) {
+    client.errorLogger(err, client, "error", `${process.cwd()} scheduledEvents/handleVoiceLeave`);
   }
 }
 
@@ -325,42 +370,46 @@ export async function createDiscordEvent(guild: Guild, event: DB_ScheduledEvent,
 }
 
 async function createNextRecurrence(client: Client, event: DB_ScheduledEvent): Promise<void> {
-  const nextStart = calculateNextDate(event.start_time, event.recurrence);
-  const nextEnd = event.end_time ? calculateNextDate(event.end_time, event.recurrence) : null;
-  if (!nextStart) return;
+  try {
+    const nextStart = calculateNextDate(event.start_time, event.recurrence);
+    const nextEnd = event.end_time ? calculateNextDate(event.end_time, event.recurrence) : null;
+    if (!nextStart) return;
 
-  const guild = client.guilds.cache.get(event.server_id);
-  let discordEventId: string | null = null;
-  if (guild && event.use_discord_event) {
-    discordEventId = await createDiscordEvent(guild, {
-      ...event,
+    const guild = client.guilds.cache.get(event.server_id);
+    let discordEventId: string | null = null;
+    if (guild && event.use_discord_event) {
+      discordEventId = await createDiscordEvent(guild, {
+        ...event,
+        start_time: nextStart,
+        end_time: nextEnd,
+      });
+    }
+
+    await client.db.events.createEvent({
+      server_id: event.server_id,
+      name: event.name,
+      description: event.description,
+      role_id: event.role_id,
+      channel_id: event.channel_id,
+      custom_message: event.custom_message,
+      use_discord_event: event.use_discord_event,
       start_time: nextStart,
       end_time: nextEnd,
+      recurrence: event.recurrence,
+      activities: event.activities,
+      channel_behavior: event.channel_behavior,
+      retention_hours: event.retention_hours,
+      status: 'scheduled',
+      created_by: event.created_by,
+      voice_channel_id: null,
+      text_channel_id: null,
+      message_id: null,
+      discord_event_id: discordEventId,
+      reminder_sent: 0,
     });
+  } catch (err) {
+    client.errorLogger(err, client, "error", `${process.cwd()} scheduledEvents/createNextRecurrence`);
   }
-
-  await client.db.events.createEvent({
-    server_id: event.server_id,
-    name: event.name,
-    description: event.description,
-    role_id: event.role_id,
-    channel_id: event.channel_id,
-    custom_message: event.custom_message,
-    use_discord_event: event.use_discord_event,
-    start_time: nextStart,
-    end_time: nextEnd,
-    recurrence: event.recurrence,
-    activities: event.activities,
-    channel_behavior: event.channel_behavior,
-    retention_hours: event.retention_hours,
-    status: 'scheduled',
-    created_by: event.created_by,
-    voice_channel_id: null,
-    text_channel_id: null,
-    message_id: null,
-    discord_event_id: discordEventId,
-    reminder_sent: 0,
-  });
 }
 
 function calculateNextDate(dateStr: string, recurrence: string): string | null {
@@ -387,13 +436,17 @@ function calculateNextDate(dateStr: string, recurrence: string): string | null {
 }
 
 export async function handleConfirmationResponse(client: Client, eventId: number, confirmed: boolean): Promise<void> {
-  const event = await client.db.events.getEvent(eventId);
-  if (!event || event.status !== 'scheduled') return;
+  try {
+    const event = await client.db.events.getEvent(eventId);
+    if (!event || event.status !== 'scheduled') return;
 
-  if (confirmed) {
-    await client.db.events.updateEvent(eventId, { reminder_sent: 1 });
-  } else {
-    await client.db.events.updateEvent(eventId, { status: 'cancelled' });
+    if (confirmed) {
+      await client.db.events.updateEvent(eventId, { reminder_sent: 1 });
+    } else {
+      await client.db.events.updateEvent(eventId, { status: 'cancelled' });
+    }
+  } catch (err) {
+    client.errorLogger(err, client, "error", `${process.cwd()} scheduledEvents/handleConfirmationResponse`);
   }
 }
 
