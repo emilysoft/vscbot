@@ -186,6 +186,12 @@ export default class DatabaseManager {
     const migrations = [
       `ALTER TABLE events ADD COLUMN channel_behavior TEXT DEFAULT 'delete'`,
       `ALTER TABLE events ADD COLUMN retention_hours INTEGER DEFAULT 0`,
+      `ALTER TABLE events ADD COLUMN text_channel_name TEXT DEFAULT NULL`,
+      `ALTER TABLE events ADD COLUMN channel_topic TEXT DEFAULT NULL`,
+      `ALTER TABLE events ADD COLUMN voice_channel_name TEXT DEFAULT NULL`,
+      `ALTER TABLE events ADD COLUMN require_confirmation INTEGER DEFAULT NULL`,
+      `ALTER TABLE server_event_config ADD COLUMN require_confirmation INTEGER DEFAULT 1`,
+      `ALTER TABLE events ADD COLUMN image_url TEXT DEFAULT NULL`,
     ]
     for (const sql of migrations) {
       try { await this.db.run(sql) } catch { }

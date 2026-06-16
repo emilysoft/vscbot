@@ -2,6 +2,7 @@ import {
   ChatInputCommandInteraction,
   AutocompleteInteraction,
   SlashCommandBuilder,
+  SlashCommandSubcommandBuilder,
   EmbedBuilder,
   TextChannel,
   ColorResolvable,
@@ -15,6 +16,7 @@ import {
   startEvent,
   endEvent,
   createDiscordEvent,
+  createPrivateVoiceChannel,
 } from "../../functions/scheduledEvents/eventManager.js";
 import { rescheduleEvent, cancelScheduledEvent } from "../../functions/timers/eventScheduler.js";
 import { DB_ScheduledEvent } from "../../db/EventTypes.js";
@@ -37,6 +39,25 @@ const FILTER_CHOICES = [
   { name: "Pasados", value: "past" },
   { name: "Todos", value: "all" },
 ];
+
+function addEventOptions(sub: SlashCommandSubcommandBuilder, required: boolean) {
+  return sub
+    .addStringOption(opt => opt.setName("name").setDescription("Nombre del evento").setRequired(required).setMaxLength(100))
+    .addStringOption(opt => opt.setName("start_time").setDescription("Fecha y hora (YYYY-MM-DD HH:MM)").setRequired(required))
+    .addRoleOption(opt => opt.setName("role").setDescription("Rol para ping").setRequired(required))
+    .addStringOption(opt => opt.setName("end_time").setDescription("Fecha y hora de fin (YYYY-MM-DD HH:MM)"))
+    .addStringOption(opt => opt.setName("channel_behavior").setDescription("Qué hacer con los canales al terminar").addChoices(...CHANNEL_BEHAVIOR_CHOICES))
+    .addNumberOption(opt => opt.setName("retention_hours").setDescription("Horas antes de archivar/eliminar el canal de texto (0 = inmediato)"))
+    .addStringOption(opt => opt.setName("recurrence").setDescription("Recurrencia").addChoices(...RECURRENCE_CHOICES))
+    .addStringOption(opt => opt.setName("description").setDescription("Descripción del evento").setMaxLength(500))
+    .addStringOption(opt => opt.setName("message").setDescription("Mensaje personalizado de inicio").setMaxLength(500))
+    .addStringOption(opt => opt.setName("activities").setDescription("Actividades separadas por coma"))
+    .addStringOption(opt => opt.setName("text_channel_name").setDescription("Nombre personalizado del canal de texto").setMaxLength(32))
+    .addStringOption(opt => opt.setName("voice_channel_name").setDescription("Nombre personalizado del canal de voz").setMaxLength(32))
+    .addStringOption(opt => opt.setName("channel_topic").setDescription("Topic personalizado del canal de texto").setMaxLength(500))
+    .addStringOption(opt => opt.setName("image_url").setDescription("URL de imagen para el evento de Discord y mensaje de inicio"))
+    .addBooleanOption(opt => opt.setName("require_confirmation").setDescription("Exigir confirmación 2h antes (usar config del server si no se especifica)"));
+}
 
 const module: ICommand = {
   name: "event",
@@ -62,21 +83,14 @@ const module: ICommand = {
       .addChannelOption(opt => opt.setName("voice_category").setDescription("Categoría para crear canales de voz"))
       .addChannelOption(opt => opt.setName("text_category").setDescription("Categoría para crear canales de texto"))
       .addChannelOption(opt => opt.setName("archive_category").setDescription("Categoría para archivar canales"))
-      .addBooleanOption(opt => opt.setName("discord_events").setDescription("Usar eventos de Discord")))
-    .addSubcommand(sub => sub
+      .addBooleanOption(opt => opt.setName("discord_events").setDescription("Usar eventos de Discord"))
+      .addBooleanOption(opt => opt.setName("require_confirmation").setDescription("Exigir confirmación 2h antes del evento")))
+    .addSubcommand(sub => addEventOptions(sub
       .setName("create")
-      .setDescription("Crear un nuevo evento programado")
-      .addStringOption(opt => opt.setName("name").setDescription("Nombre del evento").setRequired(true).setMaxLength(100))
-      .addStringOption(opt => opt.setName("start_time").setDescription("Fecha y hora (YYYY-MM-DD HH:MM)").setRequired(true))
-      .addStringOption(opt => opt.setName("end_time").setDescription("Fecha y hora de fin (YYYY-MM-DD HH:MM)"))
-      .addStringOption(opt => opt.setName("channel_behavior").setDescription("Qué hacer con los canales al terminar").addChoices(...CHANNEL_BEHAVIOR_CHOICES))
-      .addNumberOption(opt => opt.setName("retention_hours").setDescription("Horas antes de archivar/eliminar el canal de texto (0 = inmediato)"))
-      .addStringOption(opt => opt.setName("recurrence").setDescription("Recurrencia").addChoices(...RECURRENCE_CHOICES))
-      .addStringOption(opt => opt.setName("description").setDescription("Descripción del evento").setMaxLength(500))
-      .addRoleOption(opt => opt.setName("role").setDescription("Rol para ping"))
-      .addChannelOption(opt => opt.setName("channel").setDescription("Canal para el anuncio"))
-      .addStringOption(opt => opt.setName("message").setDescription("Mensaje personalizado de inicio").setMaxLength(500))
-      .addStringOption(opt => opt.setName("activities").setDescription("Actividades separadas por coma")))
+      .setDescription("Crear un nuevo evento programado"), true))
+    .addSubcommand(sub => addEventOptions(sub
+      .setName("test")
+      .setDescription("Crear un evento de prueba"), false))
     .addSubcommand(sub => sub
       .setName("list")
       .setDescription("Listar eventos")
@@ -93,9 +107,13 @@ const module: ICommand = {
       .addStringOption(opt => opt.setName("recurrence").setDescription("Recurrencia").addChoices(...RECURRENCE_CHOICES))
       .addStringOption(opt => opt.setName("description").setDescription("Nueva descripción").setMaxLength(500))
       .addRoleOption(opt => opt.setName("role").setDescription("Nuevo rol para ping"))
-      .addChannelOption(opt => opt.setName("channel").setDescription("Nuevo canal para anuncio"))
       .addStringOption(opt => opt.setName("message").setDescription("Nuevo mensaje personalizado").setMaxLength(500))
-      .addStringOption(opt => opt.setName("activities").setDescription("Nuevas actividades separadas por coma")))
+      .addStringOption(opt => opt.setName("activities").setDescription("Nuevas actividades separadas por coma"))
+      .addStringOption(opt => opt.setName("text_channel_name").setDescription("Nuevo nombre del canal de texto").setMaxLength(32))
+      .addStringOption(opt => opt.setName("voice_channel_name").setDescription("Nuevo nombre del canal de voz").setMaxLength(32))
+      .addStringOption(opt => opt.setName("channel_topic").setDescription("Nuevo topic del canal de texto").setMaxLength(500))
+      .addStringOption(opt => opt.setName("image_url").setDescription("Nueva URL de imagen"))
+      .addBooleanOption(opt => opt.setName("require_confirmation").setDescription("Exigir confirmación 2h antes (usar config del server si no se especifica)")))
     .addSubcommand(sub => sub
       .setName("delete")
       .setDescription("Cancelar un evento")
@@ -111,10 +129,7 @@ const module: ICommand = {
     .addSubcommand(sub => sub
       .setName("info")
       .setDescription("Ver detalles de un evento")
-      .addNumberOption(opt => opt.setName("id").setDescription("ID del evento").setRequired(true).setAutocomplete(true)))
-    .addSubcommand(sub => sub
-      .setName("test")
-      .setDescription("Crear un evento de prueba de 2 minutos (para testing rápido)")),
+      .addNumberOption(opt => opt.setName("id").setDescription("ID del evento").setRequired(true).setAutocomplete(true))),
 
   async autocomplete(interaction: AutocompleteInteraction) {
     const focusedValue = interaction.options.getFocused();
@@ -160,6 +175,7 @@ const module: ICommand = {
       client.errorLogger(err, client, "error", `${process.cwd()} commands/events/event`);
       try {
         if (!interaction.replied) await interaction.reply({ content: "Ocurrió un error al ejecutar el comando.", ephemeral: true });
+      else await interaction.editReply({ content: "Ocurrió un error al ejecutar el comando." }).catch(() => {});
       } catch { }
     }
   },
@@ -184,6 +200,7 @@ async function handleSettings(interaction: ChatInputCommandInteraction, client: 
       { name: "Categoría texto", value: config_.text_category ? `<#${config_.text_category}>` : "No configurado", inline: true },
       { name: "Categoría archivo", value: config_.archive_category ? `<#${config_.archive_category}>` : "No configurado", inline: true },
       { name: "Eventos de Discord", value: config_.use_discord_events ? "✅ Usar" : "❌ No usar", inline: true },
+      { name: "Confirmación previa", value: config_.require_confirmation ? "✅ Exigir" : "❌ No exigir", inline: true },
     )
     .setFooter({ text: "Usa /event create para crear un evento" });
 
@@ -210,6 +227,7 @@ async function handleSetup(interaction: ChatInputCommandInteraction, client: Cli
     const textCategory = interaction.options.getChannel("text_category");
     const archiveCategory = interaction.options.getChannel("archive_category");
     const discordEvents = interaction.options.getBoolean("discord_events");
+    const requireConfirmation = interaction.options.getBoolean("require_confirmation");
 
     if (enabled !== null) updates.enabled = enabled ? 1 : 0;
     if (role) updates.default_role_id = role.id;
@@ -219,6 +237,7 @@ async function handleSetup(interaction: ChatInputCommandInteraction, client: Cli
     if (textCategory) updates.text_category = textCategory.id;
     if (archiveCategory) updates.archive_category = archiveCategory.id;
     if (discordEvents !== null) updates.use_discord_events = discordEvents ? 1 : 0;
+    if (requireConfirmation !== null) updates.require_confirmation = requireConfirmation ? 1 : 0;
 
     if (Object.keys(updates).length === 0) {
       await interaction.reply({ content: "No especificaste ninguna opción para cambiar. Usa `/event settings` para ver la configuración actual.", ephemeral: true });
@@ -247,6 +266,124 @@ async function handleSetup(interaction: ChatInputCommandInteraction, client: Cli
   }
 }
 
+async function createEventCore(
+  client: Client,
+  guild: any,
+  params: {
+    name: string;
+    startTime: DateTime;
+    endTime: DateTime | null;
+    channelBehavior: string;
+    retentionHours: number;
+    recurrence: string;
+    description: string;
+    roleId: string | null;
+    message: string;
+    activities: string[];
+    textChannelName: string | null;
+    voiceChannelName: string | null;
+    channelTopic: string | null;
+    imageUrl: string | null;
+    requireConfirmation: boolean | null;
+    createdBy: string;
+  },
+): Promise<DB_ScheduledEvent> {
+  const eventConfig = await client.db.events.initConfig(guild.id);
+
+  let voiceChannelId: string | null = null;
+  if (eventConfig.enabled) {
+    voiceChannelId = await createPrivateVoiceChannel(guild, params.name, eventConfig, params.voiceChannelName);
+  }
+
+  let discordEventId: string | null = null;
+  if (eventConfig.use_discord_events) {
+    const discordId = await createDiscordEvent(guild, {
+      server_id: guild.id,
+      name: params.name,
+      description: params.description,
+      role_id: null,
+      channel_id: null,
+      custom_message: null,
+      use_discord_event: 1,
+      start_time: params.startTime.toISO()!,
+      end_time: params.endTime?.toISO() || null,
+      recurrence: params.recurrence,
+      activities: JSON.stringify(params.activities),
+      channel_behavior: params.channelBehavior,
+      retention_hours: params.retentionHours,
+      status: 'scheduled',
+      created_by: params.createdBy,
+      text_channel_name: params.textChannelName,
+      channel_topic: params.channelTopic,
+      voice_channel_name: params.voiceChannelName,
+      image_url: params.imageUrl,
+      require_confirmation: params.requireConfirmation ? 1 : (params.requireConfirmation === false ? 0 : null),
+      voice_channel_id: voiceChannelId,
+      text_channel_id: null,
+      message_id: null,
+      discord_event_id: null,
+      reminder_sent: 0,
+      created_at: new Date().toISOString(),
+    }, voiceChannelId || undefined);
+
+    if (discordId) {
+      discordEventId = discordId;
+      if (eventConfig.events_channel) {
+        const eventsChannel = guild.channels.cache.get(eventConfig.events_channel) as TextChannel | undefined;
+        if (eventsChannel) {
+          const serverRoleMention = eventConfig.default_role_id
+            ? `<@&${eventConfig.default_role_id}>`
+            : '';
+          await eventsChannel.send(`📅 **${params.name}** — ${params.startTime.toLocaleString(DateTime.DATETIME_MED)}\nhttps://discord.com/events/${guild.id}/${discordId}\n${serverRoleMention}`);
+        }
+      }
+    }
+  }
+
+  const event = await client.db.events.createEvent({
+    server_id: guild.id,
+    name: params.name,
+    description: params.description,
+    role_id: params.roleId,
+    channel_id: null,
+    custom_message: params.message || null,
+    use_discord_event: eventConfig.use_discord_events ? 1 : 0,
+    start_time: params.startTime.toISO()!,
+    end_time: params.endTime?.toISO() || null,
+    recurrence: params.recurrence,
+    activities: JSON.stringify(params.activities),
+    channel_behavior: params.channelBehavior,
+    retention_hours: params.retentionHours,
+    status: 'scheduled',
+    created_by: params.createdBy,
+    text_channel_name: params.textChannelName,
+    channel_topic: params.channelTopic,
+    voice_channel_name: params.voiceChannelName,
+    image_url: params.imageUrl,
+    require_confirmation: params.requireConfirmation ? 1 : (params.requireConfirmation === false ? 0 : null),
+    voice_channel_id: voiceChannelId,
+    text_channel_id: null,
+    message_id: null,
+    discord_event_id: discordEventId,
+    reminder_sent: 0,
+  });
+
+  if (params.activities.length > 0) {
+    for (const activityName of params.activities) {
+      await client.db.events.addActivity({
+        event_id: event.id!,
+        name: activityName,
+        success_count: 0,
+        total_count: 0,
+      });
+    }
+  }
+
+  await rescheduleEvent(client, event.id!);
+
+  return event;
+}
+
 async function handleCreate(interaction: ChatInputCommandInteraction, client: Client, guild: any) {
   const name = interaction.options.getString("name", true);
   const startTimeStr = interaction.options.getString("start_time", true);
@@ -256,9 +393,12 @@ async function handleCreate(interaction: ChatInputCommandInteraction, client: Cl
   const recurrence = interaction.options.getString("recurrence") || "none";
   const description = interaction.options.getString("description") || "";
   const role = interaction.options.getRole("role");
-  const channel = interaction.options.getChannel("channel");
   const message = interaction.options.getString("message") || "";
   const activitiesStr = interaction.options.getString("activities");
+  const textChannelName = interaction.options.getString("text_channel_name");
+  const voiceChannelName = interaction.options.getString("voice_channel_name");
+  const channelTopic = interaction.options.getString("channel_topic");
+  const imageUrl = interaction.options.getString("image_url");
 
   const startTime = DateTime.fromFormat(startTimeStr, "yyyy-MM-dd HH:mm");
   if (!startTime.isValid) {
@@ -280,80 +420,26 @@ async function handleCreate(interaction: ChatInputCommandInteraction, client: Cl
     ? activitiesStr.split(",").map(a => a.trim()).filter(Boolean)
     : [];
 
-  const eventConfig = await client.db.events.initConfig(guild.id);
+  await interaction.deferReply({ ephemeral: true });
 
-  let discordEventId: string | null = null;
-  if (eventConfig.use_discord_events) {
-    const discordId = await createDiscordEvent(guild, {
-      server_id: guild.id,
-      name,
-      description,
-      role_id: null,
-      channel_id: null,
-      custom_message: null,
-      use_discord_event: 1,
-      start_time: startTime.toISO()!,
-      end_time: endTime?.toISO() || null,
-      recurrence,
-      activities: JSON.stringify(activities),
-      channel_behavior: channelBehavior,
-      retention_hours: retentionHours,
-      status: 'scheduled',
-      created_by: interaction.user.id,
-      voice_channel_id: null,
-      text_channel_id: null,
-      message_id: null,
-      discord_event_id: null,
-      reminder_sent: 0,
-      created_at: new Date().toISOString(),
-    });
-
-    if (discordId) {
-      discordEventId = discordId;
-      if (eventConfig.events_channel) {
-        const eventsChannel = guild.channels.cache.get(eventConfig.events_channel) as TextChannel | undefined;
-        if (eventsChannel) {
-          await eventsChannel.send(`📅 **${name}** — ${startTime.toLocaleString(DateTime.DATETIME_MED)}\nhttps://discord.com/events/${guild.id}/${discordId}`);
-        }
-      }
-    }
-  }
-
-  const event = await client.db.events.createEvent({
-    server_id: guild.id,
+  const event = await createEventCore(client, guild, {
     name,
-    description,
-    role_id: role?.id || null,
-    channel_id: channel?.id || null,
-    custom_message: message || null,
-    use_discord_event: eventConfig.use_discord_events ? 1 : 0,
-    start_time: startTime.toISO()!,
-    end_time: endTime?.toISO() || null,
+    startTime,
+    endTime,
+    channelBehavior,
+    retentionHours,
     recurrence,
-    activities: JSON.stringify(activities),
-    channel_behavior: channelBehavior,
-    retention_hours: retentionHours,
-    status: 'scheduled',
-    created_by: interaction.user.id,
-    voice_channel_id: null,
-    text_channel_id: null,
-    message_id: null,
-    discord_event_id: discordEventId,
-    reminder_sent: 0,
+    description,
+    roleId: role?.id || null,
+    message,
+    activities,
+    textChannelName: textChannelName || null,
+    voiceChannelName: voiceChannelName || null,
+    channelTopic: channelTopic || null,
+    imageUrl: imageUrl || null,
+    requireConfirmation: interaction.options.getBoolean("require_confirmation"),
+    createdBy: interaction.user.id,
   });
-
-  if (activities.length > 0) {
-    for (const activityName of activities) {
-      await client.db.events.addActivity({
-        event_id: event.id!,
-        name: activityName,
-        success_count: 0,
-        total_count: 0,
-      });
-    }
-  }
-
-  await rescheduleEvent(client, event.id!);
 
   const embed = new EmbedBuilder()
     .setTitle("✅ Evento creado")
@@ -372,7 +458,7 @@ async function handleCreate(interaction: ChatInputCommandInteraction, client: Cl
     embed.addFields({ name: "Actividades", value: activities.join(", ") });
   }
 
-  await interaction.reply({ embeds: [embed], ephemeral: true });
+  await interaction.editReply({ embeds: [embed] });
 }
 
 async function handleList(interaction: ChatInputCommandInteraction, client: Client, guild: any) {
@@ -427,9 +513,13 @@ async function handleEdit(interaction: ChatInputCommandInteraction, client: Clie
   const recurrence = interaction.options.getString("recurrence");
   const description = interaction.options.getString("description");
   const role = interaction.options.getRole("role");
-  const channel = interaction.options.getChannel("channel");
   const message = interaction.options.getString("message");
   const activitiesStr = interaction.options.getString("activities");
+  const textChannelName = interaction.options.getString("text_channel_name");
+  const voiceChannelName = interaction.options.getString("voice_channel_name");
+  const channelTopic = interaction.options.getString("channel_topic");
+  const imageUrl = interaction.options.getString("image_url");
+  const requireConfirmation = interaction.options.getBoolean("require_confirmation");
 
   if (name) updates.name = name;
   if (channelBehavior) updates.channel_behavior = channelBehavior;
@@ -437,8 +527,12 @@ async function handleEdit(interaction: ChatInputCommandInteraction, client: Clie
   if (recurrence) updates.recurrence = recurrence;
   if (description !== null && description !== undefined) updates.description = description;
   if (role) updates.role_id = role.id;
-  if (channel) updates.channel_id = channel.id;
   if (message !== null && message !== undefined) updates.custom_message = message;
+  if (textChannelName !== null && textChannelName !== undefined) updates.text_channel_name = textChannelName;
+  if (voiceChannelName !== null && voiceChannelName !== undefined) updates.voice_channel_name = voiceChannelName;
+  if (channelTopic !== null && channelTopic !== undefined) updates.channel_topic = channelTopic;
+  if (imageUrl !== null && imageUrl !== undefined) updates.image_url = imageUrl;
+  if (requireConfirmation !== null) updates.require_confirmation = requireConfirmation ? 1 : 0;
 
   if (startTimeStr) {
     const startTime = DateTime.fromFormat(startTimeStr, "yyyy-MM-dd HH:mm");
@@ -478,14 +572,20 @@ async function handleDelete(interaction: ChatInputCommandInteraction, client: Cl
 
   await client.db.events.deleteEvent(id);
 
-  if (event.discord_event_id) {
-    try {
-      const guild = interaction.guild;
-      if (guild) {
+  const guild = interaction.guild;
+  if (guild) {
+    if (event.voice_channel_id) {
+      try {
+        const channel = guild.channels.cache.get(event.voice_channel_id);
+        if (channel) await channel.delete();
+      } catch { }
+    }
+    if (event.discord_event_id) {
+      try {
         const discordEvent = await guild.scheduledEvents.fetch(event.discord_event_id);
         if (discordEvent) await discordEvent.delete();
-      }
-    } catch { }
+      } catch { }
+    }
   }
 
   await interaction.reply({ content: `❌ Evento #${id} ("${event.name}") cancelado.`, ephemeral: true });
@@ -597,35 +697,69 @@ async function handleInfo(interaction: ChatInputCommandInteraction, client: Clie
 async function handleTest(interaction: ChatInputCommandInteraction, client: Client, guild: any) {
   try {
     const now = DateTime.now();
-    const startTime = now.plus({ seconds: 5 });
-    const endTime = now.plus({ seconds: 35 });
+    const name = interaction.options.getString("name") || `🧪 Test ${now.toFormat('HH:mm:ss')}`;
+    const startTimeStr = interaction.options.getString("start_time");
+    const endTimeStr = interaction.options.getString("end_time");
+    const channelBehavior = interaction.options.getString("channel_behavior") || "delete";
+    const retentionHours = interaction.options.getNumber("retention_hours") || 0;
+    const recurrence = interaction.options.getString("recurrence") || "none";
+    const description = interaction.options.getString("description") || "";
+    const role = interaction.options.getRole("role");
+    const message = interaction.options.getString("message") || "";
+    const activitiesStr = interaction.options.getString("activities");
+  const textChannelName = interaction.options.getString("text_channel_name");
+  const voiceChannelName = interaction.options.getString("voice_channel_name");
+  const channelTopic = interaction.options.getString("channel_topic");
+  const imageUrl = interaction.options.getString("image_url");
 
-    const event = await client.db.events.createEvent({
-      server_id: guild.id,
-      name: `🧪 Test ${now.toFormat('HH:mm:ss')}`,
-      description: 'Evento de prueba',
-      role_id: null,
-      channel_id: null,
-      custom_message: null,
-      use_discord_event: 1,
-      start_time: startTime.toISO()!,
-      end_time: endTime.toISO()!,
-      recurrence: 'none',
-      activities: '[]',
-      channel_behavior: 'delete',
-      retention_hours: 0,
-      status: 'scheduled',
-      created_by: interaction.user.id,
-      voice_channel_id: null,
-      text_channel_id: null,
-      message_id: null,
-      discord_event_id: null,
-      reminder_sent: 0,
+    let startTime: DateTime;
+    if (startTimeStr) {
+      startTime = DateTime.fromFormat(startTimeStr, "yyyy-MM-dd HH:mm");
+      if (!startTime.isValid) return void interaction.reply({ content: `Fecha inválida: "${startTimeStr}"`, ephemeral: true });
+    } else {
+      startTime = now.plus({ seconds: 5 });
+    }
+
+    let endTime: DateTime;
+    if (endTimeStr) {
+      endTime = DateTime.fromFormat(endTimeStr, "yyyy-MM-dd HH:mm");
+      if (!endTime.isValid) return void interaction.reply({ content: `Fecha inválida: "${endTimeStr}"`, ephemeral: true });
+    } else {
+      endTime = startTime.plus({ seconds: 30 });
+    }
+
+    if (endTime <= startTime) {
+      return void interaction.reply({ content: "La fecha de fin debe ser posterior a la de inicio.", ephemeral: true });
+    }
+
+    const activities = activitiesStr
+      ? activitiesStr.split(",").map(a => a.trim()).filter(Boolean)
+      : [];
+
+    await interaction.deferReply({ ephemeral: true });
+
+    const event = await createEventCore(client, guild, {
+      name,
+      startTime,
+      endTime,
+      channelBehavior,
+      retentionHours,
+      recurrence,
+      description,
+      roleId: role?.id || null,
+      message,
+      activities,
+      textChannelName: textChannelName || null,
+      voiceChannelName: voiceChannelName || null,
+      channelTopic: channelTopic || null,
+      imageUrl: imageUrl || null,
+      requireConfirmation: interaction.options.getBoolean("require_confirmation"),
+      createdBy: interaction.user.id,
     });
 
-    await interaction.reply({
-      content: `🧪 Evento de prueba **#${event.id}** creado. En 5 segundos se creará un canal temporal de texto.`,
-      ephemeral: true,
+    const durationSec = endTime.diff(startTime, 'seconds').seconds;
+    await interaction.editReply({
+      content: `🧪 Evento de prueba **#${event.id}** creado. Comienza en 5 segundos, dura ${Math.round(durationSec)} segundos.`,
     });
 
     const eventId = event.id!;
@@ -644,25 +778,26 @@ async function handleTest(interaction: ChatInputCommandInteraction, client: Clie
           .setDescription('Este es un mensaje de ejemplo en el canal temporal.')
           .setColor(config.EMBED_COLOR as ColorResolvable)
           .addFields(
-            { name: 'Duración', value: '30 segundos', inline: true },
+            { name: 'Duración', value: `${Math.round(durationSec)} segundos`, inline: true },
             { name: 'Comportamiento', value: 'Se eliminará al finalizar', inline: true },
           )
           .setTimestamp();
 
         await textChannel.send({ embeds: [exampleEmbed] });
-        await textChannel.send('✅ El canal se eliminará automáticamente en 30 segundos.');
+        await textChannel.send('✅ El canal se eliminará automáticamente al finalizar el evento.');
       } catch (err) {
         client.errorLogger(err, client, "error", `${process.cwd()} commands/events/event`);
       }
     }, 6000);
 
+    const endDelayMs = startTime.toMillis() - now.toMillis() + durationSec * 1000 + 1000;
     setTimeout(async () => {
       try {
         await endEvent(client, eventId);
       } catch (err) {
         client.errorLogger(err, client, "error", `${process.cwd()} commands/events/event`);
       }
-    }, 36000);
+    }, endDelayMs);
   } catch (err) {
     console.error("[event] handleTest error:", err);
     client.errorLogger(err, client, "error", `${process.cwd()} commands/events/event`);

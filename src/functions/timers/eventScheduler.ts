@@ -37,6 +37,14 @@ function setEventTimeout(
   eventTimeouts.set(eventId, timeout);
 }
 
+async function shouldConfirmEvent(client: Client, event: any): Promise<boolean> {
+  if (event.require_confirmation !== null && event.require_confirmation !== undefined) {
+    return !!event.require_confirmation;
+  }
+  const eventConfig = await client.db.events.getConfig(event.server_id);
+  return !!eventConfig?.require_confirmation;
+}
+
 async function scheduleEventTimeouts(client: Client, eventId: number) {
   try {
     const event = await client.db.events.getEvent(eventId);
@@ -50,12 +58,15 @@ async function scheduleEventTimeouts(client: Client, eventId: number) {
         const reminderTime = startTime - 2 * 60 * 60 * 1000;
 
         if (!event.reminder_sent && reminderTime > now) {
-          clearEventTimeout(eid);
-          setEventTimeout(client, eid, reminderTime - now, async () => {
-            await sendReminder(client, eid);
-            await scheduleEventTimeouts(client, eid);
-          });
-          return;
+          const confirm = await shouldConfirmEvent(client, event);
+          if (confirm) {
+            clearEventTimeout(eid);
+            setEventTimeout(client, eid, reminderTime - now, async () => {
+              await sendReminder(client, eid);
+              await scheduleEventTimeouts(client, eid);
+            });
+            return;
+          }
         }
         if (startTime > now) {
           clearEventTimeout(eid);
@@ -124,9 +135,12 @@ async function processAllPending(client: Client) {
       const updated = await client.db.events.getEvent(event.id);
       if (updated) await scheduleEventTimeouts(client, updated.id!);
     } else if (!event.reminder_sent && event.start_time <= twoHoursLater) {
-      await sendReminder(client, event.id);
-      const updated = await client.db.events.getEvent(event.id);
-      if (updated) await scheduleEventTimeouts(client, updated.id!);
+      const confirm = await shouldConfirmEvent(client, event);
+      if (confirm) {
+        await sendReminder(client, event.id);
+        const updated = await client.db.events.getEvent(event.id);
+        if (updated) await scheduleEventTimeouts(client, updated.id!);
+      }
     }
   }
 

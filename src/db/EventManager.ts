@@ -22,8 +22,8 @@ export default class EventManager {
       `INSERT OR REPLACE INTO server_event_config
        (server_id, enabled, default_role_id, events_channel, logs_channel,
         voice_category, text_category, archive_category,
-        use_discord_events, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        use_discord_events, require_confirmation, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       config.server_id,
       config.enabled,
       config.default_role_id,
@@ -33,6 +33,7 @@ export default class EventManager {
       config.text_category,
       config.archive_category,
       config.use_discord_events,
+      config.require_confirmation ?? 1,
       config.created_at || new Date().toISOString()
     );
   }
@@ -50,6 +51,7 @@ export default class EventManager {
       text_category: '',
       archive_category: '',
       use_discord_events: 0,
+      require_confirmation: 1,
       created_at: new Date().toISOString(),
     };
     await this.upsertConfig(config);
@@ -64,8 +66,9 @@ export default class EventManager {
        (server_id, name, description, role_id, channel_id, custom_message,
         use_discord_event, start_time, end_time, recurrence, activities,
         channel_behavior, retention_hours, status, created_by,
+        text_channel_name, channel_topic, voice_channel_name, image_url, require_confirmation,
         voice_channel_id, text_channel_id, message_id, discord_event_id, reminder_sent)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       data.server_id,
       data.name,
       data.description,
@@ -81,6 +84,11 @@ export default class EventManager {
       data.retention_hours || 0,
       data.status || 'scheduled',
       data.created_by,
+      data.text_channel_name,
+      data.channel_topic,
+      data.voice_channel_name,
+      data.image_url ?? null,
+      data.require_confirmation ?? null,
       data.voice_channel_id,
       data.text_channel_id,
       data.message_id,

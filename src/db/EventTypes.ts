@@ -8,6 +8,7 @@ export interface DB_EventConfig {
   text_category: string;
   archive_category: string;
   use_discord_events: number;
+  require_confirmation: number;
   created_at: string;
 }
 
@@ -28,6 +29,11 @@ export interface DB_ScheduledEvent {
   retention_hours: number;
   status: string;
   created_by: string;
+  text_channel_name: string | null;
+  channel_topic: string | null;
+  voice_channel_name: string | null;
+  image_url: string | null;
+  require_confirmation: number | null;
   voice_channel_id: string | null;
   text_channel_id: string | null;
   message_id: string | null;

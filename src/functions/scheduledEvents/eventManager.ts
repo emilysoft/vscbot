@@ -9,6 +9,7 @@ import {
   EmbedBuilder,
   ColorResolvable,
   CategoryChannel,
+  PermissionFlagsBits,
   GuildScheduledEventEntityType,
   GuildScheduledEventPrivacyLevel,
   GuildScheduledEventStatus,
@@ -35,26 +36,54 @@ export async function startEvent(client: Client, eventId: number): Promise<void>
       ? (guild.channels.cache.get(eventConfig.text_category) as CategoryChannel | undefined)
       : undefined;
 
-    const channelName = sanitizeChannelName(event.name);
+    const channelName = sanitizeChannelName(event.voice_channel_name || event.name);
 
-    const voiceChannel = await guild.channels.create({
-      name: channelName,
-      type: ChannelType.GuildVoice,
-      parent: categoryVoz?.id,
-    });
+    let voiceChannel: VoiceChannel | undefined;
+    if (event.voice_channel_id) {
+      voiceChannel = guild.channels.cache.get(event.voice_channel_id) as VoiceChannel | undefined;
+      if (voiceChannel) {
+        await voiceChannel.permissionOverwrites.edit(guild.roles.everyone.id, {
+          ViewChannel: null,
+        });
+      }
+    }
+    if (!voiceChannel) {
+      voiceChannel = await guild.channels.create({
+        name: channelName,
+        type: ChannelType.GuildVoice,
+        parent: categoryVoz?.id,
+      });
+    }
+
+    const textChannelName = event.text_channel_name
+      ? sanitizeChannelName(event.text_channel_name)
+      : channelName;
+    const channelTopic = ['#' + event.id, event.channel_topic].filter(Boolean).join(' ');
 
     const textChannel = await guild.channels.create({
-      name: channelName,
+      name: textChannelName,
       type: ChannelType.GuildText,
       parent: categoryTexto?.id,
-      topic: `Evento: ${event.name}`,
+      topic: channelTopic,
     });
 
-    const roleMention = config.eventRoleId ? `<@&${config.eventRoleId}>` : '';
     const customMsg = event.custom_message || '';
-    const content = [roleMention, customMsg].filter(Boolean).join(' ');
+    const roleMention = event.role_id
+      ? `<@&${event.role_id}>`
+      : (config.eventRoleId ? `<@&${config.eventRoleId}>` : '');
+    const content = [customMsg, roleMention].filter(Boolean).join(' ');
+    const contentStr = content || `**${event.name}** ha comenzado!`;
 
-    const announcement = await textChannel.send({ content: content || `**${event.name}** ha comenzado!` });
+    let announcement;
+    if (event.image_url) {
+      const embed = new EmbedBuilder()
+        .setColor(config.EMBED_COLOR as ColorResolvable)
+        .setDescription(`**${event.name}** ha comenzado!`)
+        .setImage(event.image_url);
+      announcement = await textChannel.send({ content: contentStr, embeds: [embed] });
+    } else {
+      announcement = await textChannel.send({ content: contentStr });
+    }
     await announcement.react('✅');
 
     let discordEventId = event.discord_event_id;
@@ -63,7 +92,11 @@ export async function startEvent(client: Client, eventId: number): Promise<void>
       if (discordEventId && eventConfig.events_channel) {
         const eventsChannel = guild.channels.cache.get(eventConfig.events_channel) as TextChannel | undefined;
         if (eventsChannel) {
-          await eventsChannel.send(`https://discord.com/events/${guild.id}/${discordEventId}`).catch(() => {});
+          const serverRoleMention = eventConfig.default_role_id
+            ? `<@&${eventConfig.default_role_id}>`
+            : '';
+          const msg = [`https://discord.com/events/${guild.id}/${discordEventId}`, serverRoleMention].filter(Boolean).join('\n');
+          await eventsChannel.send(msg).catch(() => {});
         }
       }
     }
@@ -161,6 +194,9 @@ export async function cleanupTextChannel(client: Client, eventId: number): Promi
       if (textChannel) {
         if (event.channel_behavior === 'archive' && eventConfig?.archive_category) {
           await textChannel.setParent(eventConfig.archive_category, { lockPermissions: false });
+          await textChannel.permissionOverwrites.edit(guild.roles.everyone.id, {
+            ViewChannel: false,
+          });
         } else {
           await textChannel.delete();
         }
@@ -186,6 +222,9 @@ export async function cleanupEvent(client: Client, eventId: number): Promise<voi
       if (voiceChannel) {
         if (event.channel_behavior === 'archive' && eventConfig?.archive_category) {
           await voiceChannel.setParent(eventConfig.archive_category, { lockPermissions: false });
+          await voiceChannel.permissionOverwrites.edit(guild.roles.everyone.id, {
+            ViewChannel: false,
+          });
         } else {
           await voiceChannel.delete();
         }
@@ -342,6 +381,38 @@ export async function handleVoiceLeave(client: Client, guildId: string, userId: 
   }
 }
 
+export async function createPrivateVoiceChannel(guild: Guild, eventName: string, eventConfig: { voice_category?: string | null } | null, channelNameOverride?: string | null): Promise<string | null> {
+  try {
+    const channelName = sanitizeChannelName(channelNameOverride || eventName);
+    const categoryVoz = eventConfig?.voice_category
+      ? (guild.channels.cache.get(eventConfig.voice_category) as CategoryChannel | undefined)
+      : undefined;
+
+    const voiceChannel = await guild.channels.create({
+      name: channelName,
+      type: ChannelType.GuildVoice,
+      parent: categoryVoz?.id,
+    });
+    await voiceChannel.permissionOverwrites.edit(guild.roles.everyone.id, {
+      ViewChannel: false,
+    });
+    return voiceChannel.id;
+  } catch (err) {
+    console.error('[createPrivateVoiceChannel] error:', err);
+    return null;
+  }
+}
+
+async function fetchImageAsBase64(url: string): Promise<string | undefined> {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) return undefined;
+    const buffer = Buffer.from(await response.arrayBuffer());
+    const mimeType = response.headers.get('content-type') || 'image/png';
+    return `data:${mimeType};base64,${buffer.toString('base64')}`;
+  } catch { return undefined; }
+}
+
 export async function createDiscordEvent(guild: Guild, event: DB_ScheduledEvent, voiceChannelId?: string): Promise<string | null> {
   try {
     const isExternal = !voiceChannelId;
@@ -351,6 +422,8 @@ export async function createDiscordEvent(guild: Guild, event: DB_ScheduledEvent,
     const finalStartTime = new Date(dbStartTime + offset);
     const finalEndTime = event.end_time ? new Date(new Date(event.end_time).getTime() + offset) : undefined;
 
+    const image = event.image_url ? await fetchImageAsBase64(event.image_url) : undefined;
+
     const discordEvent = await guild.scheduledEvents.create({
       name: event.name,
       scheduledStartTime: finalStartTime,
@@ -358,6 +431,7 @@ export async function createDiscordEvent(guild: Guild, event: DB_ScheduledEvent,
       privacyLevel: GuildScheduledEventPrivacyLevel.GuildOnly,
       entityType: isExternal ? GuildScheduledEventEntityType.External : GuildScheduledEventEntityType.Voice,
       description: event.description || undefined,
+      image,
       ...(isExternal
         ? { entityMetadata: { location: 'En el servidor' } }
         : { channel: voiceChannelId }),
@@ -377,12 +451,18 @@ async function createNextRecurrence(client: Client, event: DB_ScheduledEvent): P
 
     const guild = client.guilds.cache.get(event.server_id);
     let discordEventId: string | null = null;
-    if (guild && event.use_discord_event) {
-      discordEventId = await createDiscordEvent(guild, {
-        ...event,
-        start_time: nextStart,
-        end_time: nextEnd,
-      });
+    let voiceChannelId: string | null = null;
+
+    if (guild) {
+      const eventConfig = await client.db.events.getConfig(event.server_id);
+      voiceChannelId = await createPrivateVoiceChannel(guild, event.name, eventConfig ?? null);
+      if (event.use_discord_event && voiceChannelId) {
+        discordEventId = await createDiscordEvent(guild, {
+          ...event,
+          start_time: nextStart,
+          end_time: nextEnd,
+        }, voiceChannelId);
+      }
     }
 
     await client.db.events.createEvent({
@@ -401,7 +481,12 @@ async function createNextRecurrence(client: Client, event: DB_ScheduledEvent): P
       retention_hours: event.retention_hours,
       status: 'scheduled',
       created_by: event.created_by,
-      voice_channel_id: null,
+      text_channel_name: event.text_channel_name,
+      channel_topic: event.channel_topic,
+      voice_channel_name: event.voice_channel_name,
+      image_url: event.image_url,
+      require_confirmation: event.require_confirmation,
+      voice_channel_id: voiceChannelId,
       text_channel_id: null,
       message_id: null,
       discord_event_id: discordEventId,
@@ -450,7 +535,7 @@ export async function handleConfirmationResponse(client: Client, eventId: number
   }
 }
 
-function sanitizeChannelName(name: string): string {
+export function sanitizeChannelName(name: string): string {
   return name
     .toLowerCase()
     .replace(/[^a-z0-9\-_ ]/g, '')
