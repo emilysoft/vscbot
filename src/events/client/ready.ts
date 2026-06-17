@@ -8,6 +8,7 @@ import Client from "../../interfaces/ICustomClient.js";
 import bcv from "../../functions/timers/bcvUpdate.js";
 import { initScheduler } from "../../functions/timers/eventScheduler.js";
 import { clearGulag } from "../../functions/automod/workers/clearChat.js";
+import { deployCommands } from "../../handlers/deploy-commands.js";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -17,6 +18,7 @@ const module = {
   async execute(client: Client) {
     setPresence(client, "");
 
+    deployCommands().catch(console.error);
     await initScheduler(client);
 
     setInterval(

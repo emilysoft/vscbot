@@ -1,17 +1,12 @@
 import { REST, Routes } from "discord.js";
-//import config from "../config.json" with {type: "json"};
 import fs from "node:fs/promises";
 import path from "node:path";
 import chalk from "chalk";
 import dotenv from "dotenv";
 dotenv.config();
-const commands: any = [];
-const CLIENT_ID = process.env.CLIENT_ID
-const MAIN_SERVER = process.env.MAIN_SERVER
 
-// Función principal asíncrona para manejar toda la lógica
-async function main() {
-  // Grab the SlashCommandBuilder#toJSON() output of each command's data for deployment
+export async function collectCommands(): Promise<any[]> {
+  const commands: any[] = [];
   const commandFolders = await fs.readdir(path.join(process.cwd(), "dist/commands"));
 
   for (const folder of commandFolders) {
@@ -23,7 +18,6 @@ async function main() {
       const filePath = path.join(process.cwd(), `dist/commands/${folder}/${file}`);
 
       try {
-        // await import() devuelve un objeto de módulo.
         const module = await import(filePath);
         const command = module.default;
 
@@ -33,7 +27,7 @@ async function main() {
               `[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`
             )
           );
-          continue; // Pasa al siguiente archivo
+          continue;
         }
 
         if (!command.slashCommand) {
@@ -42,7 +36,7 @@ async function main() {
               `[COMMAND DESACTIVATED] ${command.data.name}.`
             )
           );
-          continue; // Pasa al siguiente archivo
+          continue;
         }
 
         commands.push(command.data.toJSON());
@@ -61,41 +55,45 @@ async function main() {
     }
   }
 
-  // Llamamos a cargar() solo después de que todos los comandos se hayan cargado.
-  await cargar();
+  return commands;
 }
 
-// Construct and prepare an instance of the REST module
-// and deploy your commands!
-async function cargar() {
+export async function deployCommands(clientId?: string, guildId?: string): Promise<number> {
+  const commands = await collectCommands();
+
+  console.log(`Started refreshing ${commands.length} application (/) commands.`);
+
+  const token = process.env.TOKEN;
+  if (!token) {
+    console.error(chalk.bgRedBright.black("[ERROR] Missing bot token in environment variables."));
+    return 0;
+  }
+
+  const rest = new REST({ version: "10" }).setToken(token);
+
+  const cid = clientId || process.env.CLIENT_ID;
+  const gid = guildId || process.env.MAIN_SERVER;
+  if (!cid || !gid) throw new Error("Missing CLIENT_ID or MAIN_SERVER");
+
+  const data: any = await rest.put(
+    Routes.applicationGuildCommands(cid, gid),
+    { body: commands }
+  );
+
+  console.log(`Successfully reloaded ${data.length} application (/) commands.`);
+  return data.length;
+}
+
+async function main() {
   try {
-    console.log(
-      `Started refreshing ${commands.length} application (/) commands.`
-    );
-
-    const token = process.env.TOKEN;
-    if (!token) {
-      console.error(chalk.bgRedBright.black("[ERROR] Missing bot token in environment variables."));
-      return;
-    }
-
-    const rest = new REST({ version: "10" }).setToken(token);
-
-    // The put method is used to fully refresh all commands in the guild with the current set
-    if (CLIENT_ID == undefined || MAIN_SERVER == undefined) throw new Error("erro falta client_id or main_server")
-    const data: any = await rest.put(
-      Routes.applicationGuildCommands(CLIENT_ID, MAIN_SERVER),
-      { body: commands }
-    );
-
-    console.log(
-      `Successfully reloaded ${data.length} application (/) commands.`
-    );
+    await deployCommands();
   } catch (error) {
-    // And of course, make sure you catch and log any errors!
     console.error(chalk.bgRedBright.black("[ERROR] Failed to deploy commands:"), error);
   }
 }
 
-// Iniciar la ejecución del script
-main();
+const isMain =
+  process.argv[1]?.replace(/\\/g, "/").endsWith("deploy-commands.ts") ||
+  process.argv[1]?.replace(/\\/g, "/").endsWith("deploy-commands.js");
+
+if (isMain) main();
