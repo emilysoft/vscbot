@@ -6,6 +6,8 @@ import {
   cleanupTextChannel,
 } from "../scheduledEvents/eventManager.js";
 
+import { DB_ScheduledEvent } from "../../db/EventTypes.js";
+
 const eventTimeouts = new Map<number, NodeJS.Timeout>();
 
 function clearEventTimeout(eventId: number) {
@@ -37,7 +39,7 @@ function setEventTimeout(
   eventTimeouts.set(eventId, timeout);
 }
 
-async function shouldConfirmEvent(client: Client, event: any): Promise<boolean> {
+async function shouldConfirmEvent(client: Client, event: DB_ScheduledEvent): Promise<boolean> {
   if (event.require_confirmation !== null && event.require_confirmation !== undefined) {
     return !!event.require_confirmation;
   }

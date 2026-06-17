@@ -5,6 +5,7 @@ import {
   SlashCommandSubcommandBuilder,
   EmbedBuilder,
   TextChannel,
+  Guild,
   ColorResolvable,
   PermissionFlagsBits,
 } from "discord.js";
@@ -17,6 +18,7 @@ import {
   endEvent,
   createDiscordEvent,
   createPrivateVoiceChannel,
+  fetchImageAsBase64,
 } from "../../functions/scheduledEvents/eventManager.js";
 import { rescheduleEvent, cancelScheduledEvent } from "../../functions/timers/eventScheduler.js";
 import { DB_ScheduledEvent } from "../../db/EventTypes.js";
@@ -181,7 +183,7 @@ const module: ICommand = {
   },
 };
 
-async function handleSettings(interaction: ChatInputCommandInteraction, client: Client, guild: any) {
+async function handleSettings(interaction: ChatInputCommandInteraction, client: Client, guild: Guild) {
   try {
     console.log("[event] handleSettings called for guild:", guild.id);
     const config_ = await client.db.events.initConfig(guild.id);
@@ -214,7 +216,7 @@ async function handleSettings(interaction: ChatInputCommandInteraction, client: 
   }
 }
 
-async function handleSetup(interaction: ChatInputCommandInteraction, client: Client, guild: any) {
+async function handleSetup(interaction: ChatInputCommandInteraction, client: Client, guild: Guild) {
   try {
     const existing = await client.db.events.initConfig(guild.id);
     const updates: Record<string, any> = {};
@@ -268,7 +270,7 @@ async function handleSetup(interaction: ChatInputCommandInteraction, client: Cli
 
 async function createEventCore(
   client: Client,
-  guild: any,
+  guild: Guild,
   params: {
     name: string;
     startTime: DateTime;
@@ -298,33 +300,20 @@ async function createEventCore(
   let discordEventId: string | null = null;
   if (eventConfig.use_discord_events) {
     const discordId = await createDiscordEvent(guild, {
-      server_id: guild.id,
       name: params.name,
+      startTime: params.startTime.toISO()!,
+      endTime: params.endTime?.toISO() || null,
       description: params.description,
-      role_id: null,
-      channel_id: null,
-      custom_message: null,
-      use_discord_event: 1,
-      start_time: params.startTime.toISO()!,
-      end_time: params.endTime?.toISO() || null,
-      recurrence: params.recurrence,
-      activities: JSON.stringify(params.activities),
-      channel_behavior: params.channelBehavior,
-      retention_hours: params.retentionHours,
-      status: 'scheduled',
-      created_by: params.createdBy,
-      text_channel_name: params.textChannelName,
-      channel_topic: params.channelTopic,
-      voice_channel_name: params.voiceChannelName,
-      image_url: params.imageUrl,
-      require_confirmation: params.requireConfirmation ? 1 : (params.requireConfirmation === false ? 0 : null),
-      voice_channel_id: voiceChannelId,
-      text_channel_id: null,
-      message_id: null,
-      discord_event_id: null,
-      reminder_sent: 0,
-      created_at: new Date().toISOString(),
+      imageUrl: params.imageUrl,
     }, voiceChannelId || undefined);
+
+    if (!discordId && voiceChannelId) {
+      try {
+        const vc = guild.channels.cache.get(voiceChannelId);
+        if (vc) await vc.delete();
+      } catch { /* already deleted */ }
+      voiceChannelId = null;
+    }
 
     if (discordId) {
       discordEventId = discordId;
@@ -384,7 +373,9 @@ async function createEventCore(
   return event;
 }
 
-async function handleCreate(interaction: ChatInputCommandInteraction, client: Client, guild: any) {
+async function handleCreate(interaction: ChatInputCommandInteraction, client: Client, guild: Guild) {
+  await interaction.deferReply({ ephemeral: true });
+
   const name = interaction.options.getString("name", true);
   const startTimeStr = interaction.options.getString("start_time", true);
   const endTimeStr = interaction.options.getString("end_time");
@@ -402,25 +393,23 @@ async function handleCreate(interaction: ChatInputCommandInteraction, client: Cl
 
   const startTime = DateTime.fromFormat(startTimeStr, "yyyy-MM-dd HH:mm");
   if (!startTime.isValid) {
-    return void interaction.reply({ content: `Fecha inválida: "${startTimeStr}". Usa el formato YYYY-MM-DD HH:MM (ej: 2026-06-10 20:00)`, ephemeral: true });
+    return void interaction.editReply({ content: `Fecha inválida: "${startTimeStr}". Usa el formato YYYY-MM-DD HH:MM (ej: 2026-06-10 20:00)` });
   }
 
   let endTime: DateTime | null = null;
   if (endTimeStr) {
     endTime = DateTime.fromFormat(endTimeStr, "yyyy-MM-dd HH:mm");
     if (!endTime.isValid) {
-      return void interaction.reply({ content: `Fecha de fin inválida: "${endTimeStr}". Usa el formato YYYY-MM-DD HH:MM`, ephemeral: true });
+      return void interaction.editReply({ content: `Fecha de fin inválida: "${endTimeStr}". Usa el formato YYYY-MM-DD HH:MM` });
     }
     if (endTime <= startTime) {
-      return void interaction.reply({ content: "La fecha de fin debe ser posterior a la de inicio.", ephemeral: true });
+      return void interaction.editReply({ content: "La fecha de fin debe ser posterior a la de inicio." });
     }
   }
 
   const activities = activitiesStr
     ? activitiesStr.split(",").map(a => a.trim()).filter(Boolean)
     : [];
-
-  await interaction.deferReply({ ephemeral: true });
 
   const event = await createEventCore(client, guild, {
     name,
@@ -461,7 +450,7 @@ async function handleCreate(interaction: ChatInputCommandInteraction, client: Cl
   await interaction.editReply({ embeds: [embed] });
 }
 
-async function handleList(interaction: ChatInputCommandInteraction, client: Client, guild: any) {
+async function handleList(interaction: ChatInputCommandInteraction, client: Client, guild: Guild) {
   const filter = interaction.options.getString("filter") || "upcoming";
   const now = new Date().toISOString();
   const events = await client.db.events.getEventsByGuild(guild.id);
@@ -496,7 +485,7 @@ async function handleList(interaction: ChatInputCommandInteraction, client: Clie
   await interaction.reply({ embeds: [embed], ephemeral: true });
 }
 
-async function handleEdit(interaction: ChatInputCommandInteraction, client: Client, guild: any) {
+async function handleEdit(interaction: ChatInputCommandInteraction, client: Client, guild: Guild) {
   const id = interaction.options.getNumber("id", true);
   const event = await client.db.events.getEvent(id);
 
@@ -557,6 +546,27 @@ async function handleEdit(interaction: ChatInputCommandInteraction, client: Clie
 
   await client.db.events.updateEvent(id, updates);
   await rescheduleEvent(client, id);
+
+  if (event.discord_event_id && event.use_discord_event) {
+    const discordEdit: Record<string, any> = {};
+    if (updates.name) discordEdit.name = updates.name;
+    if (updates.description !== undefined) discordEdit.description = updates.description;
+    if (updates.start_time) discordEdit.scheduledStartTime = updates.start_time;
+    if (updates.end_time !== undefined) discordEdit.scheduledEndTime = updates.end_time || null;
+    if (updates.image_url !== undefined) {
+      const b64 = await fetchImageAsBase64(updates.image_url);
+      if (b64) discordEdit.image = b64;
+    }
+    if (Object.keys(discordEdit).length > 0) {
+      try {
+        const discordEvent = await guild.scheduledEvents.fetch(event.discord_event_id);
+        await discordEvent.edit(discordEdit);
+      } catch (err) {
+        client.errorLogger(err, client, "warn", `${process.cwd()} commands/events/event`);
+      }
+    }
+  }
+
   await interaction.reply({ content: `✅ Evento #${id} actualizado.`, ephemeral: true });
 }
 
@@ -578,7 +588,9 @@ async function handleDelete(interaction: ChatInputCommandInteraction, client: Cl
       try {
         const channel = guild.channels.cache.get(event.voice_channel_id);
         if (channel) await channel.delete();
-      } catch { }
+      } catch (err) {
+        client.errorLogger(err, client, "warn", `${process.cwd()} commands/events/event`);
+      }
     }
     if (event.discord_event_id) {
       try {
@@ -694,8 +706,10 @@ async function handleInfo(interaction: ChatInputCommandInteraction, client: Clie
   await interaction.reply({ embeds: [embed], ephemeral: false });
 }
 
-async function handleTest(interaction: ChatInputCommandInteraction, client: Client, guild: any) {
+async function handleTest(interaction: ChatInputCommandInteraction, client: Client, guild: Guild) {
   try {
+    await interaction.deferReply({ ephemeral: true });
+
     const now = DateTime.now();
     const name = interaction.options.getString("name") || `🧪 Test ${now.toFormat('HH:mm:ss')}`;
     const startTimeStr = interaction.options.getString("start_time");
@@ -715,7 +729,7 @@ async function handleTest(interaction: ChatInputCommandInteraction, client: Clie
     let startTime: DateTime;
     if (startTimeStr) {
       startTime = DateTime.fromFormat(startTimeStr, "yyyy-MM-dd HH:mm");
-      if (!startTime.isValid) return void interaction.reply({ content: `Fecha inválida: "${startTimeStr}"`, ephemeral: true });
+      if (!startTime.isValid) return void interaction.editReply({ content: `Fecha inválida: "${startTimeStr}"` });
     } else {
       startTime = now.plus({ seconds: 5 });
     }
@@ -723,20 +737,18 @@ async function handleTest(interaction: ChatInputCommandInteraction, client: Clie
     let endTime: DateTime;
     if (endTimeStr) {
       endTime = DateTime.fromFormat(endTimeStr, "yyyy-MM-dd HH:mm");
-      if (!endTime.isValid) return void interaction.reply({ content: `Fecha inválida: "${endTimeStr}"`, ephemeral: true });
+      if (!endTime.isValid) return void interaction.editReply({ content: `Fecha inválida: "${endTimeStr}"` });
     } else {
       endTime = startTime.plus({ seconds: 30 });
     }
 
     if (endTime <= startTime) {
-      return void interaction.reply({ content: "La fecha de fin debe ser posterior a la de inicio.", ephemeral: true });
+      return void interaction.editReply({ content: "La fecha de fin debe ser posterior a la de inicio." });
     }
 
     const activities = activitiesStr
       ? activitiesStr.split(",").map(a => a.trim()).filter(Boolean)
       : [];
-
-    await interaction.deferReply({ ephemeral: true });
 
     const event = await createEventCore(client, guild, {
       name,
@@ -803,6 +815,7 @@ async function handleTest(interaction: ChatInputCommandInteraction, client: Clie
     client.errorLogger(err, client, "error", `${process.cwd()} commands/events/event`);
     try {
       if (!interaction.replied) await interaction.reply({ content: "Error al crear evento de prueba.", ephemeral: true });
+      else await interaction.editReply({ content: "Error al crear evento de prueba." }).catch(() => {});
     } catch { }
   }
 }

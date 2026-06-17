@@ -68,10 +68,11 @@ export async function startEvent(client: Client, eventId: number): Promise<void>
     });
 
     const customMsg = event.custom_message || '';
+    const vcLink = `https://discord.com/channels/${guild.id}/${voiceChannel.id}`;
     const roleMention = event.role_id
       ? `<@&${event.role_id}>`
-      : (config.eventRoleId ? `<@&${config.eventRoleId}>` : '');
-    const content = [customMsg, roleMention].filter(Boolean).join(' ');
+      : (eventConfig.default_role_id ? `<@&${eventConfig.default_role_id}>` : '');
+    const content = [customMsg, vcLink, roleMention].filter(Boolean).join(' ');
     const contentStr = content || `**${event.name}** ha comenzado!`;
 
     let announcement;
@@ -88,7 +89,13 @@ export async function startEvent(client: Client, eventId: number): Promise<void>
 
     let discordEventId = event.discord_event_id;
     if (event.use_discord_event && !discordEventId) {
-      discordEventId = await createDiscordEvent(guild, event, voiceChannel.id);
+      discordEventId = await createDiscordEvent(guild, {
+        name: event.name,
+        startTime: event.start_time,
+        endTime: event.end_time,
+        description: event.description,
+        imageUrl: event.image_url,
+      }, voiceChannel.id);
       if (discordEventId && eventConfig.events_channel) {
         const eventsChannel = guild.channels.cache.get(eventConfig.events_channel) as TextChannel | undefined;
         if (eventsChannel) {
@@ -120,7 +127,7 @@ export async function endEvent(client: Client, eventId: number): Promise<void> {
   const guild = client.guilds.cache.get(event.server_id);
   if (!guild) return;
 
-  const eventConfig = await client.db.events.getConfig(event.server_id);
+  const eventConfig = await client.db.events.initConfig(event.server_id);
 
   try {
     const participants = await client.db.events.getParticipants(eventId);
@@ -146,7 +153,7 @@ export async function endEvent(client: Client, eventId: number): Promise<void> {
       embed.addFields({ name: 'Actividades', value: actText });
     }
 
-    if (eventConfig?.logs_channel) {
+    if (eventConfig.logs_channel) {
       const logChannel = guild.channels.cache.get(eventConfig.logs_channel) as TextChannel | undefined;
       if (logChannel) {
         await logChannel.send({ embeds: [embed] });
@@ -159,8 +166,8 @@ export async function endEvent(client: Client, eventId: number): Promise<void> {
         if (discordEvent) {
           await discordEvent.setStatus(GuildScheduledEventStatus.Completed);
         }
-      } catch {
-        // Discord event might have been deleted already
+      } catch (err) {
+        client.errorLogger(err, client, "warn", `${process.cwd()} scheduledEvents/endEvent`);
       }
     }
 
@@ -186,13 +193,13 @@ export async function cleanupTextChannel(client: Client, eventId: number): Promi
   const guild = client.guilds.cache.get(event.server_id);
   if (!guild) return;
 
-  const eventConfig = await client.db.events.getConfig(event.server_id);
+  const eventConfig = await client.db.events.initConfig(event.server_id);
 
   if (event.text_channel_id) {
     try {
       const textChannel = guild.channels.cache.get(event.text_channel_id) as TextChannel | undefined;
       if (textChannel) {
-        if (event.channel_behavior === 'archive' && eventConfig?.archive_category) {
+        if (event.channel_behavior === 'archive' && eventConfig.archive_category) {
           await textChannel.setParent(eventConfig.archive_category, { lockPermissions: false });
           await textChannel.permissionOverwrites.edit(guild.roles.everyone.id, {
             ViewChannel: false,
@@ -201,8 +208,8 @@ export async function cleanupTextChannel(client: Client, eventId: number): Promi
           await textChannel.delete();
         }
       }
-    } catch {
-      // Channel might have been deleted already
+    } catch (err) {
+      client.errorLogger(err, client, "warn", `${process.cwd()} scheduledEvents/cleanupTextChannel`);
     }
   }
 }
@@ -214,13 +221,13 @@ export async function cleanupEvent(client: Client, eventId: number): Promise<voi
   const guild = client.guilds.cache.get(event.server_id);
   if (!guild) return;
 
-  const eventConfig = await client.db.events.getConfig(event.server_id);
+  const eventConfig = await client.db.events.initConfig(event.server_id);
 
   if (event.voice_channel_id) {
     try {
       const voiceChannel = guild.channels.cache.get(event.voice_channel_id) as VoiceChannel | undefined;
       if (voiceChannel) {
-        if (event.channel_behavior === 'archive' && eventConfig?.archive_category) {
+        if (event.channel_behavior === 'archive' && eventConfig.archive_category) {
           await voiceChannel.setParent(eventConfig.archive_category, { lockPermissions: false });
           await voiceChannel.permissionOverwrites.edit(guild.roles.everyone.id, {
             ViewChannel: false,
@@ -229,8 +236,8 @@ export async function cleanupEvent(client: Client, eventId: number): Promise<voi
           await voiceChannel.delete();
         }
       }
-    } catch {
-      // Channel might have been deleted already
+    } catch (err) {
+      client.errorLogger(err, client, "warn", `${process.cwd()} scheduledEvents/cleanupEvent`);
     }
   }
 
@@ -246,8 +253,23 @@ export async function sendReminder(client: Client, eventId: number): Promise<voi
   if (!event || event.status !== 'scheduled' || event.reminder_sent) return;
 
   try {
+    const eventConfig = await client.db.events.initConfig(event.server_id);
     const user = await client.users.fetch(event.created_by);
-    if (!user) return;
+    const reminderText = `⏰ **Recordatorio:** El evento "${event.name}" está programado para las ${new Date(event.start_time).toLocaleString()}. ¿Vas a realizarlo?`;
+
+    if (!user) {
+      await client.db.events.updateEvent(eventId, { reminder_sent: 1 });
+      if (eventConfig.logs_channel) {
+        const guild = client.guilds.cache.get(event.server_id);
+        if (guild) {
+          const logChannel = guild.channels.cache.get(eventConfig.logs_channel) as TextChannel | undefined;
+          if (logChannel) {
+            await logChannel.send(`${reminderText}\n<@${event.created_by}> (no se pudo enviar DM)`).catch(() => {});
+          }
+        }
+      }
+      return;
+    }
 
     const row = new ActionRowBuilder<ButtonBuilder>()
       .addComponents(
@@ -262,7 +284,7 @@ export async function sendReminder(client: Client, eventId: number): Promise<voi
       );
 
     const msg = await user.send({
-      content: `⏰ **Recordatorio:** El evento "${event.name}" está programado para las ${new Date(event.start_time).toLocaleString()}. ¿Vas a realizarlo?`,
+      content: reminderText,
       components: [row],
     });
 
@@ -289,8 +311,8 @@ export async function sendReminder(client: Client, eventId: number): Promise<voi
             content: `No hubo respuesta. El evento "${event.name}" ha sido cancelado. Usa \`/event edit\` para reprogramarlo.`,
             components: [],
           });
-        } catch {
-          // Message might be deleted
+        } catch (editErr) {
+          client.errorLogger(editErr, client, "warn", `${process.cwd()} scheduledEvents/sendReminder`);
         }
         await client.db.events.updateEvent(eventId, { status: 'cancelled' });
       }
@@ -298,7 +320,20 @@ export async function sendReminder(client: Client, eventId: number): Promise<voi
 
     await client.db.events.updateEvent(eventId, { reminder_sent: 1 });
   } catch (err) {
-    client.errorLogger(err, client, "error", `${process.cwd()} scheduledEvents/sendReminder`);
+    client.errorLogger(err, client, "warn", `${process.cwd()} scheduledEvents/sendReminder`);
+    try {
+      const guild = client.guilds.cache.get(event.server_id);
+      if (guild) {
+        const eventConfig = await client.db.events.initConfig(event.server_id);
+        if (eventConfig.logs_channel) {
+          const logChannel = guild.channels.cache.get(eventConfig.logs_channel) as TextChannel | undefined;
+          if (logChannel) {
+            await logChannel.send(`⏰ **Recordatorio:** El evento "${event.name}" está programado para las ${new Date(event.start_time).toLocaleString()}.\n<@${event.created_by}> (no se pudo enviar DM)`).catch(() => {});
+          }
+        }
+      }
+    } catch { /* fallback total — no hay más que hacer */ }
+    await client.db.events.updateEvent(eventId, { reminder_sent: 1 }).catch(() => {});
   }
 }
 
@@ -398,39 +433,47 @@ export async function createPrivateVoiceChannel(guild: Guild, eventName: string,
     });
     return voiceChannel.id;
   } catch (err) {
-    console.error('[createPrivateVoiceChannel] error:', err);
+    console.error('[createPrivateVoiceChannel] failed:', err instanceof Error ? err.message : err);
     return null;
   }
 }
 
-async function fetchImageAsBase64(url: string): Promise<string | undefined> {
+export async function fetchImageAsBase64(url: string): Promise<string | undefined> {
   try {
     const response = await fetch(url);
     if (!response.ok) return undefined;
     const buffer = Buffer.from(await response.arrayBuffer());
     const mimeType = response.headers.get('content-type') || 'image/png';
     return `data:${mimeType};base64,${buffer.toString('base64')}`;
-  } catch { return undefined; }
+  } catch {
+    return undefined;
+  }
 }
 
-export async function createDiscordEvent(guild: Guild, event: DB_ScheduledEvent, voiceChannelId?: string): Promise<string | null> {
+export async function createDiscordEvent(guild: Guild, params: {
+  name: string;
+  startTime: string;
+  endTime: string | null;
+  description: string;
+  imageUrl: string | null;
+}, voiceChannelId?: string): Promise<string | null> {
   try {
     const isExternal = !voiceChannelId;
-    const dbStartTime = new Date(event.start_time).getTime();
+    const dbStartTime = new Date(params.startTime).getTime();
     const now = Date.now();
     const offset = dbStartTime <= now ? (now + 120000 - dbStartTime) : 0;
     const finalStartTime = new Date(dbStartTime + offset);
-    const finalEndTime = event.end_time ? new Date(new Date(event.end_time).getTime() + offset) : undefined;
+    const finalEndTime = params.endTime ? new Date(new Date(params.endTime).getTime() + offset) : undefined;
 
-    const image = event.image_url ? await fetchImageAsBase64(event.image_url) : undefined;
+    const image = params.imageUrl ? await fetchImageAsBase64(params.imageUrl) : undefined;
 
     const discordEvent = await guild.scheduledEvents.create({
-      name: event.name,
+      name: params.name,
       scheduledStartTime: finalStartTime,
       scheduledEndTime: finalEndTime,
       privacyLevel: GuildScheduledEventPrivacyLevel.GuildOnly,
       entityType: isExternal ? GuildScheduledEventEntityType.External : GuildScheduledEventEntityType.Voice,
-      description: event.description || undefined,
+      description: params.description || undefined,
       image,
       ...(isExternal
         ? { entityMetadata: { location: 'En el servidor' } }
@@ -438,7 +481,7 @@ export async function createDiscordEvent(guild: Guild, event: DB_ScheduledEvent,
     });
     return discordEvent.id;
   } catch (err) {
-    console.error('[createDiscordEvent] error:', err);
+    console.error('[createDiscordEvent] failed:', err instanceof Error ? err.message : err);
     return null;
   }
 }
@@ -454,13 +497,15 @@ async function createNextRecurrence(client: Client, event: DB_ScheduledEvent): P
     let voiceChannelId: string | null = null;
 
     if (guild) {
-      const eventConfig = await client.db.events.getConfig(event.server_id);
-      voiceChannelId = await createPrivateVoiceChannel(guild, event.name, eventConfig ?? null);
+      const eventConfig = await client.db.events.initConfig(event.server_id);
+      voiceChannelId = await createPrivateVoiceChannel(guild, event.name, eventConfig);
       if (event.use_discord_event && voiceChannelId) {
         discordEventId = await createDiscordEvent(guild, {
-          ...event,
-          start_time: nextStart,
-          end_time: nextEnd,
+          name: event.name,
+          startTime: nextStart,
+          endTime: nextEnd,
+          description: event.description,
+          imageUrl: event.image_url,
         }, voiceChannelId);
       }
     }
