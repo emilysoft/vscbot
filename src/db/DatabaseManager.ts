@@ -137,6 +137,7 @@ export default class DatabaseManager {
         text_category TEXT DEFAULT '',
         archive_category TEXT DEFAULT '',
         use_discord_events INTEGER DEFAULT 0,
+        mention_role_on_start INTEGER DEFAULT 1,
         created_at TEXT DEFAULT (datetime('now'))
       );`,
       `CREATE TABLE IF NOT EXISTS events (
@@ -192,6 +193,7 @@ export default class DatabaseManager {
       `ALTER TABLE events ADD COLUMN require_confirmation INTEGER DEFAULT NULL`,
       `ALTER TABLE server_event_config ADD COLUMN require_confirmation INTEGER DEFAULT 1`,
       `ALTER TABLE events ADD COLUMN image_url TEXT DEFAULT NULL`,
+      `ALTER TABLE server_event_config ADD COLUMN mention_role_on_start INTEGER DEFAULT 1`,
     ]
     for (const sql of migrations) {
       try { await this.db.run(sql) } catch { }

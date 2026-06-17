@@ -86,7 +86,8 @@ const module: ICommand = {
       .addChannelOption(opt => opt.setName("text_category").setDescription("Categoría para crear canales de texto"))
       .addChannelOption(opt => opt.setName("archive_category").setDescription("Categoría para archivar canales"))
       .addBooleanOption(opt => opt.setName("discord_events").setDescription("Usar eventos de Discord"))
-      .addBooleanOption(opt => opt.setName("require_confirmation").setDescription("Exigir confirmación 2h antes del evento")))
+      .addBooleanOption(opt => opt.setName("require_confirmation").setDescription("Exigir confirmación 2h antes del evento"))
+      .addBooleanOption(opt => opt.setName("mention_role_on_start").setDescription("Mencionar rol al iniciar el evento").setRequired(true)))
     .addSubcommand(sub => addEventOptions(sub
       .setName("create")
       .setDescription("Crear un nuevo evento programado"), true))
@@ -230,6 +231,7 @@ async function handleSetup(interaction: ChatInputCommandInteraction, client: Cli
     const archiveCategory = interaction.options.getChannel("archive_category");
     const discordEvents = interaction.options.getBoolean("discord_events");
     const requireConfirmation = interaction.options.getBoolean("require_confirmation");
+    const mentionRoleOnStart = interaction.options.getBoolean("mention_role_on_start", true);
 
     if (enabled !== null) updates.enabled = enabled ? 1 : 0;
     if (role) updates.default_role_id = role.id;
@@ -240,6 +242,7 @@ async function handleSetup(interaction: ChatInputCommandInteraction, client: Cli
     if (archiveCategory) updates.archive_category = archiveCategory.id;
     if (discordEvents !== null) updates.use_discord_events = discordEvents ? 1 : 0;
     if (requireConfirmation !== null) updates.require_confirmation = requireConfirmation ? 1 : 0;
+    if (mentionRoleOnStart !== null) updates.mention_role_on_start = mentionRoleOnStart ? 1 : 0;
 
     if (Object.keys(updates).length === 0) {
       await interaction.reply({ content: "No especificaste ninguna opción para cambiar. Usa `/event settings` para ver la configuración actual.", ephemeral: true });

@@ -22,8 +22,8 @@ export default class EventManager {
       `INSERT OR REPLACE INTO server_event_config
        (server_id, enabled, default_role_id, events_channel, logs_channel,
         voice_category, text_category, archive_category,
-        use_discord_events, require_confirmation, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        use_discord_events, require_confirmation, mention_role_on_start, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       config.server_id,
       config.enabled,
       config.default_role_id,
@@ -34,6 +34,7 @@ export default class EventManager {
       config.archive_category,
       config.use_discord_events,
       config.require_confirmation ?? 1,
+      config.mention_role_on_start ?? 1,
       config.created_at || new Date().toISOString()
     );
   }
@@ -52,6 +53,7 @@ export default class EventManager {
       archive_category: '',
       use_discord_events: 0,
       require_confirmation: 1,
+      mention_role_on_start: 1,
       created_at: new Date().toISOString(),
     };
     await this.upsertConfig(config);

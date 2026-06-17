@@ -9,6 +9,7 @@ export interface DB_EventConfig {
   archive_category: string;
   use_discord_events: number;
   require_confirmation: number;
+  mention_role_on_start: number;
   created_at: string;
 }
 

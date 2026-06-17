@@ -69,9 +69,11 @@ export async function startEvent(client: Client, eventId: number): Promise<void>
 
     const customMsg = event.custom_message || '';
     const vcLink = `https://discord.com/channels/${guild.id}/${voiceChannel.id}`;
-    const roleMention = event.role_id
-      ? `<@&${event.role_id}>`
-      : (eventConfig.default_role_id ? `<@&${eventConfig.default_role_id}>` : '');
+    const roleMention = eventConfig.mention_role_on_start
+      ? (event.role_id
+        ? `<@&${event.role_id}>`
+        : (eventConfig.default_role_id ? `<@&${eventConfig.default_role_id}>` : ''))
+      : '';
     const content = [customMsg, vcLink, roleMention].filter(Boolean).join(' ');
     const contentStr = content || `**${event.name}** ha comenzado!`;
 
@@ -99,7 +101,7 @@ export async function startEvent(client: Client, eventId: number): Promise<void>
       if (discordEventId && eventConfig.events_channel) {
         const eventsChannel = guild.channels.cache.get(eventConfig.events_channel) as TextChannel | undefined;
         if (eventsChannel) {
-          const serverRoleMention = eventConfig.default_role_id
+          const serverRoleMention = eventConfig.mention_role_on_start && eventConfig.default_role_id
             ? `<@&${eventConfig.default_role_id}>`
             : '';
           const msg = [`https://discord.com/events/${guild.id}/${discordEventId}`, serverRoleMention].filter(Boolean).join('\n');
