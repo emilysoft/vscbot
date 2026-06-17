@@ -192,7 +192,7 @@ export default class DatabaseManager {
       `ALTER TABLE events ADD COLUMN require_confirmation INTEGER DEFAULT NULL`,
       `ALTER TABLE server_event_config ADD COLUMN require_confirmation INTEGER DEFAULT 1`,
       `ALTER TABLE events ADD COLUMN image_url TEXT DEFAULT NULL`,
-      `ALTER TABLE events ADD COLUMN mention_role_on_start INTEGER DEFAULT 1`,
+      `ALTER TABLE events ADD COLUMN send_events_channel_msg INTEGER DEFAULT 1`,
     ]
     for (const sql of migrations) {
       try { await this.db.run(sql) } catch { }

@@ -66,7 +66,7 @@ export default class EventManager {
        (server_id, name, description, role_id, channel_id, custom_message,
         use_discord_event, start_time, end_time, recurrence, activities,
         channel_behavior, retention_hours, status, created_by,
-        text_channel_name, channel_topic, voice_channel_name, image_url, require_confirmation, mention_role_on_start,
+        text_channel_name, channel_topic, voice_channel_name, image_url, require_confirmation, send_events_channel_msg,
         voice_channel_id, text_channel_id, message_id, discord_event_id, reminder_sent)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       data.server_id,
@@ -89,7 +89,7 @@ export default class EventManager {
       data.voice_channel_name,
       data.image_url ?? null,
       data.require_confirmation ?? null,
-      data.mention_role_on_start ?? null,
+      data.send_events_channel_msg ?? null,
       data.voice_channel_id,
       data.text_channel_id,
       data.message_id,

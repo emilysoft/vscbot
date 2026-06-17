@@ -47,6 +47,7 @@ function addEventOptions(sub: SlashCommandSubcommandBuilder, required: boolean) 
     .addStringOption(opt => opt.setName("name").setDescription("Nombre del evento").setRequired(required).setMaxLength(100))
     .addStringOption(opt => opt.setName("start_time").setDescription("Fecha y hora (YYYY-MM-DD HH:MM)").setRequired(required))
     .addRoleOption(opt => opt.setName("role").setDescription("Rol para ping").setRequired(required))
+    .addBooleanOption(opt => opt.setName("send_events_channel_msg").setDescription("Enviar mensaje a #eventos").setRequired(required))
     .addStringOption(opt => opt.setName("end_time").setDescription("Fecha y hora de fin (YYYY-MM-DD HH:MM)"))
     .addStringOption(opt => opt.setName("channel_behavior").setDescription("Qué hacer con los canales al terminar").addChoices(...CHANNEL_BEHAVIOR_CHOICES))
     .addNumberOption(opt => opt.setName("retention_hours").setDescription("Horas antes de archivar/eliminar el canal de texto (0 = inmediato)"))
@@ -58,8 +59,7 @@ function addEventOptions(sub: SlashCommandSubcommandBuilder, required: boolean) 
     .addStringOption(opt => opt.setName("voice_channel_name").setDescription("Nombre personalizado del canal de voz").setMaxLength(32))
     .addStringOption(opt => opt.setName("channel_topic").setDescription("Topic personalizado del canal de texto").setMaxLength(500))
     .addStringOption(opt => opt.setName("image_url").setDescription("URL de imagen para el evento de Discord y mensaje de inicio"))
-    .addBooleanOption(opt => opt.setName("require_confirmation").setDescription("Exigir confirmación 2h antes (usar config del server si no se especifica)"))
-    .addBooleanOption(opt => opt.setName("mention_role_on_start").setDescription("Mencionar rol al iniciar el evento").setRequired(required));
+    .addBooleanOption(opt => opt.setName("require_confirmation").setDescription("Exigir confirmación 2h antes (usar config del server si no se especifica)"));
 }
 
 const module: ICommand = {
@@ -288,7 +288,7 @@ async function createEventCore(
     channelTopic: string | null;
     imageUrl: string | null;
     requireConfirmation: boolean | null;
-    mentionRoleOnStart: boolean | null;
+    sendEventsChannelMsg: boolean | null;
     createdBy: string;
   },
 ): Promise<DB_ScheduledEvent> {
@@ -319,7 +319,7 @@ async function createEventCore(
 
     if (discordId) {
       discordEventId = discordId;
-      if (eventConfig.events_channel) {
+      if ((params.sendEventsChannelMsg ?? true) && eventConfig.events_channel) {
         const eventsChannel = guild.channels.cache.get(eventConfig.events_channel) as TextChannel | undefined;
         if (eventsChannel) {
           const serverRoleMention = eventConfig.default_role_id
@@ -352,7 +352,7 @@ async function createEventCore(
     voice_channel_name: params.voiceChannelName,
     image_url: params.imageUrl,
     require_confirmation: params.requireConfirmation ? 1 : (params.requireConfirmation === false ? 0 : null),
-    mention_role_on_start: params.mentionRoleOnStart ? 1 : (params.mentionRoleOnStart === false ? 0 : null),
+    send_events_channel_msg: params.sendEventsChannelMsg ? 1 : (params.sendEventsChannelMsg === false ? 0 : null),
     voice_channel_id: voiceChannelId,
     text_channel_id: null,
     message_id: null,
@@ -395,7 +395,7 @@ async function handleCreate(interaction: ChatInputCommandInteraction, client: Cl
   const imageUrl = interaction.options.getString("image_url");
 
   const requireConfirmation = interaction.options.getBoolean("require_confirmation");
-  const mentionRoleOnStart = interaction.options.getBoolean("mention_role_on_start");
+  const sendEventsChannelMsg = interaction.options.getBoolean("send_events_channel_msg");
 
   const startTime = DateTime.fromFormat(startTimeStr, "yyyy-MM-dd HH:mm");
   if (!startTime.isValid) {
@@ -433,7 +433,7 @@ async function handleCreate(interaction: ChatInputCommandInteraction, client: Cl
     channelTopic: channelTopic || null,
     imageUrl: imageUrl || null,
     requireConfirmation,
-    mentionRoleOnStart,
+    sendEventsChannelMsg,
     createdBy: interaction.user.id,
   });
 
@@ -734,7 +734,7 @@ async function handleTest(interaction: ChatInputCommandInteraction, client: Clie
   const imageUrl = interaction.options.getString("image_url");
 
   const requireConfirmation = interaction.options.getBoolean("require_confirmation");
-  const mentionRoleOnStart = interaction.options.getBoolean("mention_role_on_start");
+  const sendEventsChannelMsg = interaction.options.getBoolean("send_events_channel_msg");
 
     let startTime: DateTime;
     if (startTimeStr) {
@@ -776,7 +776,7 @@ async function handleTest(interaction: ChatInputCommandInteraction, client: Clie
       channelTopic: channelTopic || null,
       imageUrl: imageUrl || null,
       requireConfirmation,
-      mentionRoleOnStart,
+      sendEventsChannelMsg,
       createdBy: interaction.user.id,
     });
 

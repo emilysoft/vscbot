@@ -69,11 +69,9 @@ export async function startEvent(client: Client, eventId: number): Promise<void>
 
     const customMsg = event.custom_message || '';
     const vcLink = `https://discord.com/channels/${guild.id}/${voiceChannel.id}`;
-    const roleMention = (event.mention_role_on_start ?? 1)
-      ? (event.role_id
-        ? `<@&${event.role_id}>`
-        : (eventConfig.default_role_id ? `<@&${eventConfig.default_role_id}>` : ''))
-      : '';
+    const roleMention = event.role_id
+      ? `<@&${event.role_id}>`
+      : (eventConfig.default_role_id ? `<@&${eventConfig.default_role_id}>` : '');
     const content = [customMsg, vcLink, roleMention].filter(Boolean).join(' ');
     const contentStr = content || `**${event.name}** ha comenzado!`;
 
@@ -98,10 +96,10 @@ export async function startEvent(client: Client, eventId: number): Promise<void>
         description: event.description,
         imageUrl: event.image_url,
       }, voiceChannel.id);
-      if (discordEventId && eventConfig.events_channel) {
+      if ((event.send_events_channel_msg ?? 1) && discordEventId && eventConfig.events_channel) {
         const eventsChannel = guild.channels.cache.get(eventConfig.events_channel) as TextChannel | undefined;
         if (eventsChannel) {
-          const serverRoleMention = (event.mention_role_on_start ?? 1) && eventConfig.default_role_id
+          const serverRoleMention = eventConfig.default_role_id
             ? `<@&${eventConfig.default_role_id}>`
             : '';
           const msg = [`https://discord.com/events/${guild.id}/${discordEventId}`, serverRoleMention].filter(Boolean).join('\n');
@@ -165,7 +163,7 @@ export async function endEvent(client: Client, eventId: number): Promise<void> {
     if (event.discord_event_id) {
       try {
         const discordEvent = await guild.scheduledEvents.fetch(event.discord_event_id);
-        if (discordEvent) {
+        if (discordEvent && discordEvent.status === GuildScheduledEventStatus.Active) {
           await discordEvent.setStatus(GuildScheduledEventStatus.Completed);
         }
       } catch (err) {
@@ -533,7 +531,7 @@ async function createNextRecurrence(client: Client, event: DB_ScheduledEvent): P
       voice_channel_name: event.voice_channel_name,
       image_url: event.image_url,
       require_confirmation: event.require_confirmation,
-      mention_role_on_start: event.mention_role_on_start,
+      send_events_channel_msg: event.send_events_channel_msg,
       voice_channel_id: voiceChannelId,
       text_channel_id: null,
       message_id: null,
