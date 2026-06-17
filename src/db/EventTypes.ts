@@ -9,7 +9,6 @@ export interface DB_EventConfig {
   archive_category: string;
   use_discord_events: number;
   require_confirmation: number;
-  mention_role_on_start: number;
   created_at: string;
 }
 
@@ -35,6 +34,7 @@ export interface DB_ScheduledEvent {
   voice_channel_name: string | null;
   image_url: string | null;
   require_confirmation: number | null;
+  mention_role_on_start: number | null;
   voice_channel_id: string | null;
   text_channel_id: string | null;
   message_id: string | null;

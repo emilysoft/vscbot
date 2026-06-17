@@ -22,8 +22,8 @@ export default class EventManager {
       `INSERT OR REPLACE INTO server_event_config
        (server_id, enabled, default_role_id, events_channel, logs_channel,
         voice_category, text_category, archive_category,
-        use_discord_events, require_confirmation, mention_role_on_start, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        use_discord_events, require_confirmation, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       config.server_id,
       config.enabled,
       config.default_role_id,
@@ -34,7 +34,6 @@ export default class EventManager {
       config.archive_category,
       config.use_discord_events,
       config.require_confirmation ?? 1,
-      config.mention_role_on_start ?? 1,
       config.created_at || new Date().toISOString()
     );
   }
@@ -53,7 +52,6 @@ export default class EventManager {
       archive_category: '',
       use_discord_events: 0,
       require_confirmation: 1,
-      mention_role_on_start: 1,
       created_at: new Date().toISOString(),
     };
     await this.upsertConfig(config);
@@ -68,9 +66,9 @@ export default class EventManager {
        (server_id, name, description, role_id, channel_id, custom_message,
         use_discord_event, start_time, end_time, recurrence, activities,
         channel_behavior, retention_hours, status, created_by,
-        text_channel_name, channel_topic, voice_channel_name, image_url, require_confirmation,
+        text_channel_name, channel_topic, voice_channel_name, image_url, require_confirmation, mention_role_on_start,
         voice_channel_id, text_channel_id, message_id, discord_event_id, reminder_sent)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       data.server_id,
       data.name,
       data.description,
@@ -91,6 +89,7 @@ export default class EventManager {
       data.voice_channel_name,
       data.image_url ?? null,
       data.require_confirmation ?? null,
+      data.mention_role_on_start ?? null,
       data.voice_channel_id,
       data.text_channel_id,
       data.message_id,

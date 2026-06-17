@@ -69,7 +69,7 @@ export async function startEvent(client: Client, eventId: number): Promise<void>
 
     const customMsg = event.custom_message || '';
     const vcLink = `https://discord.com/channels/${guild.id}/${voiceChannel.id}`;
-    const roleMention = eventConfig.mention_role_on_start
+    const roleMention = (event.mention_role_on_start ?? 1)
       ? (event.role_id
         ? `<@&${event.role_id}>`
         : (eventConfig.default_role_id ? `<@&${eventConfig.default_role_id}>` : ''))
@@ -101,7 +101,7 @@ export async function startEvent(client: Client, eventId: number): Promise<void>
       if (discordEventId && eventConfig.events_channel) {
         const eventsChannel = guild.channels.cache.get(eventConfig.events_channel) as TextChannel | undefined;
         if (eventsChannel) {
-          const serverRoleMention = eventConfig.mention_role_on_start && eventConfig.default_role_id
+          const serverRoleMention = (event.mention_role_on_start ?? 1) && eventConfig.default_role_id
             ? `<@&${eventConfig.default_role_id}>`
             : '';
           const msg = [`https://discord.com/events/${guild.id}/${discordEventId}`, serverRoleMention].filter(Boolean).join('\n');
@@ -533,6 +533,7 @@ async function createNextRecurrence(client: Client, event: DB_ScheduledEvent): P
       voice_channel_name: event.voice_channel_name,
       image_url: event.image_url,
       require_confirmation: event.require_confirmation,
+      mention_role_on_start: event.mention_role_on_start,
       voice_channel_id: voiceChannelId,
       text_channel_id: null,
       message_id: null,
