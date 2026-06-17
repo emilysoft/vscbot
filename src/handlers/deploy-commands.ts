@@ -1,21 +1,24 @@
 import { REST, Routes } from "discord.js";
 import fs from "node:fs/promises";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import chalk from "chalk";
 import dotenv from "dotenv";
 dotenv.config();
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 export async function collectCommands(): Promise<any[]> {
   const commands: any[] = [];
-  const commandFolders = await fs.readdir(path.join(process.cwd(), "dist/commands"));
+  const commandsDir = path.join(__dirname, "../commands");
+  const commandFolders = await fs.readdir(commandsDir);
 
   for (const folder of commandFolders) {
-    const commandFiles = (await fs
-      .readdir(path.join(process.cwd(), `dist/commands/${folder}`)))
-      .filter((file) => file.endsWith("js"));
+    const folderPath = path.join(commandsDir, folder);
+    const commandFiles = (await fs.readdir(folderPath)).filter((file) => file.endsWith("js"));
 
     for (const file of commandFiles) {
-      const filePath = path.join(process.cwd(), `dist/commands/${folder}/${file}`);
+      const filePath = path.join(folderPath, file);
 
       try {
         const module = await import(filePath);
