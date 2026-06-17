@@ -31,6 +31,16 @@ in {
       default = 3000;
       description = "API port";
     };
+
+    mainServerId = lib.mkOption {
+      type = lib.types.str;
+      description = "main server id";
+    };
+
+    clientId = lib.mkOption {
+      type = lib.types.str;
+      description = "client id";
+    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -48,6 +58,8 @@ in {
         DATABASE_DIR = "/var/lib/${cfg.dataDir}";
         CUSTOM_ICONS_DIR = "/var/lib/${cfg.dataDir}/custom_roles/";
         API_PORT = toString cfg.port;
+        MAIN_SERVER = cfg.mainServerId;
+        CLIENT_ID = cfg.clientId;
       };
       serviceConfig = {
         ExecStart = "${cfg.package}/bin/vscbot";
