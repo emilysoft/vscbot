@@ -35,6 +35,7 @@ export interface DB_ScheduledEvent {
   image_url: string | null;
   require_confirmation: number | null;
   send_events_channel_msg: number | null;
+  events_channel_message_id: string | null;
   voice_channel_id: string | null;
   text_channel_id: string | null;
   message_id: string | null;

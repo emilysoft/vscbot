@@ -103,7 +103,10 @@ export async function startEvent(client: Client, eventId: number): Promise<void>
             ? `<@&${eventConfig.default_role_id}>`
             : '';
           const msg = [`https://discord.com/events/${guild.id}/${discordEventId}`, serverRoleMention].filter(Boolean).join('\n');
-          await eventsChannel.send(msg).catch(() => {});
+          const sent = await eventsChannel.send(msg).catch(() => null);
+          if (sent) {
+            await client.db.events.updateEvent(eventId, { events_channel_message_id: sent.id });
+          }
         }
       }
     }
@@ -495,9 +498,9 @@ async function createNextRecurrence(client: Client, event: DB_ScheduledEvent): P
     const guild = client.guilds.cache.get(event.server_id);
     let discordEventId: string | null = null;
     let voiceChannelId: string | null = null;
+    const eventConfig = guild ? await client.db.events.initConfig(event.server_id) : null;
 
-    if (guild) {
-      const eventConfig = await client.db.events.initConfig(event.server_id);
+    if (guild && eventConfig) {
       voiceChannelId = await createPrivateVoiceChannel(guild, event.name, eventConfig);
       if (event.use_discord_event && voiceChannelId) {
         discordEventId = await createDiscordEvent(guild, {
@@ -507,6 +510,19 @@ async function createNextRecurrence(client: Client, event: DB_ScheduledEvent): P
           description: event.description,
           imageUrl: event.image_url,
         }, voiceChannelId);
+      }
+
+      if (discordEventId && event.events_channel_message_id && eventConfig.events_channel) {
+        const eventsChannel = guild.channels.cache.get(eventConfig.events_channel) as TextChannel | undefined;
+        if (eventsChannel) {
+          try {
+            const oldMsg = await eventsChannel.messages.fetch(event.events_channel_message_id);
+            const serverRoleMention = eventConfig.default_role_id
+              ? `<@&${eventConfig.default_role_id}>`
+              : '';
+            await oldMsg.edit(`📅 **${event.name}** — ${new Date(nextStart).toLocaleString()}\nhttps://discord.com/events/${guild.id}/${discordEventId}\n${serverRoleMention}`);
+          } catch { }
+        }
       }
     }
 
@@ -532,6 +548,7 @@ async function createNextRecurrence(client: Client, event: DB_ScheduledEvent): P
       image_url: event.image_url,
       require_confirmation: event.require_confirmation,
       send_events_channel_msg: event.send_events_channel_msg,
+      events_channel_message_id: event.events_channel_message_id,
       voice_channel_id: voiceChannelId,
       text_channel_id: null,
       message_id: null,

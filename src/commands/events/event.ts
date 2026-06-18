@@ -289,6 +289,7 @@ async function createEventCore(
     imageUrl: string | null;
     requireConfirmation: boolean | null;
     sendEventsChannelMsg: boolean | null;
+    eventsChannelMessageId?: string | null;
     createdBy: string;
   },
 ): Promise<DB_ScheduledEvent> {
@@ -325,7 +326,8 @@ async function createEventCore(
           const serverRoleMention = eventConfig.default_role_id
             ? `<@&${eventConfig.default_role_id}>`
             : '';
-          await eventsChannel.send(`📅 **${params.name}** — ${params.startTime.toLocaleString(DateTime.DATETIME_MED)}\nhttps://discord.com/events/${guild.id}/${discordId}\n${serverRoleMention}`);
+          const msg = await eventsChannel.send(`📅 **${params.name}** — ${params.startTime.toLocaleString(DateTime.DATETIME_MED)}\nhttps://discord.com/events/${guild.id}/${discordId}\n${serverRoleMention}`);
+          params.eventsChannelMessageId = msg.id;
         }
       }
     }
@@ -353,6 +355,7 @@ async function createEventCore(
     image_url: params.imageUrl,
     require_confirmation: params.requireConfirmation ? 1 : (params.requireConfirmation === false ? 0 : null),
     send_events_channel_msg: params.sendEventsChannelMsg ? 1 : (params.sendEventsChannelMsg === false ? 0 : null),
+    events_channel_message_id: params.eventsChannelMessageId ?? null,
     voice_channel_id: voiceChannelId,
     text_channel_id: null,
     message_id: null,
