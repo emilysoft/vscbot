@@ -5,6 +5,7 @@ import {
   SlashCommandSubcommandBuilder,
   EmbedBuilder,
   TextChannel,
+  ChannelType,
   Guild,
   ColorResolvable,
   PermissionFlagsBits,
@@ -47,6 +48,8 @@ function addEventOptions(sub: SlashCommandSubcommandBuilder, required: boolean) 
     .addStringOption(opt => opt.setName("name").setDescription("Nombre del evento").setRequired(required).setMaxLength(100))
     .addStringOption(opt => opt.setName("start_time").setDescription("Fecha y hora (YYYY-MM-DD HH:MM)").setRequired(required))
     .addRoleOption(opt => opt.setName("role").setDescription("Rol para ping").setRequired(required))
+    .addBooleanOption(opt => opt.setName("is_private").setDescription("Evento privado (sin VC, sin Discord event)").setRequired(required))
+    .addChannelOption(opt => opt.setName("channel").setDescription("Canal para el mensaje de inicio (requerido si es privado)").addChannelTypes(ChannelType.GuildText))
     .addBooleanOption(opt => opt.setName("send_events_channel_msg").setDescription("Enviar mensaje a #eventos").setRequired(required))
     .addStringOption(opt => opt.setName("end_time").setDescription("Fecha y hora de fin (YYYY-MM-DD HH:MM)"))
     .addStringOption(opt => opt.setName("channel_behavior").setDescription("Qué hacer con los canales al terminar").addChoices(...CHANNEL_BEHAVIOR_CHOICES))
@@ -288,6 +291,8 @@ async function createEventCore(
     channelTopic: string | null;
     imageUrl: string | null;
     requireConfirmation: boolean | null;
+    isPrivate: boolean;
+    channelId: string | null;
     sendEventsChannelMsg: boolean | null;
     eventsChannelMessageId?: string | null;
     createdBy: string;
@@ -296,38 +301,41 @@ async function createEventCore(
   const eventConfig = await client.db.events.initConfig(guild.id);
 
   let voiceChannelId: string | null = null;
-  if (eventConfig.enabled) {
-    voiceChannelId = await createPrivateVoiceChannel(guild, params.name, eventConfig, params.voiceChannelName);
-  }
-
   let discordEventId: string | null = null;
-  if (eventConfig.use_discord_events) {
-    const discordId = await createDiscordEvent(guild, {
-      name: params.name,
-      startTime: params.startTime.toISO()!,
-      endTime: params.endTime?.toISO() || null,
-      description: params.description,
-      imageUrl: params.imageUrl,
-    }, voiceChannelId || undefined);
 
-    if (!discordId && voiceChannelId) {
-      try {
-        const vc = guild.channels.cache.get(voiceChannelId);
-        if (vc) await vc.delete();
-      } catch { /* already deleted */ }
-      voiceChannelId = null;
-    }
+  if (params.isPrivate) {
+    // no VC, no Discord event, no events_channel message
+  } else if (eventConfig.enabled) {
+    voiceChannelId = await createPrivateVoiceChannel(guild, params.name, eventConfig, params.voiceChannelName);
 
-    if (discordId) {
-      discordEventId = discordId;
-      if ((params.sendEventsChannelMsg ?? true) && eventConfig.events_channel) {
-        const eventsChannel = guild.channels.cache.get(eventConfig.events_channel) as TextChannel | undefined;
-        if (eventsChannel) {
-          const serverRoleMention = eventConfig.default_role_id
-            ? `<@&${eventConfig.default_role_id}>`
-            : '';
-          const msg = await eventsChannel.send(`📅 **${params.name}** — ${params.startTime.toLocaleString(DateTime.DATETIME_MED)}\nhttps://discord.com/events/${guild.id}/${discordId}\n${serverRoleMention}`);
-          params.eventsChannelMessageId = msg.id;
+    if (eventConfig.use_discord_events) {
+      const discordId = await createDiscordEvent(guild, {
+        name: params.name,
+        startTime: params.startTime.toISO()!,
+        endTime: params.endTime?.toISO() || null,
+        description: params.description,
+        imageUrl: params.imageUrl,
+      }, voiceChannelId || undefined);
+
+      if (!discordId && voiceChannelId) {
+        try {
+          const vc = guild.channels.cache.get(voiceChannelId);
+          if (vc) await vc.delete();
+        } catch { /* already deleted */ }
+        voiceChannelId = null;
+      }
+
+      if (discordId) {
+        discordEventId = discordId;
+        if ((params.sendEventsChannelMsg ?? true) && eventConfig.events_channel) {
+          const eventsChannel = guild.channels.cache.get(eventConfig.events_channel) as TextChannel | undefined;
+          if (eventsChannel) {
+            const serverRoleMention = eventConfig.default_role_id
+              ? `<@&${eventConfig.default_role_id}>`
+              : '';
+            const msg = await eventsChannel.send(`📅 **${params.name}** — ${params.startTime.toLocaleString(DateTime.DATETIME_MED)}\nhttps://discord.com/events/${guild.id}/${discordId}\n${serverRoleMention}`);
+            params.eventsChannelMessageId = msg.id;
+          }
         }
       }
     }
@@ -338,7 +346,8 @@ async function createEventCore(
     name: params.name,
     description: params.description,
     role_id: params.roleId,
-    channel_id: null,
+    is_private: params.isPrivate ? 1 : 0,
+    channel_id: params.channelId,
     custom_message: params.message || null,
     use_discord_event: eventConfig.use_discord_events ? 1 : 0,
     start_time: params.startTime.toISO()!,
@@ -398,7 +407,13 @@ async function handleCreate(interaction: ChatInputCommandInteraction, client: Cl
   const imageUrl = interaction.options.getString("image_url");
 
   const requireConfirmation = interaction.options.getBoolean("require_confirmation");
+  const isPrivate = interaction.options.getBoolean("is_private") || false;
+  const channel = interaction.options.getChannel("channel");
   const sendEventsChannelMsg = interaction.options.getBoolean("send_events_channel_msg");
+
+  if (isPrivate && !channel) {
+    return void interaction.editReply({ content: "Debes especificar un canal cuando el evento es privado." });
+  }
 
   const startTime = DateTime.fromFormat(startTimeStr, "yyyy-MM-dd HH:mm");
   if (!startTime.isValid) {
@@ -436,6 +451,8 @@ async function handleCreate(interaction: ChatInputCommandInteraction, client: Cl
     channelTopic: channelTopic || null,
     imageUrl: imageUrl || null,
     requireConfirmation,
+    isPrivate,
+    channelId: channel?.id || null,
     sendEventsChannelMsg,
     createdBy: interaction.user.id,
   });
@@ -737,7 +754,13 @@ async function handleTest(interaction: ChatInputCommandInteraction, client: Clie
   const imageUrl = interaction.options.getString("image_url");
 
   const requireConfirmation = interaction.options.getBoolean("require_confirmation");
+  const isPrivate = interaction.options.getBoolean("is_private") || false;
+  const channel = interaction.options.getChannel("channel");
   const sendEventsChannelMsg = interaction.options.getBoolean("send_events_channel_msg");
+
+  if (isPrivate && !channel) {
+    return void interaction.editReply({ content: "Debes especificar un canal cuando el evento es privado." });
+  }
 
     let startTime: DateTime;
     if (startTimeStr) {
@@ -779,6 +802,8 @@ async function handleTest(interaction: ChatInputCommandInteraction, client: Clie
       channelTopic: channelTopic || null,
       imageUrl: imageUrl || null,
       requireConfirmation,
+      isPrivate,
+      channelId: channel?.id || null,
       sendEventsChannelMsg,
       createdBy: interaction.user.id,
     });

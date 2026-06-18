@@ -132,6 +132,10 @@ async function processAllPending(client: Client) {
   const scheduled = await client.db.events.getEventsByStatus('scheduled');
   for (const event of scheduled) {
     if (!event.id || eventTimeouts.has(event.id)) continue;
+    if (event.is_private && !eventTimeouts.has(event.id)) {
+      await scheduleEventTimeouts(client, event.id);
+      continue;
+    }
     if (event.start_time <= nowISO) {
       await startEvent(client, event.id);
       const updated = await client.db.events.getEvent(event.id);

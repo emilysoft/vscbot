@@ -28,6 +28,33 @@ export async function startEvent(client: Client, eventId: number): Promise<void>
   const eventConfig = await client.db.events.initConfig(event.server_id);
   if (!eventConfig.enabled) return;
 
+  if (event.is_private) {
+    try {
+      await client.db.events.updateEvent(eventId, { status: 'active' });
+      const targetChannel = event.channel_id ? guild.channels.cache.get(event.channel_id) as TextChannel | undefined : undefined;
+      if (targetChannel) {
+        const customMsg = event.custom_message || '';
+        const roleMention = event.role_id
+          ? `<@&${event.role_id}>`
+          : (eventConfig.default_role_id ? `<@&${eventConfig.default_role_id}>` : '');
+        const content = [customMsg, roleMention].filter(Boolean).join(' ');
+        const contentStr = content || `**${event.name}** ha comenzado!`;
+        if (event.image_url) {
+          const embed = new EmbedBuilder()
+            .setColor(config.EMBED_COLOR as ColorResolvable)
+            .setDescription(`**${event.name}** ha comenzado!`)
+            .setImage(event.image_url);
+          await targetChannel.send({ content: contentStr, embeds: [embed] });
+        } else {
+          await targetChannel.send({ content: contentStr });
+        }
+      }
+    } catch (err) {
+      client.errorLogger(err, client, "error", `${process.cwd()} scheduledEvents/startEvent`);
+    }
+    return;
+  }
+
   try {
     const categoryVoz = eventConfig.voice_category
       ? (guild.channels.cache.get(eventConfig.voice_category) as CategoryChannel | undefined)
@@ -131,6 +158,15 @@ export async function endEvent(client: Client, eventId: number): Promise<void> {
   if (!guild) return;
 
   const eventConfig = await client.db.events.initConfig(event.server_id);
+
+  if (event.is_private) {
+    try {
+      await client.db.events.updateEvent(eventId, { status: 'ended' });
+    } catch (err) {
+      client.errorLogger(err, client, "error", `${process.cwd()} scheduledEvents/endEvent`);
+    }
+    return;
+  }
 
   try {
     const participants = await client.db.events.getParticipants(eventId);
@@ -500,7 +536,7 @@ async function createNextRecurrence(client: Client, event: DB_ScheduledEvent): P
     let voiceChannelId: string | null = null;
     const eventConfig = guild ? await client.db.events.initConfig(event.server_id) : null;
 
-    if (guild && eventConfig) {
+    if (guild && eventConfig && !event.is_private) {
       voiceChannelId = await createPrivateVoiceChannel(guild, event.name, eventConfig);
       if (event.use_discord_event && voiceChannelId) {
         discordEventId = await createDiscordEvent(guild, {
@@ -547,13 +583,14 @@ async function createNextRecurrence(client: Client, event: DB_ScheduledEvent): P
       voice_channel_name: event.voice_channel_name,
       image_url: event.image_url,
       require_confirmation: event.require_confirmation,
+      is_private: event.is_private,
       send_events_channel_msg: event.send_events_channel_msg,
       events_channel_message_id: event.events_channel_message_id,
       voice_channel_id: voiceChannelId,
       text_channel_id: null,
       message_id: null,
       discord_event_id: discordEventId,
-      reminder_sent: 0,
+      reminder_sent: event.is_private ? 1 : 0,
     });
   } catch (err) {
     client.errorLogger(err, client, "error", `${process.cwd()} scheduledEvents/createNextRecurrence`);
