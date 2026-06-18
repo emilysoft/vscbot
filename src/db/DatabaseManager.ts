@@ -8,6 +8,7 @@ import LogsManager from "./logManager.js"
 import { DB_ServerSettings } from './Idatabase.js'
 import LevelManager from "../functions/levels/levelManager.js"
 import EventManager from "./EventManager.js"
+import ReminderManager from "./ReminderManager.js"
 
 export default class DatabaseManager {
   private db!: SQLiteDatabase;
@@ -19,6 +20,7 @@ export default class DatabaseManager {
   logs: LogsManager;
   levels: LevelManager;
   events: EventManager;
+  reminders: ReminderManager;
 
   constructor(private dbPath: string) { }
 
@@ -30,6 +32,7 @@ export default class DatabaseManager {
     this.logs = new LogsManager(this.db)
     this.levels = new LevelManager(this.db)
     this.events = new EventManager(this.db)
+    this.reminders = new ReminderManager(this.db)
   }
 
   /**
@@ -178,6 +181,16 @@ export default class DatabaseManager {
         name TEXT NOT NULL,
         success_count INTEGER DEFAULT 0,
         total_count INTEGER DEFAULT 0
+      );`,
+      `CREATE TABLE IF NOT EXISTS reminders (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        server_id TEXT NOT NULL,
+        channel_id TEXT NOT NULL,
+        message TEXT NOT NULL,
+        remind_at TEXT NOT NULL,
+        created_by TEXT NOT NULL,
+        created_at TEXT DEFAULT (datetime('now')),
+        status TEXT DEFAULT 'pending'
       );`
     ]
     for (const sql of sqls) {
