@@ -72,6 +72,9 @@ export async function startEvent(client: Client, eventId: number): Promise<void>
         await voiceChannel.permissionOverwrites.edit(guild.roles.everyone.id, {
           ViewChannel: null,
         });
+        if (categoryVoz && voiceChannel.parentId !== categoryVoz.id) {
+          await voiceChannel.setParent(categoryVoz.id, { lockPermissions: false });
+        }
       }
     }
     if (!voiceChannel) {
@@ -87,12 +90,27 @@ export async function startEvent(client: Client, eventId: number): Promise<void>
       : channelName;
     const channelTopic = ['#' + event.id, event.channel_topic].filter(Boolean).join(' ');
 
-    const textChannel = await guild.channels.create({
-      name: textChannelName,
-      type: ChannelType.GuildText,
-      parent: categoryTexto?.id,
-      topic: channelTopic,
-    });
+    let textChannel: TextChannel | undefined;
+    if (event.text_channel_id) {
+      textChannel = guild.channels.cache.get(event.text_channel_id) as TextChannel | undefined;
+      if (textChannel) {
+        await textChannel.setTopic(channelTopic);
+        await textChannel.permissionOverwrites.edit(guild.roles.everyone.id, {
+          ViewChannel: null,
+        });
+        if (categoryTexto && textChannel.parentId !== categoryTexto.id) {
+          await textChannel.setParent(categoryTexto.id, { lockPermissions: false });
+        }
+      }
+    }
+    if (!textChannel) {
+      textChannel = await guild.channels.create({
+        name: textChannelName,
+        type: ChannelType.GuildText,
+        parent: categoryTexto?.id,
+        topic: channelTopic,
+      });
+    }
 
     const customMsg = event.custom_message || '';
     const vcLink = `https://discord.com/channels/${guild.id}/${voiceChannel.id}`;
@@ -534,10 +552,14 @@ async function createNextRecurrence(client: Client, event: DB_ScheduledEvent): P
     const guild = client.guilds.cache.get(event.server_id);
     let discordEventId: string | null = null;
     let voiceChannelId: string | null = null;
+    let textChannelId: string | null = event.text_channel_id;
     const eventConfig = guild ? await client.db.events.initConfig(event.server_id) : null;
 
     if (guild && eventConfig && !event.is_private) {
-      voiceChannelId = await createPrivateVoiceChannel(guild, event.name, eventConfig);
+      voiceChannelId = event.voice_channel_id;
+      if (!voiceChannelId) {
+        voiceChannelId = await createPrivateVoiceChannel(guild, event.name, eventConfig);
+      }
       if (event.use_discord_event && voiceChannelId) {
         discordEventId = await createDiscordEvent(guild, {
           name: event.name,
@@ -587,7 +609,7 @@ async function createNextRecurrence(client: Client, event: DB_ScheduledEvent): P
       send_events_channel_msg: event.send_events_channel_msg,
       events_channel_message_id: event.events_channel_message_id,
       voice_channel_id: voiceChannelId,
-      text_channel_id: null,
+      text_channel_id: textChannelId,
       message_id: null,
       discord_event_id: discordEventId,
       reminder_sent: event.is_private ? 1 : 0,
