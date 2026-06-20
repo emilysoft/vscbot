@@ -209,6 +209,12 @@ export default class DatabaseManager {
       `ALTER TABLE events ADD COLUMN events_channel_message_id TEXT DEFAULT NULL`,
       `ALTER TABLE events ADD COLUMN is_private INTEGER DEFAULT 0`,
     ]
+    const reminderMigrations = [
+      `ALTER TABLE reminders ADD COLUMN recurring INTEGER DEFAULT 0`,
+    ]
+    for (const sql of reminderMigrations) {
+      try { await this.db.run(sql) } catch { }
+    }
     for (const sql of migrations) {
       try { await this.db.run(sql) } catch { }
     }

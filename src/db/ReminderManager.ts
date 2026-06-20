@@ -10,14 +10,15 @@ export default class ReminderManager {
 
   async create(data: Omit<DB_Reminder, 'id' | 'created_at'>): Promise<DB_Reminder> {
     const result = await this.db.run(
-      `INSERT INTO reminders (server_id, channel_id, message, remind_at, created_by, status)
-       VALUES (?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO reminders (server_id, channel_id, message, remind_at, created_by, status, recurring)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
       data.server_id,
       data.channel_id,
       data.message,
       data.remind_at,
       data.created_by,
-      data.status || 'pending'
+      data.status || 'pending',
+      data.recurring || 0
     );
     const reminder = await this.db.get<DB_Reminder>(
       `SELECT * FROM reminders WHERE id = ?`,

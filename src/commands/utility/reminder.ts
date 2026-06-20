@@ -37,7 +37,10 @@ const module: ICommand = {
         .setName("message")
         .setDescription("Mensaje del recordatorio")
         .setRequired(true)
-        .setMaxLength(1000)))
+        .setMaxLength(1000))
+      .addBooleanOption(opt => opt
+        .setName("recurring")
+        .setDescription("Repetir diariamente a la misma hora")))
     .addSubcommand(sub => sub
       .setName("edit")
       .setDescription("Editar un recordatorio")
@@ -55,7 +58,10 @@ const module: ICommand = {
       .addStringOption(opt => opt
         .setName("message")
         .setDescription("Nuevo mensaje")
-        .setMaxLength(1000)))
+        .setMaxLength(1000))
+      .addBooleanOption(opt => opt
+        .setName("recurring")
+        .setDescription("Repetir diariamente")))
     .addSubcommand(sub => sub
       .setName("remove")
       .setDescription("Eliminar un recordatorio")
@@ -112,6 +118,7 @@ async function handleCreate(interaction: ChatInputCommandInteraction, client: Cl
   const channel = interaction.options.getChannel("channel", true);
   const timeStr = interaction.options.getString("time", true);
   const message = interaction.options.getString("message", true);
+  const recurring = interaction.options.getBoolean("recurring") || false;
 
   const targetTime = parseTime(timeStr);
   if (!targetTime) {
@@ -126,6 +133,7 @@ async function handleCreate(interaction: ChatInputCommandInteraction, client: Cl
     remind_at: targetTime.toISO()!,
     created_by: interaction.user.id,
     status: 'pending',
+    recurring: recurring ? 1 : 0,
   });
 
   await rescheduleReminder(client, reminder.id!);
@@ -137,7 +145,7 @@ async function handleCreate(interaction: ChatInputCommandInteraction, client: Cl
       { name: "ID", value: `#${reminder.id}`, inline: true },
       { name: "Canal", value: `<#${channel.id}>`, inline: true },
       { name: "Hora", value: targetTime.toFormat("HH:mm"), inline: true },
-      { name: "Fecha", value: targetTime.toFormat("dd/MM/yyyy"), inline: true },
+      { name: "Recurrente", value: recurring ? "Sí ✅" : "No", inline: true },
       { name: "Mensaje", value: message.length > 100 ? message.slice(0, 100) + "..." : message },
     );
 
@@ -161,11 +169,13 @@ async function handleEdit(interaction: ChatInputCommandInteraction, client: Clie
   const channel = interaction.options.getChannel("channel");
   const timeStr = interaction.options.getString("time");
   const message = interaction.options.getString("message");
+  const recurring = interaction.options.getBoolean("recurring");
 
   const updates: Record<string, any> = {};
 
   if (channel) updates.channel_id = channel.id;
   if (message) updates.message = message;
+  if (recurring !== null) updates.recurring = recurring ? 1 : 0;
 
   if (timeStr) {
     const targetTime = parseTime(timeStr);
@@ -188,6 +198,7 @@ async function handleEdit(interaction: ChatInputCommandInteraction, client: Clie
     if (k === 'channel_id') return `canal: <#${v}>`;
     if (k === 'remind_at') return `hora: ${DateTime.fromISO(v).toFormat("HH:mm dd/MM/yyyy")}`;
     if (k === 'message') return `mensaje: ${(v as string).length > 80 ? (v as string).slice(0, 80) + "..." : v}`;
+    if (k === 'recurring') return `recurrente: ${v ? 'Sí' : 'No'}`;
     return `${k}: ${v}`;
   }).join('\n');
 
@@ -220,7 +231,8 @@ async function handleList(interaction: ChatInputCommandInteraction, client: Clie
 
   const lines = pending.map(r => {
     const time = DateTime.fromISO(r.remind_at);
-    return `#${r.id} — <#${r.channel_id}> — ${time.toFormat("HH:mm dd/MM/yyyy")} — "${r.message.length > 50 ? r.message.slice(0, 50) + "..." : r.message}"`;
+    const recurring = r.recurring ? " 🔁" : "";
+    return `#${r.id}${recurring} — <#${r.channel_id}> — ${time.toFormat("HH:mm dd/MM/yyyy")} — "${r.message.length > 50 ? r.message.slice(0, 50) + "..." : r.message}"`;
   });
 
   const embed = new EmbedBuilder()

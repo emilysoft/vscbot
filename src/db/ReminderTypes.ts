@@ -7,4 +7,5 @@ export interface DB_Reminder {
   created_by: string;
   created_at: string;
   status: string;
+  recurring: number;
 }

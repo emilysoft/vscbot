@@ -1,4 +1,5 @@
 import { TextChannel } from "discord.js";
+import { DateTime } from "luxon";
 import Client from "../../interfaces/ICustomClient.js";
 
 const reminderTimeouts = new Map<number, NodeJS.Timeout>();
@@ -23,7 +24,19 @@ async function sendReminderMessage(client: Client, reminderId: number) {
     if (!channel) return;
 
     await channel.send(reminder.message);
-    await client.db.reminders.markSent(reminderId);
+
+    if (reminder.recurring) {
+      const nextTime = DateTime.fromISO(reminder.remind_at).plus({ days: 1 });
+      const now = DateTime.now();
+      let target = nextTime.set({ second: 0, millisecond: 0 });
+      if (target <= now) {
+        target = target.plus({ days: 1 });
+      }
+      await client.db.reminders.update(reminderId, { remind_at: target.toISO()! });
+      await scheduleReminderTimeout(client, reminderId);
+    } else {
+      await client.db.reminders.markSent(reminderId);
+    }
   } catch (err) {
     client.errorLogger(err, client, "error", `${process.cwd()} timers/reminderScheduler`);
   }
