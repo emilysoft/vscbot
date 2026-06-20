@@ -10,7 +10,7 @@ const parser = new Parser({
   },
 });
 
-const SEND_DELAY_MS = 3000;
+const SEND_DELAY_MS = 15 * 60 * 1000;
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 interface BlacklistCondition {
@@ -150,6 +150,7 @@ async function checkFeed(client: Client, feed: DB_RssFeed) {
       try { return JSON.parse(feed.posted_guids || "[]") as string[]; } catch { return []; }
     })();
     const postedSet = new Set(posted);
+    const isFirstRun = posted.length === 0;
 
     const newItems: Parser.Item[] = [];
     for (const item of parsed.items) {
@@ -166,13 +167,15 @@ async function checkFeed(client: Client, feed: DB_RssFeed) {
       return;
     }
 
+    const toSend = isFirstRun ? [newItems[newItems.length - 1]] : newItems;
+
     const filtered = feed.blacklist_json
-      ? newItems.filter(item => !isBlacklisted(item, feed.blacklist_json))
-      : newItems;
+      ? toSend.filter(item => !isBlacklisted(item, feed.blacklist_json))
+      : toSend;
 
     if (filtered.length === 0) {
-      const newGuids = newItems.map(getItemGuid).filter(Boolean);
-      const updatedPosted = [...newGuids, ...posted].slice(0, 100);
+      const allGuids = newItems.map(getItemGuid).filter(Boolean);
+      const updatedPosted = [...allGuids, ...posted].slice(0, 100);
       await client.db.rss.update(feed.id!, {
         last_guid: getItemGuid(parsed.items[0]),
         last_checked: new Date().toISOString(),
@@ -192,8 +195,8 @@ async function checkFeed(client: Client, feed: DB_RssFeed) {
       await delay(SEND_DELAY_MS);
     }
 
-    const newGuids = filtered.map(getItemGuid).filter(Boolean);
-    const updatedPosted = [...newGuids, ...posted].slice(0, 100);
+    const allGuids = newItems.map(getItemGuid).filter(Boolean);
+    const updatedPosted = [...allGuids, ...posted].slice(0, 100);
     await client.db.rss.update(feed.id!, {
       last_guid: getItemGuid(parsed.items[0]),
       last_checked: new Date().toISOString(),
