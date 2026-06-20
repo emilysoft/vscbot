@@ -24,6 +24,36 @@ interface BlacklistConfig {
   conditions: BlacklistCondition[];
 }
 
+interface PostedEntry {
+  g: string;
+  t: string;
+}
+
+function normalizeTitle(title: string): string {
+  return title.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+function parsePostedGuids(raw: string): { entries: PostedEntry[]; lookupGuid: Set<string>; lookupTitle: Set<string> } {
+  const entries: PostedEntry[] = [];
+  try {
+    const parsed = JSON.parse(raw || "[]");
+    if (Array.isArray(parsed)) {
+      for (const p of parsed) {
+        if (typeof p === "string") {
+          entries.push({ g: p, t: "" });
+        } else if (p && typeof p.g === "string") {
+          entries.push({ g: p.g, t: normalizeTitle(p.t || "") });
+        }
+      }
+    }
+  } catch { }
+  return {
+    entries,
+    lookupGuid: new Set(entries.map(e => e.g).filter(Boolean)),
+    lookupTitle: new Set(entries.map(e => e.t).filter(Boolean)),
+  };
+}
+
 function getFieldValue(item: Parser.Item, field: string): string {
   if (field === "title") return item.title || "";
   if (field === "link") return item.link || "";
@@ -146,18 +176,17 @@ async function checkFeed(client: Client, feed: DB_RssFeed) {
     const parsed = await parser.parseURL(feed.url);
     if (!parsed.items || parsed.items.length === 0) return;
 
-    const posted: string[] = (() => {
-      try { return JSON.parse(feed.posted_guids || "[]") as string[]; } catch { return []; }
-    })();
-    const postedSet = new Set(posted);
-    const isFirstRun = posted.length === 0;
+    const { entries: postedEntries, lookupGuid, lookupTitle } = parsePostedGuids(feed.posted_guids);
+    const isFirstRun = postedEntries.length === 0;
 
     const newItems: Parser.Item[] = [];
     for (const item of parsed.items) {
       const guid = getItemGuid(item);
       if (!guid) continue;
 
-      if (postedSet.has(guid)) break;
+      const titleNorm = normalizeTitle(item.title || "");
+      const found = lookupGuid.has(guid) || (titleNorm && lookupTitle.has(titleNorm));
+      if (found) break;
       newItems.push(item);
     }
     newItems.reverse();
@@ -174,8 +203,8 @@ async function checkFeed(client: Client, feed: DB_RssFeed) {
       : toSend;
 
     if (filtered.length === 0) {
-      const allGuids = newItems.map(getItemGuid).filter(Boolean);
-      const updatedPosted = [...allGuids, ...posted].slice(0, 100);
+      const allEntries = newItems.map(item => ({ g: getItemGuid(item), t: normalizeTitle(item.title || "") }));
+      const updatedPosted = [...allEntries, ...postedEntries].slice(0, 100);
       await client.db.rss.update(feed.id!, {
         last_guid: getItemGuid(parsed.items[0]),
         last_checked: new Date().toISOString(),
@@ -195,8 +224,8 @@ async function checkFeed(client: Client, feed: DB_RssFeed) {
       await delay(SEND_DELAY_MS);
     }
 
-    const allGuids = newItems.map(getItemGuid).filter(Boolean);
-    const updatedPosted = [...allGuids, ...posted].slice(0, 100);
+    const allEntries = newItems.map(item => ({ g: getItemGuid(item), t: normalizeTitle(item.title || "") }));
+    const updatedPosted = [...allEntries, ...postedEntries].slice(0, 100);
     await client.db.rss.update(feed.id!, {
       last_guid: getItemGuid(parsed.items[0]),
       last_checked: new Date().toISOString(),
