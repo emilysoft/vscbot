@@ -1,6 +1,6 @@
 import { Message, TextChannel } from "discord.js";
 import LevelSystem from "../../functions/levels/levelSystem.js";
-import { DB_Server, DB_Role, DB_RewardRoles, DB_UserLevel } from '../../db/Idatabase.js';
+import { DB_UserLevel } from '../../db/Idatabase.js';
 import Client from "../../interfaces/ICustomClient.js";
 
 export default async function levelDetector(message: Message, client: Client) {
@@ -28,48 +28,11 @@ export default async function levelDetector(message: Message, client: Client) {
       await message.channel.send(`✨ **${author}** ¡Qué elegancia! Has alcanzado el **nivel ${currentLevel}** ✨`);
 
       // Pasamos el control a la función de roles de forma ordenada
-      await giveRewardRole(currentLevel, message, client);
+      await LevelSystem.syncRewardRoles(member!, currentLevel, client);
     }
 
   } catch (err) {
     client.errorLogger(err, client, "error", process.cwd() + " ");
     console.error("Error en levelDetector:", err);
-  }
-}
-
-async function giveRewardRole(level: number, message: Message, client: Client) {
-  const { guild, member } = message;
-  if (!guild || !member) return;
-
-  let serverDB = await client.db.guild.get(guild) as DB_Server | undefined
-  if(!serverDB) {
-    let owner = guild.members.cache.get(guild.ownerId)
-    if(!owner) {
-      owner = await guild.fetchOwner()
-    }
-    serverDB = await client.db.guild.create(guild, owner.user)
-    if(!serverDB) throw new Error("error al crear un servidor en la db")
-
-  }
-
-  const rewardRoleDB = await client.db.levels.rewardLevels.get(level, serverDB) as DB_RewardRoles | undefined;
-
-  if (!rewardRoleDB?.role_id) {
-    return console.log(`[Info] No hay un rol configurado para el nivel ${level}.`);
-  }
-
-  const roleDB = await client.db.roles.get({ id: rewardRoleDB.role_id }) as DB_Role;
-  if (!roleDB?.role_id) return;
-
-  // Verificamos si ya tiene el rol para asegurar la idempotencia
-  if (!member.roles.cache.has(roleDB.role_id)) {
-    try {
-      const role = await guild.roles.fetch(roleDB.role_id);
-      if (role) {
-        await member.roles.add(role);
-      }
-    } catch (fetchErr) {
-      console.error(`No se pudo asignar el rol ${roleDB.role_id}:`, fetchErr);
-    }
   }
 }

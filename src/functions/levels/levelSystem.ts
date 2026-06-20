@@ -1,4 +1,4 @@
-import { DB_User, DB_Server, DB_UserLevel, RankData } from "../../db/Idatabase.js";
+import { DB_User, DB_Server, DB_UserLevel, DB_RewardRoles, DB_Role, RankData } from "../../db/Idatabase.js";
 import Client from "../../interfaces/ICustomClient.js"
 import { GuildMember, User, Guild } from "discord.js"
 
@@ -144,5 +144,58 @@ export default class LevelSystem {
       xpToNextLevel: xpToNextLevel,
       xpProgress: xpProgress,
     };
+  }
+
+  /**
+     * Sincroniza los reward roles según el nivel actual.
+     * Niveles 1 y 5 son permanentes y nunca se remueven.
+     * Para el resto, solo conserva el reward role más alto alcanzado.
+     */
+  public static async syncRewardRoles(member: GuildMember, currentLevel: number, client: Client): Promise<void> {
+    const { guild } = member;
+    if (!guild) return;
+
+    let serverDB = await client.db.guild.get(guild) as DB_Server | undefined;
+    if (!serverDB) {
+      const owner = await guild.fetchOwner();
+      serverDB = await client.db.guild.create(guild, owner.user);
+      if (!serverDB) return;
+    }
+
+    const allRewards = await client.db.levels.rewardLevels.getAll(serverDB.id as number) as DB_RewardRoles[] | undefined;
+    if (!allRewards?.length) return;
+
+    const entries: { level: number; discordId: string }[] = [];
+    for (const reward of allRewards) {
+      const roleDB = await client.db.roles.get({ id: reward.role_id }) as DB_Role | undefined;
+      if (roleDB?.role_id) {
+        entries.push({ level: reward.level, discordId: roleDB.role_id });
+      }
+    }
+
+    const PERMANENT = new Set([1, 5]);
+    const nonPermanent = entries.filter(e => !PERMANENT.has(e.level));
+    const targetNonPerm = nonPermanent
+      .filter(e => e.level <= currentLevel)
+      .sort((a, b) => b.level - a.level)[0] || null;
+
+    for (const entry of entries) {
+      const hasRole = member.roles.cache.has(entry.discordId);
+
+      if (PERMANENT.has(entry.level)) {
+        if (currentLevel >= entry.level && !hasRole) {
+          try { await member.roles.add(entry.discordId); } catch { }
+        }
+        continue;
+      }
+
+      if (entry.level === targetNonPerm?.level) {
+        if (!hasRole) {
+          try { await member.roles.add(entry.discordId); } catch { }
+        }
+      } else if (hasRole) {
+        try { await member.roles.remove(entry.discordId); } catch { }
+      }
+    }
   }
 }
