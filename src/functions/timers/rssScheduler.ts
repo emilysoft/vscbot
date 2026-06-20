@@ -33,7 +33,7 @@ function normalizeTitle(title: string): string {
   return title.trim().toLowerCase().replace(/\s+/g, " ");
 }
 
-function parsePostedGuids(raw: string): { entries: PostedEntry[]; lookupGuid: Set<string>; lookupTitle: Set<string> } {
+function parsePostedGuids(raw: string): { entries: PostedEntry[]; lookupTitle: Set<string> } {
   const entries: PostedEntry[] = [];
   try {
     const parsed = JSON.parse(raw || "[]");
@@ -49,7 +49,6 @@ function parsePostedGuids(raw: string): { entries: PostedEntry[]; lookupGuid: Se
   } catch { }
   return {
     entries,
-    lookupGuid: new Set(entries.map(e => e.g).filter(Boolean)),
     lookupTitle: new Set(entries.map(e => e.t).filter(Boolean)),
   };
 }
@@ -176,17 +175,15 @@ async function checkFeed(client: Client, feed: DB_RssFeed) {
     const parsed = await parser.parseURL(feed.url);
     if (!parsed.items || parsed.items.length === 0) return;
 
-    const { entries: postedEntries, lookupGuid, lookupTitle } = parsePostedGuids(feed.posted_guids);
+    const { entries: postedEntries, lookupTitle } = parsePostedGuids(feed.posted_guids);
     const isFirstRun = postedEntries.length === 0;
 
     const newItems: Parser.Item[] = [];
     for (const item of parsed.items) {
-      const guid = getItemGuid(item);
-      if (!guid) continue;
-
       const titleNorm = normalizeTitle(item.title || "");
-      const found = lookupGuid.has(guid) || (titleNorm && lookupTitle.has(titleNorm));
-      if (found) break;
+      if (!titleNorm) continue;
+
+      if (lookupTitle.has(titleNorm)) break;
       newItems.push(item);
     }
     newItems.reverse();
