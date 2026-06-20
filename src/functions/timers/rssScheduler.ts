@@ -5,6 +5,62 @@ import { DB_RssFeed } from "../../db/RssTypes.js";
 
 const parser = new Parser();
 
+interface BlacklistCondition {
+  field: string;
+  operator: "equal" | "regex_match" | "content";
+  negative: boolean;
+  value: string;
+}
+
+interface BlacklistConfig {
+  conditions: BlacklistCondition[];
+}
+
+function getFieldValue(item: Parser.Item, field: string): string {
+  if (field === "title") return item.title || "";
+  if (field === "link") return item.link || "";
+  if (field === "description") return (item as any).contentSnippet || (item as any).content || (item as any).description || "";
+  if (field === "author") return (item as any).creator || (item as any).author || "";
+  if (field === "pubDate") return (item as any).pubDate || (item as any).isoDate || "";
+  return (item as any)[field] || "";
+}
+
+function evaluateCondition(item: Parser.Item, condition: BlacklistCondition): boolean {
+  const fieldValue = getFieldValue(item, condition.field);
+  let match: boolean;
+
+  switch (condition.operator) {
+    case "equal":
+      match = fieldValue === condition.value;
+      break;
+    case "regex_match":
+      try {
+        match = new RegExp(condition.value, "i").test(fieldValue);
+      } catch {
+        match = false;
+      }
+      break;
+    case "content":
+      match = fieldValue.toLowerCase().includes(condition.value.toLowerCase());
+      break;
+    default:
+      match = false;
+  }
+
+  return condition.negative ? !match : match;
+}
+
+export function isBlacklisted(item: Parser.Item, blacklistJson: string): boolean {
+  if (!blacklistJson) return false;
+  try {
+    const config: BlacklistConfig = JSON.parse(blacklistJson);
+    if (!config.conditions?.length) return false;
+    return config.conditions.every(c => evaluateCondition(item, c));
+  } catch {
+    return false;
+  }
+}
+
 function applyTemplate(template: string, item: Parser.Item, feed: Parser.Output<Parser.Item>): string {
   return template
     .replace(/\{title\}/g, item.title || '')
@@ -93,7 +149,11 @@ async function checkFeed(client: Client, feed: DB_RssFeed) {
 
     if (newItems.length === 0) return;
 
-    for (const item of newItems) {
+    const filtered = feed.blacklist_json
+      ? newItems.filter(item => !isBlacklisted(item, feed.blacklist_json))
+      : newItems;
+
+    for (const item of filtered) {
       const content = applyTemplate(feed.template, item, parsed);
       const webhookClient = new WebhookClient({ url: feed.webhook_url });
       await webhookClient.send({

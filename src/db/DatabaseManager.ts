@@ -220,7 +220,8 @@ export default class DatabaseManager {
         last_checked TEXT DEFAULT '',
         created_by TEXT NOT NULL,
         created_at TEXT DEFAULT (datetime('now')),
-        status TEXT DEFAULT 'active'
+        status TEXT DEFAULT 'active',
+        blacklist_json TEXT DEFAULT ''
       );`
     ]
     for (const sql of sqls) {
@@ -242,7 +243,13 @@ export default class DatabaseManager {
     const reminderMigrations = [
       `ALTER TABLE reminders ADD COLUMN recurring INTEGER DEFAULT 0`,
     ]
+    const rssMigrations = [
+      `ALTER TABLE rss_feeds ADD COLUMN blacklist_json TEXT DEFAULT ''`,
+    ]
     for (const sql of reminderMigrations) {
+      try { await this.db.run(sql) } catch { }
+    }
+    for (const sql of rssMigrations) {
       try { await this.db.run(sql) } catch { }
     }
     for (const sql of migrations) {

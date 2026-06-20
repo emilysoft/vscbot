@@ -131,6 +131,13 @@ const module: ICommand = {
       .addNumberOption(opt => opt
         .setName("id")
         .setDescription("ID del feed")
+        .setRequired(true)))
+    .addSubcommand(sub => sub
+      .setName("blacklist")
+      .setDescription("Configurar blacklist de filtrado para un feed")
+      .addNumberOption(opt => opt
+        .setName("id")
+        .setDescription("ID del feed")
         .setRequired(true))),
 
   async execute(interaction: ChatInputCommandInteraction, client: Client) {
@@ -148,6 +155,7 @@ const module: ICommand = {
         case "remove": await handleRemove(interaction, client); break;
         case "list": await handleList(interaction, client); break;
         case "preview": await handlePreview(interaction, client); break;
+        case "blacklist": await handleBlacklist(interaction, client); break;
       }
     } catch (err) {
       console.error("[rss] execute error:", err);
@@ -245,6 +253,7 @@ async function handleCreate(interaction: ChatInputCommandInteraction, client: Cl
     last_checked: new Date().toISOString(),
     created_by: interaction.user.id,
     status: "active",
+    blacklist_json: "",
   });
 
   const embed = new EmbedBuilder()
@@ -379,7 +388,8 @@ async function handleList(interaction: ChatInputCommandInteraction, client: Clie
   if (active.length > 0) {
     lines.push("**Activos:**");
     active.forEach(f => {
-      lines.push(`#${f.id} — **${f.name}** — <#${f.channel_id}> — ${truncate(f.url, 60)}`);
+      const shield = f.blacklist_json ? " 🛡️" : "";
+    lines.push(`#${f.id} — **${f.name}**${shield} — <#${f.channel_id}> — ${truncate(f.url, 60)}`);
     });
   }
   if (paused.length > 0) {
@@ -444,6 +454,89 @@ async function handlePreview(interaction: ChatInputCommandInteraction, client: C
     await interaction.editReply({ embeds: [embed, variablesEmbed] });
   } catch (err) {
     await interaction.editReply({ content: "❌ No se pudo obtener el feed. Verifica que la URL sea válida." });
+  }
+}
+
+async function handleBlacklist(interaction: ChatInputCommandInteraction, client: Client) {
+  const id = interaction.options.getNumber("id", true);
+  const feed = await client.db.rss.get(id);
+
+  if (!feed || feed.server_id !== interaction.guildId) {
+    await interaction.reply({ content: `Feed #${id} no encontrado.`, ephemeral: true });
+    return;
+  }
+
+  if (feed.status === "removed") {
+    await interaction.reply({ content: `El feed #${id} ya fue eliminado.`, ephemeral: true });
+    return;
+  }
+
+  let detectionEmbed: EmbedBuilder | undefined;
+  const detection = await detectFeedFields(feed.url);
+  if (detection) {
+    detectionEmbed = buildFieldEmbed(detection);
+  }
+
+  const existingJson = feed.blacklist_json || "";
+  const parsedExisting = (() => {
+    try { return JSON.stringify(JSON.parse(existingJson), null, 2); } catch { return existingJson; }
+  })();
+
+  const modal = new ModalBuilder()
+    .setCustomId(`rss_blacklist_${id}`)
+    .setTitle("Blacklist JSON")
+    .addComponents(
+      new ActionRowBuilder<TextInputBuilder>().addComponents(
+        new TextInputBuilder()
+          .setCustomId("blacklist_json")
+          .setLabel("Configuración de blacklist (JSON)")
+          .setStyle(TextInputStyle.Paragraph)
+          .setRequired(false)
+          .setValue(parsedExisting)
+          .setPlaceholder('{\n  "conditions": [\n    { "field": "title", "operator": "regex_match", "negative": false, "value": "(\\\\boms\\\\b|guerra)" }\n  ]\n}'),
+      ),
+    );
+
+  await interaction.showModal(modal);
+
+  if (detectionEmbed) {
+    try { await interaction.followUp({ embeds: [detectionEmbed], ephemeral: true }); } catch { }
+  }
+
+  const submitted = await interaction.awaitModalSubmit({
+    time: 5 * 60 * 1000,
+    filter: (i) => i.user.id === interaction.user.id && i.customId === `rss_blacklist_${id}`,
+  }).catch(() => null);
+
+  if (!submitted) return;
+
+  const rawJson = submitted.fields.getTextInputValue("blacklist_json") || "";
+
+  if (rawJson.trim()) {
+    try {
+      const parsed = JSON.parse(rawJson);
+      if (!parsed.conditions || !Array.isArray(parsed.conditions)) {
+        await submitted.reply({ content: "❌ El JSON debe contener un array `conditions`.", ephemeral: true });
+        return;
+      }
+      for (const c of parsed.conditions) {
+        if (!c.field || !c.operator || c.negative === undefined || c.value === undefined) {
+          await submitted.reply({ content: "❌ Cada condición requiere `field`, `operator`, `negative` y `value`.", ephemeral: true });
+          return;
+        }
+        if (!["equal", "regex_match", "content"].includes(c.operator)) {
+          await submitted.reply({ content: "❌ `operator` debe ser `equal`, `regex_match` o `content`.", ephemeral: true });
+          return;
+        }
+      }
+      await client.db.rss.update(id, { blacklist_json: JSON.stringify(parsed) });
+      await submitted.reply({ content: `✅ Blacklist guardada para feed #${id} (${parsed.conditions.length} condición(es)).`, ephemeral: true });
+    } catch {
+      await submitted.reply({ content: "❌ JSON inválido. Revisa el formato e intenta de nuevo.", ephemeral: true });
+    }
+  } else {
+    await client.db.rss.update(id, { blacklist_json: "" });
+    await submitted.reply({ content: `✅ Blacklist eliminada para feed #${id}.`, ephemeral: true });
   }
 }
 

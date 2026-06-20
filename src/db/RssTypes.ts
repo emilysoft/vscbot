@@ -13,4 +13,5 @@ export interface DB_RssFeed {
   created_by: string;
   created_at: string;
   status: string;
+  blacklist_json: string;
 }
