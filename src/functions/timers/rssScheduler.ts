@@ -143,20 +143,40 @@ async function checkFeed(client: Client, feed: DB_RssFeed) {
     const parsed = await parser.parseURL(feed.url);
     if (!parsed.items || parsed.items.length === 0) return;
 
+    const posted: string[] = (() => {
+      try { return JSON.parse(feed.posted_guids || "[]") as string[]; } catch { return []; }
+    })();
+    const postedSet = new Set(posted);
+
     const newItems: Parser.Item[] = [];
     for (const item of parsed.items) {
       const guid = getItemGuid(item);
       if (!guid) continue;
-      if (feed.last_guid && guid === feed.last_guid) break;
+
+      if (postedSet.has(guid)) break;
       newItems.push(item);
     }
     newItems.reverse();
 
-    if (newItems.length === 0) return;
+    if (newItems.length === 0) {
+      await client.db.rss.update(feed.id!, { last_checked: new Date().toISOString() });
+      return;
+    }
 
     const filtered = feed.blacklist_json
       ? newItems.filter(item => !isBlacklisted(item, feed.blacklist_json))
       : newItems;
+
+    if (filtered.length === 0) {
+      const newGuids = newItems.map(getItemGuid).filter(Boolean);
+      const updatedPosted = [...newGuids, ...posted].slice(0, 100);
+      await client.db.rss.update(feed.id!, {
+        last_guid: getItemGuid(parsed.items[0]),
+        last_checked: new Date().toISOString(),
+        posted_guids: JSON.stringify(updatedPosted),
+      });
+      return;
+    }
 
     for (const item of filtered) {
       const content = applyTemplate(feed.template, item, parsed);
@@ -168,11 +188,12 @@ async function checkFeed(client: Client, feed: DB_RssFeed) {
       });
     }
 
-    const latestItem = parsed.items[0];
-    const latestGuid = getItemGuid(latestItem);
+    const newGuids = filtered.map(getItemGuid).filter(Boolean);
+    const updatedPosted = [...newGuids, ...posted].slice(0, 100);
     await client.db.rss.update(feed.id!, {
-      last_guid: latestGuid,
+      last_guid: getItemGuid(parsed.items[0]),
       last_checked: new Date().toISOString(),
+      posted_guids: JSON.stringify(updatedPosted),
     });
   } catch (err) {
     client.errorLogger(err, client, "error", `${process.cwd()} timers/rssScheduler`);

@@ -221,7 +221,8 @@ export default class DatabaseManager {
         created_by TEXT NOT NULL,
         created_at TEXT DEFAULT (datetime('now')),
         status TEXT DEFAULT 'active',
-        blacklist_json TEXT DEFAULT ''
+        blacklist_json TEXT DEFAULT '',
+        posted_guids TEXT DEFAULT '[]'
       );`
     ]
     for (const sql of sqls) {
@@ -245,6 +246,7 @@ export default class DatabaseManager {
     ]
     const rssMigrations = [
       `ALTER TABLE rss_feeds ADD COLUMN blacklist_json TEXT DEFAULT ''`,
+      `ALTER TABLE rss_feeds ADD COLUMN posted_guids TEXT DEFAULT '[]'`,
     ]
     for (const sql of reminderMigrations) {
       try { await this.db.run(sql) } catch { }

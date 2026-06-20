@@ -14,4 +14,5 @@ export interface DB_RssFeed {
   created_at: string;
   status: string;
   blacklist_json: string;
+  posted_guids: string;
 }

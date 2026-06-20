@@ -268,6 +268,7 @@ async function handleCreate(interaction: ChatInputCommandInteraction, client: Cl
     created_by: interaction.user.id,
     status: "active",
     blacklist_json: "",
+    posted_guids: "[]",
   });
 
   const embed = new EmbedBuilder()
