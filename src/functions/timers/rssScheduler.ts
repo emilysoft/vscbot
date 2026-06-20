@@ -3,7 +3,12 @@ import { WebhookClient } from "discord.js";
 import Client from "../../interfaces/ICustomClient.js";
 import { DB_RssFeed } from "../../db/RssTypes.js";
 
-const parser = new Parser();
+const parser = new Parser({
+  timeout: 20000,
+  headers: {
+    "User-Agent": "Mozilla/5.0 (compatible; DiscordBot/1.0)",
+  },
+});
 
 interface BlacklistCondition {
   field: string;
