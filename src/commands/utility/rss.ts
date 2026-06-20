@@ -1,5 +1,6 @@
 import {
   ChatInputCommandInteraction,
+  ModalSubmitInteraction,
   SlashCommandBuilder,
   EmbedBuilder,
   ChannelType,
@@ -138,6 +139,13 @@ const module: ICommand = {
       .addNumberOption(opt => opt
         .setName("id")
         .setDescription("ID del feed")
+        .setRequired(true)))
+    .addSubcommand(sub => sub
+      .setName("template")
+      .setDescription("Editar la plantilla del mensaje de un feed")
+      .addNumberOption(opt => opt
+        .setName("id")
+        .setDescription("ID del feed")
         .setRequired(true))),
 
   async execute(interaction: ChatInputCommandInteraction, client: Client) {
@@ -156,6 +164,7 @@ const module: ICommand = {
         case "list": await handleList(interaction, client); break;
         case "preview": await handlePreview(interaction, client); break;
         case "blacklist": await handleBlacklist(interaction, client); break;
+        case "template": await handleTemplate(interaction, client); break;
       }
     } catch (err) {
       console.error("[rss] execute error:", err);
@@ -173,7 +182,7 @@ async function showTemplateModal(
   customId: string,
   currentTemplate: string,
   detectionEmbed?: EmbedBuilder,
-): Promise<string | null> {
+): Promise<{ template: string; submitted: ModalSubmitInteraction } | null> {
   const modal = new ModalBuilder()
     .setCustomId(customId)
     .setTitle("Plantilla del mensaje RSS")
@@ -200,7 +209,11 @@ async function showTemplateModal(
     filter: (i) => i.user.id === interaction.user.id && i.customId === customId,
   }).catch(() => null);
 
-  return submitted?.fields.getTextInputValue("template") ?? null;
+  if (!submitted) return null;
+
+  const template = submitted.fields.getTextInputValue("template");
+
+  return { template, submitted };
 }
 
 async function handleCreate(interaction: ChatInputCommandInteraction, client: Client) {
@@ -218,8 +231,9 @@ async function handleCreate(interaction: ChatInputCommandInteraction, client: Cl
 
   const fieldEmbed = buildFieldEmbed(detection);
 
-  const template = await showTemplateModal(interaction, "rss_template_create", DEFAULT_TEMPLATE, fieldEmbed);
-  if (!template) return;
+  const result = await showTemplateModal(interaction, "rss_template_create", DEFAULT_TEMPLATE, fieldEmbed);
+  if (!result) return;
+  const { template, submitted } = result;
 
   const textChannel = channel as import("discord.js").TextChannel;
 
@@ -228,7 +242,7 @@ async function handleCreate(interaction: ChatInputCommandInteraction, client: Cl
     const webhook = await textChannel.createWebhook({ name: webhookName });
     webhookUrl = webhook.url;
   } catch {
-    try { await interaction.followUp({ content: "❌ No tengo permisos para crear webhooks en ese canal.", ephemeral: true }); } catch { }
+    try { await submitted.reply({ content: "❌ No tengo permisos para crear webhooks en ese canal.", ephemeral: true }); } catch { }
     return;
   }
 
@@ -331,8 +345,10 @@ async function handleEdit(interaction: ChatInputCommandInteraction, client: Clie
   const detection = await detectFeedFields(feedUrl);
   const fieldEmbed = detection ? buildFieldEmbed(detection) : undefined;
 
-  const template = await showTemplateModal(interaction, `rss_template_edit_${id}`, feed.template, fieldEmbed);
-  if (template !== null && template !== feed.template) {
+  const result = await showTemplateModal(interaction, `rss_template_edit_${id}`, feed.template, fieldEmbed);
+  if (!result) return;
+  const { template, submitted } = result;
+  if (template !== feed.template) {
     await client.db.rss.update(id, { template });
   }
 
@@ -346,7 +362,7 @@ async function handleEdit(interaction: ChatInputCommandInteraction, client: Clie
     );
 
   try {
-    await interaction.followUp({ embeds: [embed], ephemeral: true });
+    await submitted.reply({ embeds: [embed], ephemeral: true });
   } catch { }
 }
 
@@ -538,6 +554,45 @@ async function handleBlacklist(interaction: ChatInputCommandInteraction, client:
     await client.db.rss.update(id, { blacklist_json: "" });
     await submitted.reply({ content: `✅ Blacklist eliminada para feed #${id}.`, ephemeral: true });
   }
+}
+
+async function handleTemplate(interaction: ChatInputCommandInteraction, client: Client) {
+  const id = interaction.options.getNumber("id", true);
+  const feed = await client.db.rss.get(id);
+
+  if (!feed || feed.server_id !== interaction.guildId) {
+    await interaction.reply({ content: `Feed #${id} no encontrado.`, ephemeral: true });
+    return;
+  }
+
+  if (feed.status === "removed") {
+    await interaction.reply({ content: `El feed #${id} ya fue eliminado.`, ephemeral: true });
+    return;
+  }
+
+  const detection = await detectFeedFields(feed.url);
+  const fieldEmbed = detection ? buildFieldEmbed(detection) : undefined;
+
+  const result = await showTemplateModal(interaction, `rss_template_edit_${id}`, feed.template, fieldEmbed);
+  if (!result) return;
+  const { template, submitted } = result;
+
+  if (template === feed.template) {
+    await submitted.reply({ content: "La plantilla no cambió.", ephemeral: true });
+    return;
+  }
+
+  await client.db.rss.update(id, { template });
+
+  const embed = new EmbedBuilder()
+    .setTitle("✅ Plantilla actualizada")
+    .setColor(config.EMBED_COLOR as ColorResolvable)
+    .addFields(
+      { name: "Feed", value: feed.name, inline: true },
+      { name: "ID", value: `#${feed.id}`, inline: true },
+    );
+
+  try { await submitted.reply({ embeds: [embed], ephemeral: true }); } catch { }
 }
 
 export default module;
