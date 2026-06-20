@@ -8,6 +8,7 @@ import Client from "../../interfaces/ICustomClient.js";
 import bcv from "../../functions/timers/bcvUpdate.js";
 import { initScheduler } from "../../functions/timers/eventScheduler.js";
 import { initReminderScheduler } from "../../functions/timers/reminderScheduler.js";
+import { initRssScheduler } from "../../functions/timers/rssScheduler.js";
 import { clearGulag } from "../../functions/automod/workers/clearChat.js";
 import { deployCommands } from "../../handlers/deploy-commands.js";
 import dotenv from "dotenv";
@@ -22,6 +23,7 @@ const module = {
     deployCommands().catch(console.error);
     await initScheduler(client);
     await initReminderScheduler(client);
+    await initRssScheduler(client);
 
     setInterval(
       () => {

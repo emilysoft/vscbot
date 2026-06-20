@@ -9,6 +9,7 @@ import { DB_ServerSettings } from './Idatabase.js'
 import LevelManager from "../functions/levels/levelManager.js"
 import EventManager from "./EventManager.js"
 import ReminderManager from "./ReminderManager.js"
+import RssManager from "./RssManager.js"
 
 export default class DatabaseManager {
   private db!: SQLiteDatabase;
@@ -21,6 +22,7 @@ export default class DatabaseManager {
   levels: LevelManager;
   events: EventManager;
   reminders: ReminderManager;
+  rss: RssManager;
 
   constructor(private dbPath: string) { }
 
@@ -33,6 +35,7 @@ export default class DatabaseManager {
     this.levels = new LevelManager(this.db)
     this.events = new EventManager(this.db)
     this.reminders = new ReminderManager(this.db)
+    this.rss = new RssManager(this.db)
   }
 
   /**
@@ -191,6 +194,22 @@ export default class DatabaseManager {
         created_by TEXT NOT NULL,
         created_at TEXT DEFAULT (datetime('now')),
         status TEXT DEFAULT 'pending'
+      );`,
+      `CREATE TABLE IF NOT EXISTS rss_feeds (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        server_id TEXT NOT NULL,
+        channel_id TEXT NOT NULL,
+        name TEXT NOT NULL,
+        url TEXT NOT NULL,
+        template TEXT NOT NULL,
+        webhook_url TEXT NOT NULL,
+        webhook_name TEXT DEFAULT '',
+        webhook_avatar TEXT DEFAULT '',
+        last_guid TEXT DEFAULT '',
+        last_checked TEXT DEFAULT '',
+        created_by TEXT NOT NULL,
+        created_at TEXT DEFAULT (datetime('now')),
+        status TEXT DEFAULT 'active'
       );`
     ]
     for (const sql of sqls) {
