@@ -10,6 +10,7 @@ import LevelManager from "../functions/levels/levelManager.js"
 import EventManager from "./EventManager.js"
 import ReminderManager from "./ReminderManager.js"
 import RssManager from "./RssManager.js"
+import NewMemberRestrictionManager from "./NewMemberRestrictionManager.js"
 
 export default class DatabaseManager {
   private db!: SQLiteDatabase;
@@ -23,6 +24,7 @@ export default class DatabaseManager {
   events: EventManager;
   reminders: ReminderManager;
   rss: RssManager;
+  newMemberRestrictions: NewMemberRestrictionManager;
 
   constructor(private dbPath: string) { }
 
@@ -36,6 +38,7 @@ export default class DatabaseManager {
     this.events = new EventManager(this.db)
     this.reminders = new ReminderManager(this.db)
     this.rss = new RssManager(this.db)
+    this.newMemberRestrictions = new NewMemberRestrictionManager(this.db)
   }
 
   /**
@@ -193,6 +196,14 @@ export default class DatabaseManager {
         remind_at TEXT NOT NULL,
         created_by TEXT NOT NULL,
         created_at TEXT DEFAULT (datetime('now')),
+        status TEXT DEFAULT 'pending'
+      );`,
+      `CREATE TABLE IF NOT EXISTS new_member_restrictions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id TEXT NOT NULL,
+        server_id TEXT NOT NULL,
+        role_id TEXT NOT NULL,
+        assigned_at TEXT NOT NULL,
         status TEXT DEFAULT 'pending'
       );`,
       `CREATE TABLE IF NOT EXISTS rss_feeds (
