@@ -10,6 +10,9 @@ const parser = new Parser({
   },
 });
 
+const SEND_DELAY_MS = 3000;
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 interface BlacklistCondition {
   field: string;
   operator: "equal" | "regex_match" | "content";
@@ -186,6 +189,7 @@ async function checkFeed(client: Client, feed: DB_RssFeed) {
         username: feed.webhook_name || feed.name,
         avatarURL: feed.webhook_avatar || undefined,
       });
+      await delay(SEND_DELAY_MS);
     }
 
     const newGuids = filtered.map(getItemGuid).filter(Boolean);
