@@ -199,16 +199,16 @@ async function checkFeed(client: Client, feed: DB_RssFeed) {
       ? toSend.filter(item => !isBlacklisted(item, feed.blacklist_json))
       : toSend;
 
-    if (filtered.length === 0) {
-      const allEntries = newItems.map(item => ({ g: getItemGuid(item), t: normalizeTitle(item.title || "") }));
-      const updatedPosted = [...allEntries, ...postedEntries].slice(0, 100);
-      await client.db.rss.update(feed.id!, {
-        last_guid: getItemGuid(parsed.items[0]),
-        last_checked: new Date().toISOString(),
-        posted_guids: JSON.stringify(updatedPosted),
-      });
-      return;
-    }
+    const allEntries = newItems.map(item => ({ g: getItemGuid(item), t: normalizeTitle(item.title || "") }));
+    const updatedPosted = [...allEntries, ...postedEntries].slice(0, 100);
+
+    await client.db.rss.update(feed.id!, {
+      last_guid: getItemGuid(parsed.items[0]),
+      last_checked: new Date().toISOString(),
+      posted_guids: JSON.stringify(updatedPosted),
+    });
+
+    if (filtered.length === 0) return;
 
     for (const item of filtered) {
       const content = applyTemplate(feed.template, item, parsed);
@@ -220,14 +220,6 @@ async function checkFeed(client: Client, feed: DB_RssFeed) {
       });
       await delay(SEND_DELAY_MS);
     }
-
-    const allEntries = newItems.map(item => ({ g: getItemGuid(item), t: normalizeTitle(item.title || "") }));
-    const updatedPosted = [...allEntries, ...postedEntries].slice(0, 100);
-    await client.db.rss.update(feed.id!, {
-      last_guid: getItemGuid(parsed.items[0]),
-      last_checked: new Date().toISOString(),
-      posted_guids: JSON.stringify(updatedPosted),
-    });
   } catch (err) {
     client.errorLogger(err, client, "error", `${process.cwd()} timers/rssScheduler`);
   }
