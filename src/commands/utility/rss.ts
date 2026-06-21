@@ -318,6 +318,8 @@ async function handleEdit(interaction: ChatInputCommandInteraction, client: Clie
     }
   }
 
+  const webhookChanged = newWebhookName !== null || newWebhookAvatar !== null;
+
   if (newChannel) {
     const textChannel = newChannel as import("discord.js").TextChannel;
     try {
@@ -325,12 +327,25 @@ async function handleEdit(interaction: ChatInputCommandInteraction, client: Clie
       await oldWebhook.delete().catch(() => {});
     } catch { }
     try {
-      const webhook = await textChannel.createWebhook({ name: newWebhookName || feed.webhook_name || feed.name });
+      const webhook = await textChannel.createWebhook({
+        name: newWebhookName || feed.webhook_name || feed.name,
+        avatar: newWebhookAvatar || undefined,
+      });
       updates.channel_id = newChannel.id;
       updates.webhook_url = webhook.url;
     } catch {
       await interaction.reply({ content: "❌ No tengo permisos para crear webhooks en ese canal.", ephemeral: true });
       return;
+    }
+  } else if (webhookChanged) {
+    try {
+      const webhookClient = new WebhookClient({ url: feed.webhook_url });
+      const editData: Record<string, any> = {};
+      if (newWebhookName !== null) editData.name = newWebhookName;
+      if (newWebhookAvatar !== null) editData.avatar = newWebhookAvatar;
+      await webhookClient.edit(editData);
+    } catch (err) {
+      client.errorLogger(err, client, "warn", `${process.cwd()} commands/utility/rss`);
     }
   }
 
