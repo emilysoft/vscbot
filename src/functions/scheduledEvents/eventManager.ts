@@ -156,6 +156,17 @@ export async function startEvent(client: Client, eventId: number): Promise<void>
       }
     }
 
+    if (discordEventId) {
+      try {
+        const discordEvent = await guild.scheduledEvents.fetch(discordEventId);
+        if (discordEvent && discordEvent.status === GuildScheduledEventStatus.Scheduled) {
+          await discordEvent.setStatus(GuildScheduledEventStatus.Active);
+        }
+      } catch (err) {
+        client.errorLogger(err, client, "warn", `${process.cwd()} scheduledEvents/startEvent`);
+      }
+    }
+
     await client.db.events.updateEvent(eventId, {
       voice_channel_id: voiceChannel.id,
       text_channel_id: textChannel.id,
@@ -220,8 +231,13 @@ export async function endEvent(client: Client, eventId: number): Promise<void> {
     if (event.discord_event_id) {
       try {
         const discordEvent = await guild.scheduledEvents.fetch(event.discord_event_id);
-        if (discordEvent && discordEvent.status === GuildScheduledEventStatus.Active) {
-          await discordEvent.setStatus(GuildScheduledEventStatus.Completed);
+        if (discordEvent) {
+          if (discordEvent.status === GuildScheduledEventStatus.Active) {
+            await discordEvent.setStatus(GuildScheduledEventStatus.Completed);
+          } else if (discordEvent.status === GuildScheduledEventStatus.Scheduled) {
+            const activated = await discordEvent.setStatus(GuildScheduledEventStatus.Active);
+            await activated.setStatus(GuildScheduledEventStatus.Completed);
+          }
         }
       } catch (err) {
         client.errorLogger(err, client, "warn", `${process.cwd()} scheduledEvents/endEvent`);
@@ -659,8 +675,12 @@ export async function handleConfirmationResponse(client: Client, eventId: number
 
 export function sanitizeChannelName(name: string): string {
   return name
+    .normalize('NFD')
     .toLowerCase()
+    .replace(/[\u0300-\u036f]/g, '')
     .replace(/[^a-z0-9\-_ ]/g, '')
     .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
     .slice(0, 32) || 'evento';
 }
