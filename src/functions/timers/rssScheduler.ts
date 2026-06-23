@@ -223,7 +223,10 @@ async function checkFeed(client: Client, feed: DB_RssFeed) {
       await delay(SEND_DELAY_MS);
     }
   } catch (err) {
-    client.errorLogger(err, client, "error", `${process.cwd()} timers/rssScheduler`);
+    const enriched = err instanceof Error
+      ? new Error(`Feed "${feed.name}" (#${feed.id}): ${err.message}\nURL: ${feed.url}`)
+      : err;
+    client.errorLogger(enriched, client, "error", `${process.cwd()} timers/rssScheduler`);
   }
 }
 
