@@ -2,8 +2,10 @@ import { Events, GuildMember } from "discord.js"
 import wlcStaff from "../../functions/welcome/wlcStaff.js"
 import wlcID from "../../functions/welcome/wlcID.js"
 import wlcPartnetship from "../../functions/welcome/wlcPartnership.js"
+import LevelSystem from "../../functions/levels/levelSystem.js"
 import Client from "../../interfaces/ICustomClient.js"
 import config from "../../config/config.json" with { type: "json" }
+import { DB_UserLevel } from "../../db/Idatabase.js"
 
 const module = {
   name: Events.GuildMemberAdd,
@@ -14,6 +16,11 @@ const module = {
     wlcPartnetship(member, client);
 
     if (member.user.bot) return;
+
+    const levelDB = await client.db.levels.get(member.user, member.guild) as DB_UserLevel | undefined;
+    if (levelDB) {
+      await LevelSystem.syncRewardRoles(member, levelDB.level, client);
+    }
 
     const roleId = config.NEW_MEMBER_VC_ROLE_ID;
     if (!roleId) return;
