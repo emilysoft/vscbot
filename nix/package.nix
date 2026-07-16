@@ -11,8 +11,8 @@ in
       pname = "vscbot";
       version = "1.0.0";
       inherit src;
-      hash = "sha256-RfO+AyeAzkDBk4tbZ2rk5e+1zMO8Ofj02Nz3QV0kif4=";
-      fetcherVersion = 3;
+      hash = "sha256-nCInCGPtG2yPEMrd6geQhUmaSvMWvXoX/4pCvK0YJ7E=";
+      fetcherVersion = 4;
       pnpm = pkgs.pnpm;
     };
 
