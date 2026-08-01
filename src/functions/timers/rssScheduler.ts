@@ -230,19 +230,44 @@ async function checkFeed(client: Client, feed: DB_RssFeed) {
   }
 }
 
+const feedLocks = new Map<number, Promise<void>>();
+
+function withFeedLock(feedId: number, task: () => Promise<void>): Promise<void> {
+  const previous = feedLocks.get(feedId) ?? Promise.resolve();
+  const next = previous.then(task, task);
+  feedLocks.set(
+    feedId,
+    next.catch(() => undefined),
+  );
+  return next;
+}
+
 export async function initRssScheduler(client: Client) {
   const feeds = await client.db.rss.getActive();
 
-  for (const feed of feeds) {
-    if (feed.id) await checkFeed(client, feed);
-  }
+  await Promise.all(
+    feeds.map(feed =>
+      feed.id ? withFeedLock(feed.id, () => checkFeed(client, feed)) : Promise.resolve(),
+    ),
+  );
 
   console.log(`[rssScheduler] Checked ${feeds.length} RSS feeds`);
 
+  let tickRunning = false;
   setInterval(async () => {
-    const active = await client.db.rss.getActive();
-    for (const feed of active) {
-      if (feed.id) await checkFeed(client, feed);
+    if (tickRunning) return;
+    tickRunning = true;
+    try {
+      const active = await client.db.rss.getActive();
+      await Promise.all(
+        active.map(feed =>
+          feed.id ? withFeedLock(feed.id, () => checkFeed(client, feed)) : Promise.resolve(),
+        ),
+      );
+    } catch (err) {
+      console.error("[rssScheduler] Error en el tick:", err);
+    } finally {
+      tickRunning = false;
     }
   }, 5 * 60 * 1000);
 }
