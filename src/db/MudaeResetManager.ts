@@ -11,8 +11,8 @@ export default class MudaeResetManager {
   public async upsertConfig(data: DB_MudaeResetConfig): Promise<void> {
     await this.db.run(
       `INSERT OR REPLACE INTO mudae_reset_config
-       (server_id, channel_id, output_channel_id, game_name, restore_value, interval_days, active_days, auto_send, enabled, last_run_at, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+       (server_id, channel_id, output_channel_id, game_name, restore_value, interval_days, active_days, min_messages, auto_send, enabled, last_run_at, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       data.server_id,
       data.channel_id,
       data.output_channel_id,
@@ -20,6 +20,7 @@ export default class MudaeResetManager {
       data.restore_value,
       data.interval_days,
       data.active_days,
+      data.min_messages,
       data.auto_send,
       data.enabled,
       data.last_run_at,
@@ -66,8 +67,8 @@ export default class MudaeResetManager {
 
   public async upsertActivity(userId: string, channelId: string, lastMessage: string): Promise<void> {
     await this.db.run(
-      `INSERT INTO mudae_activity (user_id, channel_id, last_message) VALUES (?, ?, ?)
-       ON CONFLICT(user_id, channel_id) DO UPDATE SET last_message = excluded.last_message`,
+      `INSERT INTO mudae_activity (user_id, channel_id, last_message, msg_count) VALUES (?, ?, ?, 1)
+       ON CONFLICT(user_id, channel_id) DO UPDATE SET last_message = excluded.last_message, msg_count = mudae_activity.msg_count + 1`,
       userId,
       channelId,
       lastMessage,
@@ -81,6 +82,28 @@ export default class MudaeResetManager {
        ORDER BY last_message DESC`,
       channelId,
       cutoffISO,
+    );
+  }
+
+  public async getActiveUsers(
+    channelId: string,
+    cutoffISO: string,
+    minMessages: number,
+  ): Promise<DB_MudaeActivity[]> {
+    return this.db.all<DB_MudaeActivity[]>(
+      `SELECT * FROM mudae_activity
+       WHERE channel_id = ? AND last_message >= ? AND msg_count >= ?
+       ORDER BY last_message DESC`,
+      channelId,
+      cutoffISO,
+      minMessages,
+    );
+  }
+
+  public async resetMsgCounts(channelId: string): Promise<void> {
+    await this.db.run(
+      `UPDATE mudae_activity SET msg_count = 0 WHERE channel_id = ?`,
+      channelId,
     );
   }
 

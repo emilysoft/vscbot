@@ -52,7 +52,7 @@ export async function buildReset(
   const recentCutoff = new Date(now.getTime() - cfg.interval_days * DAY_MS).toISOString();
 
   const [active, recent] = await Promise.all([
-    client.db.mudae.getUsersAfter(cfg.channel_id, activeCutoff),
+    client.db.mudae.getActiveUsers(cfg.channel_id, activeCutoff, cfg.min_messages),
     client.db.mudae.getUsersAfter(cfg.channel_id, recentCutoff),
   ]);
 
@@ -112,6 +112,7 @@ export async function sendReset(
   }
 
   await client.db.mudae.update(cfg.server_id, { last_run_at: now.toISOString() });
+  await client.db.mudae.resetMsgCounts(cfg.channel_id);
   await refreshTrackedChannels(client);
   return { active, recent, commands };
 }

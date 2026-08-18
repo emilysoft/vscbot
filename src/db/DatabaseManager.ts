@@ -235,6 +235,7 @@ export default class DatabaseManager {
         restore_value INTEGER NOT NULL DEFAULT 1,
         interval_days INTEGER NOT NULL DEFAULT 15,
         active_days INTEGER NOT NULL DEFAULT 7,
+        min_messages INTEGER NOT NULL DEFAULT 80,
         auto_send INTEGER NOT NULL DEFAULT 0,
         enabled INTEGER NOT NULL DEFAULT 1,
         last_run_at TEXT,
@@ -244,7 +245,8 @@ export default class DatabaseManager {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id TEXT NOT NULL,
         channel_id TEXT NOT NULL,
-        last_message TEXT NOT NULL
+        last_message TEXT NOT NULL,
+        msg_count INTEGER NOT NULL DEFAULT 0
       );`,
       `CREATE UNIQUE INDEX IF NOT EXISTS idx_mudae_activity_user_channel ON mudae_activity(user_id, channel_id);`
     ]
@@ -274,6 +276,8 @@ export default class DatabaseManager {
     const mudaeMigrations = [
       `ALTER TABLE mudae_reset_config RENAME COLUMN thread_id TO channel_id`,
       `ALTER TABLE mudae_activity RENAME COLUMN thread_id TO channel_id`,
+      `ALTER TABLE mudae_reset_config ADD COLUMN min_messages INTEGER NOT NULL DEFAULT 80`,
+      `ALTER TABLE mudae_activity ADD COLUMN msg_count INTEGER NOT NULL DEFAULT 0`,
     ]
     for (const sql of reminderMigrations) {
       try { await this.db.run(sql) } catch { }

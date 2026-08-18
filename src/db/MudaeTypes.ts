@@ -6,6 +6,7 @@ export interface DB_MudaeResetConfig {
   restore_value: number;
   interval_days: number;
   active_days: number;
+  min_messages: number;
   auto_send: number;
   enabled: number;
   last_run_at: string | null;
@@ -17,4 +18,5 @@ export interface DB_MudaeActivity {
   user_id: string;
   channel_id: string;
   last_message: string;
+  msg_count: number;
 }

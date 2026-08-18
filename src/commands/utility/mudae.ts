@@ -28,6 +28,7 @@ async function getOrCreateConfig(
     restore_value: existing?.restore_value ?? 1,
     interval_days: existing?.interval_days ?? 15,
     active_days: existing?.active_days ?? 7,
+    min_messages: existing?.min_messages ?? 80,
     auto_send: existing?.auto_send ?? 0,
     enabled: existing?.enabled ?? 1,
     last_run_at: existing?.last_run_at ?? new Date().toISOString(),
@@ -70,9 +71,13 @@ const module: ICommand = {
       .addIntegerOption(opt => opt
         .setName("activos")
         .setDescription("Días de la ventana activa (default: 7, la última semana)"))
+      .addIntegerOption(opt => opt
+        .setName("min_mensajes")
+        .setDescription("Mínimo de mensajes en el ciclo para ser activo (default: 80)")
+        .setMinValue(1))
       .addBooleanOption(opt => opt
         .setName("auto")
-        .setDescription("Enviar los comandos al hilo automáticamente para que Mudae los ejecute")))
+        .setDescription("Enviar los comandos al canal automáticamente para que Mudae los ejecute")))
     .addSubcommand(sub => sub
       .setName("run")
       .setDescription("Ejecutar manualmente el reset de Mudae ahora"))
@@ -128,11 +133,12 @@ async function handleSetup(interaction: ChatInputCommandInteraction, client: Cli
   const restoreValue = interaction.options.getInteger("restaurar") ?? cfg.restore_value;
   const intervalDays = interaction.options.getInteger("intervalo") ?? cfg.interval_days;
   const activeDays = interaction.options.getInteger("activos") ?? cfg.active_days;
+  const minMessages = interaction.options.getInteger("min_mensajes") ?? cfg.min_messages;
   const autoSend = interaction.options.getBoolean("auto") ?? cfg.auto_send === 1;
 
-  if (intervalDays < 1 || activeDays < 1 || activeDays > intervalDays) {
+  if (intervalDays < 1 || activeDays < 1 || activeDays > intervalDays || minMessages < 1) {
     await interaction.reply({
-      content: "❌ `activos` debe estar entre 1 e `intervalo`. `intervalo` debe ser ≥ 1.",
+      content: "❌ `activos` debe estar entre 1 e `intervalo`. `intervalo` y `min_mensajes` deben ser ≥ 1.",
       ephemeral: true,
     });
     return;
@@ -146,6 +152,7 @@ async function handleSetup(interaction: ChatInputCommandInteraction, client: Cli
     restore_value: restoreValue,
     interval_days: intervalDays,
     active_days: activeDays,
+    min_messages: minMessages,
     auto_send: autoSend ? 1 : 0,
     enabled: cfg.enabled ?? 1,
   });
@@ -162,6 +169,7 @@ async function handleSetup(interaction: ChatInputCommandInteraction, client: Cli
       { name: "Restaurar", value: `${restoreValue}`, inline: true },
       { name: "Intervalo", value: `${intervalDays} días`, inline: true },
       { name: "Activos", value: `últimos ${activeDays} días`, inline: true },
+      { name: "Min. mensajes", value: `${minMessages}`, inline: true },
       { name: "Auto-enviar", value: autoSend ? "✅ Sí" : "❌ No", inline: true },
     );
 
@@ -221,6 +229,7 @@ async function handleStatus(interaction: ChatInputCommandInteraction, client: Cl
       { name: "Juego", value: cfg.game_name, inline: true },
       { name: "Intervalo", value: `${cfg.interval_days} días`, inline: true },
       { name: "Ventana activa", value: `${cfg.active_days} días`, inline: true },
+      { name: "Min. mensajes", value: `${cfg.min_messages} en el ciclo`, inline: true },
       { name: "Auto-enviar", value: cfg.auto_send ? "✅" : "❌", inline: true },
       { name: "Estado", value: cfg.enabled ? "🟢 Activo" : "⏸️ Pausado", inline: true },
       { name: "Próximo reset", value: `<t:${Math.floor(nextRun.getTime() / 1000)}:F>` },
