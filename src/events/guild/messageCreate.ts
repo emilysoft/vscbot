@@ -5,6 +5,7 @@ import config from "../../config/config.json" with {type: "json"}
 import client from "../../index-vsc.js"
 import IEvents from "../../interfaces/iEvents.js"
 import levelDetector from "../../functions/levels/levelDetector.js"
+import { trackMudaeMessage } from "../../functions/mudae/mudaeReset.js"
 
 const module: IEvents = {
   name: Events.MessageCreate,
@@ -13,7 +14,9 @@ const module: IEvents = {
       const guild = message.guild
       // Evita que el bot actúe sobre sí mismo
       if (!client.user || message.author.id === client.user.id) return;
-      if (!guild || !(message.channel instanceof TextChannel)) return;
+      if (!guild) return;
+      await trackMudaeMessage(message, client as Client);
+      if (!(message.channel instanceof TextChannel)) return;
       messageLogger(message, "create", client as Client);
       await levelDetector(message, client);
 

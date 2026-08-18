@@ -10,6 +10,7 @@ import { initScheduler } from "../../functions/timers/eventScheduler.js";
 import { initReminderScheduler } from "../../functions/timers/reminderScheduler.js";
 import { initRssScheduler } from "../../functions/timers/rssScheduler.js";
 import { initNewMemberRestrictionScheduler } from "../../functions/timers/newMemberRestrictionScheduler.js";
+import { initMudaeResetScheduler } from "../../functions/timers/mudaeResetScheduler.js";
 import { clearGulag } from "../../functions/automod/workers/clearChat.js";
 import { deployCommands } from "../../handlers/deploy-commands.js";
 import dotenv from "dotenv";
@@ -26,6 +27,7 @@ const module = {
     await initReminderScheduler(client);
     await initRssScheduler(client);
     await initNewMemberRestrictionScheduler(client);
+    await initMudaeResetScheduler(client);
 
     setInterval(
       () => {

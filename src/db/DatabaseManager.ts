@@ -11,6 +11,7 @@ import EventManager from "./EventManager.js"
 import ReminderManager from "./ReminderManager.js"
 import RssManager from "./RssManager.js"
 import NewMemberRestrictionManager from "./NewMemberRestrictionManager.js"
+import MudaeResetManager from "./MudaeResetManager.js"
 
 export default class DatabaseManager {
   private db!: SQLiteDatabase;
@@ -25,6 +26,7 @@ export default class DatabaseManager {
   reminders: ReminderManager;
   rss: RssManager;
   newMemberRestrictions: NewMemberRestrictionManager;
+  mudae: MudaeResetManager;
 
   constructor(private dbPath: string) { }
 
@@ -39,6 +41,7 @@ export default class DatabaseManager {
     this.reminders = new ReminderManager(this.db)
     this.rss = new RssManager(this.db)
     this.newMemberRestrictions = new NewMemberRestrictionManager(this.db)
+    this.mudae = new MudaeResetManager(this.db)
   }
 
   /**
@@ -223,7 +226,27 @@ export default class DatabaseManager {
         status TEXT DEFAULT 'active',
         blacklist_json TEXT DEFAULT '',
         posted_guids TEXT DEFAULT '[]'
-      );`
+      );`,
+      `CREATE TABLE IF NOT EXISTS mudae_reset_config (
+        server_id TEXT PRIMARY KEY,
+        channel_id TEXT NOT NULL,
+        output_channel_id TEXT NOT NULL,
+        game_name TEXT NOT NULL DEFAULT 'requiem',
+        restore_value INTEGER NOT NULL DEFAULT 1,
+        interval_days INTEGER NOT NULL DEFAULT 15,
+        active_days INTEGER NOT NULL DEFAULT 7,
+        auto_send INTEGER NOT NULL DEFAULT 0,
+        enabled INTEGER NOT NULL DEFAULT 1,
+        last_run_at TEXT,
+        created_at TEXT DEFAULT (datetime('now'))
+      );`,
+      `CREATE TABLE IF NOT EXISTS mudae_activity (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id TEXT NOT NULL,
+        channel_id TEXT NOT NULL,
+        last_message TEXT NOT NULL
+      );`,
+      `CREATE UNIQUE INDEX IF NOT EXISTS idx_mudae_activity_user_channel ON mudae_activity(user_id, channel_id);`
     ]
     for (const sql of sqls) {
       await this.db.run(sql)
@@ -248,10 +271,17 @@ export default class DatabaseManager {
       `ALTER TABLE rss_feeds ADD COLUMN blacklist_json TEXT DEFAULT ''`,
       `ALTER TABLE rss_feeds ADD COLUMN posted_guids TEXT DEFAULT '[]'`,
     ]
+    const mudaeMigrations = [
+      `ALTER TABLE mudae_reset_config RENAME COLUMN thread_id TO channel_id`,
+      `ALTER TABLE mudae_activity RENAME COLUMN thread_id TO channel_id`,
+    ]
     for (const sql of reminderMigrations) {
       try { await this.db.run(sql) } catch { }
     }
     for (const sql of rssMigrations) {
+      try { await this.db.run(sql) } catch { }
+    }
+    for (const sql of mudaeMigrations) {
       try { await this.db.run(sql) } catch { }
     }
     for (const sql of migrations) {
