@@ -92,7 +92,7 @@ export default class MudaeResetManager {
   ): Promise<DB_MudaeActivity[]> {
     return this.db.all<DB_MudaeActivity[]>(
       `SELECT * FROM mudae_activity
-       WHERE channel_id = ? AND last_message >= ? AND msg_count >= ?
+       WHERE channel_id = ? AND (last_message >= ? OR msg_count >= ?)
        ORDER BY last_message DESC`,
       channelId,
       cutoffISO,

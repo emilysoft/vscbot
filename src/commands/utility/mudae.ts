@@ -168,7 +168,7 @@ async function handleSetup(interaction: ChatInputCommandInteraction, client: Cli
       { name: "Juego", value: gameName, inline: true },
       { name: "Restaurar", value: `${restoreValue}`, inline: true },
       { name: "Intervalo", value: `${intervalDays} días`, inline: true },
-      { name: "Activos", value: `últimos ${activeDays} días`, inline: true },
+      { name: "Activos", value: `últimos ${activeDays} días o ${minMessages}+ msgs`, inline: true },
       { name: "Min. mensajes", value: `${minMessages}`, inline: true },
       { name: "Auto-enviar", value: autoSend ? "✅ Sí" : "❌ No", inline: true },
     );
@@ -198,7 +198,7 @@ async function handleRun(interaction: ChatInputCommandInteraction, client: Clien
       ? active.map(u => `\`$restoreuser ${u.user_id} ${cfg.restore_value}\``).join("\n")
       : "Ningún usuario activo en la ventana.")
     .addFields(
-      { name: `Activos (últimos ${cfg.active_days}d)`, value: `${active.length}`, inline: true },
+      { name: `Activos (${cfg.active_days}d o ${cfg.min_messages}+msgs)`, value: `${active.length}`, inline: true },
       { name: `Usuarios (${cfg.interval_days}d)`, value: `${recent.length}`, inline: true },
     )
     .setFooter({ text: commands.length > 1 ? `Incluye: $bitesthedust ${cfg.game_name}` : "" });
@@ -234,7 +234,7 @@ async function handleStatus(interaction: ChatInputCommandInteraction, client: Cl
       { name: "Estado", value: cfg.enabled ? "🟢 Activo" : "⏸️ Pausado", inline: true },
       { name: "Próximo reset", value: `<t:${Math.floor(nextRun.getTime() / 1000)}:F>` },
       { name: `Usuarios (${cfg.interval_days}d)`, value: `${recent.length}`, inline: true },
-      { name: `Activos (últimos ${cfg.active_days}d)`, value: `${active.length}`, inline: true },
+      { name: `Activos (${cfg.active_days}d o ${cfg.min_messages}+msgs)`, value: `${active.length}`, inline: true },
     );
 
   if (active.length > 0) {

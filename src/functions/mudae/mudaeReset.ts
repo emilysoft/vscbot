@@ -83,10 +83,10 @@ export async function sendReset(
       .addFields(
         { name: "Canal", value: `<#${cfg.channel_id}>`, inline: true },
         { name: `Usuarios (${cfg.interval_days}d)`, value: `${recent.length}`, inline: true },
-        { name: `Activos (últimos ${cfg.active_days}d)`, value: `${active.length}`, inline: true },
+        { name: `Activos (${cfg.active_days}d o ${cfg.min_messages}+msgs)`, value: `${active.length}`, inline: true },
         { name: "Próximo reset", value: `<t:${Math.floor(nextRun.getTime() / 1000)}:F>` },
       )
-      .setFooter({ text: "Activo = escribió en la última semana del ciclo" })
+      .setFooter({ text: `Activo = ${cfg.min_messages}+ msgs en el ciclo o escribió en la última semana` })
       .setTimestamp(now);
 
     try {
