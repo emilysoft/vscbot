@@ -7,6 +7,7 @@ export default async function levelDetector(message: Message, client: Client) {
   try {
     // Filtros básicos rápidos para evitar procesamiento innecesario
     if (message.author.bot || !message.guild || !(message.channel instanceof TextChannel)) return;
+    if (message.channel.id === "1539304446041788476") return;
 
     const { member, guild, author } = message;
     if (!member) return;
