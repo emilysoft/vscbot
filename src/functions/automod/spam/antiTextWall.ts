@@ -59,8 +59,10 @@ export default {
       if (message.channel.parentId === "1169624626188521563") return; // registro principales
       if (message.channel.parentId === "1120080747668197436") return; // registro secundarios
       if (message.channel.parentId === "874730574089187359") return; //extralaborales
+      if (message.channel.parentId == "1416531887903740045") return; // gaming-y-anime
       if (message.channel.id === "1005354020333948988") return; //basados
       if (message.author.id == "1095572785482444860") return; // hiraku
+
       if (
         Object.values(config.ignoredCategories).includes(
           message.channel.parentId as string,
