@@ -25,6 +25,7 @@ const module = async (message: Message, type: string, client: Client) => {
     if (channel.parentId == "1120080747668197436") return; // registro secundarios
     if (channel.id == "1024260771326197781") return; // panel
     if (channel.id == "813562363243921459") return; // memes
+    if (channel.id == "1539304446041788476") return; // mudae
 
     let typeLog;
     if (type == "create") typeLog = ":green_circle:";
