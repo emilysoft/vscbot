@@ -61,6 +61,7 @@ export default {
       if (message.channel.parentId === "874730574089187359") return; //extralaborales
       if (message.channel.id == "1416531887903740045") return; // gaming-y-anime
       if (message.channel.id === "1005354020333948988") return; //basados
+      if (message.channel.id === "1539304446041788476") return; //mudae
       if (message.author.id == "1095572785482444860") return; // hiraku
 
       if (
