@@ -13,50 +13,80 @@ import dotenv from "dotenv";
 dotenv.config();
 const MAIN_SERVER = process.env.MAIN_SERVER;
 
+const LOGS_CHANNEL_ID = "1277121114786496572";
+
+const resolveLogsChannel = async (guild: Guild) => {
+  const cached = guild.channels.cache.get(LOGS_CHANNEL_ID);
+  if (cached instanceof TextChannel) return cached;
+  try {
+    const fetched = await guild.channels.fetch(LOGS_CHANNEL_ID);
+    return fetched instanceof TextChannel ? fetched : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
 const module = async (message: Message, client: Client) => {
   try {
     if (message.author.bot) return;
     if (message.channel.id == "1024260771326197781") return;
     if (message.attachments.size == 0) return;
-    if (!message.member || !message.guild) return;
-    const { guild } = message;
-    if (!(guild instanceof Guild)) return;
-    if (guild.id != MAIN_SERVER) return;
+    if (!message.guild) return;
+    if (!(message.guild instanceof Guild)) return;
+    if (message.guild.id != MAIN_SERVER) return;
 
-    const avatarPhoto = message.member.displayAvatarURL();
+    let member = message.member;
+    if (!member) {
+      try {
+        member = await message.guild.members.fetch(message.author.id);
+      } catch {
+        member = null;
+      }
+    }
+
+    const avatarPhoto =
+      member?.displayAvatarURL() ?? message.author.displayAvatarURL();
     const botAvatar = message.client.user.displayAvatarURL();
-    const botsChannel = message.guild.channels.cache.find(
-      (channel) => channel.id === "1277121114786496572",
-    );
+    const botsChannel = await resolveLogsChannel(message.guild);
+    if (!botsChannel) {
+      console.error(
+        "[deleteLogger] no se pudo resolver el canal de logs",
+        LOGS_CHANNEL_ID,
+      );
+      return;
+    }
+
     const fileName = message.id;
     const { attachments } = message;
 
-    attachments.forEach(async (attachment) => {
+    const find = (attachment: {
+      contentType: string | null;
+    }): { format: string; tag: string } | null => {
       switch (attachment.contentType) {
         case "image/jpeg":
         case "image/png":
-          const embed = [
-            embedBuilder(fileName + ".png", avatarPhoto, botAvatar, message),
-          ];
-          await downloadFromURL(attachment.url, "png", fileName).then(
-            async (filePath) => {
-              if (!filePath) return;
-              if (botsChannel instanceof TextChannel != true) return;
-              await botsChannel
-                .send({
-                  embeds: embed,
-                  files: [new AttachmentBuilder(filePath)],
-                })
-                .then(() => {
-                  clearDownload(filePath);
-                });
-            },
-          );
-          break;
+          return { format: "png", tag: fileName + ".png" };
         case "video/mp4":
         case "video/mov":
         case "video/webm":
-          const embed2 = new EmbedBuilder()
+          return { format: "mp4", tag: fileName + ".mp4" };
+        default:
+          return null;
+      }
+    };
+
+    for (const attachment of attachments.values()) {
+      const spec = find(attachment);
+      if (!spec) continue;
+
+      const baseEmbed = spec.format === "png"
+        ? embedBuilder(
+            spec.tag,
+            avatarPhoto,
+            botAvatar,
+            message,
+          )
+        : new EmbedBuilder()
             .setColor(config.EMBED_COLOR as ColorResolvable)
             .setTitle(message.author.username)
             .setDescription(
@@ -72,26 +102,27 @@ const module = async (message: Message, client: Client) => {
               iconURL: botAvatar,
             });
 
-          await downloadFromURL(attachment.url, "mp4", fileName).then(
-            async (filePath) => {
-              if (!filePath) return;
-              if (botsChannel instanceof TextChannel != true) return;
-              await botsChannel
-                .send({
-                  embeds: [embed2],
-                  files: [filePath],
-                })
-                .then(() => {
-                  clearDownload(filePath);
-                });
-            },
-          );
+      try {
+        const filePath = await downloadFromURL(
+          attachment.url,
+          spec.format,
+          fileName,
+        );
+        if (!filePath) continue;
 
-          break;
-        default:
-          return;
+        await botsChannel.send({
+          embeds: [baseEmbed],
+          files:
+            spec.format === "png"
+              ? [new AttachmentBuilder(filePath)]
+              : [filePath],
+        });
+
+        await clearDownload(filePath);
+      } catch (err) {
+        console.error("[deleteLogger] error al loguear adjunto", err);
       }
-    });
+    }
   } catch (err) {
     client.errorLogger(err, client, "error", process.cwd() + " ");
   }
