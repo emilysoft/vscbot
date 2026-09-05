@@ -7,4 +7,5 @@ export default interface IAutomod {
   ignoreBots: boolean,
   allowEdited: boolean,
   execute(message: Message, client: Client): Promise<void>
+  onMessageUpdate?(message: Message, client: Client): Promise<void>
 }

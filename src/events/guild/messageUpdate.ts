@@ -4,14 +4,16 @@ import Client from "../../interfaces/ICustomClient.js"
 import client from "./../../index-vsc.js"
 import config from "../../config/config.json" with {type: "json"}
 import IEvents from "../../interfaces/iEvents.js"
-import ICommand from "../../interfaces/command.js"
 export default {
   name: Events.MessageUpdate,
-  async execute(message: Message, oldM: Message) {
+  async execute(message: Message) {
     try {
       //automod
       client.automod.forEach(automod => {
         if (automod.ignoreBots == message.author.bot) return
+        if (automod.onMessageUpdate) {
+          automod.onMessageUpdate(message, client)
+        }
         if (!automod.allowEdited) return
         automod.execute(message, client)
       })
