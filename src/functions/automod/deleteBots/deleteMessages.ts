@@ -70,6 +70,14 @@ const deleteMsgs = {
         return;
       }
     },
+    deleteGeneralErrorTag: function (message: Message) {
+      if (!isNSBMessage(message)) return;
+      if (REGEX.GENERAL_ERROR_TAG.test(message.content)) {
+        const delay = 4000;
+        deleteBulkMessage(message, delay);
+        return;
+      }
+    },
   },
 };
 

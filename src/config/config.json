@@ -53,7 +53,8 @@
       "FMBOT": "^=[a-bA-Z]+$",
       "COMMNAD_ERROR": "Command Error",
       "UNKNOWN_TAG": "^⚠️ Unknown Tag$",
-      "EMPTY_TAG": "HTTP Exception: 400 \\(URL returned an empty response"
+      "EMPTY_TAG": "HTTP Exception: 400 \\(URL returned an empty response",
+      "GENERAL_ERROR_TAG": "HTTP Exception\\: 400 \\(Expecting value\\: line 1 column 1"
     }
   }
 }
