@@ -9,7 +9,7 @@ const module: IEvents = {
   name: Events.MessageDelete,
   async execute(message: Message) {
     try {
-      attachDelete(message, client);
+      await attachDelete(message, client);
       messageLogger(message, "delete", client);
       warningDumpNSBTagCreation(message);
     } catch (err) {
