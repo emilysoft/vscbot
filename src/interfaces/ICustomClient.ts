@@ -7,7 +7,7 @@ import DatabaseManager from "../db/DatabaseManager.js";
 import dotenv from "dotenv";
 dotenv.config();
 
-export default class CustomClient extends Client implements ICustomClient {
+export default class CustomClient extends Client {
   messageCommands: Collection<string, ICommand>;
   commands: Collection<string, ICommand>;
   iaUser: Collection<string, string>;
