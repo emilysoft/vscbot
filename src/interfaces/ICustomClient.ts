@@ -1,5 +1,4 @@
 import { Client, Collection, GatewayIntentBits } from "discord.js";
-import ICustomClient from "../interfaces/ICustomClient.js";
 import ICommand from "../interfaces/command.js";
 import Iautomod from "../interfaces/Iautomod.js";
 import errorLoggerlib from "../functions/loggers/errorLogger.js";
