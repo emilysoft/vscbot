@@ -36,7 +36,7 @@ class DownloadVideo {
         let errorData: any;
         try {
           errorData = await response.json(); // Intenta parsear el error del cuerpo si está disponible
-        } catch (parseError) {
+        } catch {
           errorData = { message: `Error HTTP ${response.status}: ${response.statusText}` };
         }
         // Lanza un error más descriptivo.

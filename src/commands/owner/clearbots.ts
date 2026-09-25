@@ -13,7 +13,7 @@ const module: ICommand = {
   data: new SlashCommandBuilder()
     .setName("clearbots")
     .setDescription("borras todos los bots"),
-  async run(message: Message, client: Client) {
+  async run(message: Message, _client: Client) {
     if (
       config.OWNERS_ID[0] == message.author.id ||
       message.member?.roles.cache.has("813979041027457044")

@@ -2,7 +2,6 @@ import { Events } from "discord.js";
 //import notifier from "node-notifier"
 import inactivos from "../../functions/timers/inactivosReminder.js";
 //const staffSleeping = require("../../useless/staffSleeping");
-import timer from "../../functions/lib/timer.js";
 import setPresence from "../../functions/lib/setPresence.js";
 import Client from "../../interfaces/ICustomClient.js";
 import bcv from "../../functions/timers/bcvUpdate.js";
@@ -38,7 +37,6 @@ const module = {
     setInterval(() => {
       setPresence(client);
       const hoy = new Date();
-      timer(hoy, client);
       bcv(hoy, client);
       inactivos(hoy, client);
     }, 1000 * 60);

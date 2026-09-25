@@ -73,7 +73,7 @@ export async function clearBots(msg: Message) {
   const messages = await channel.messages.fetch();
   if (!messages) return;
   const messagesToDelete = [];
-  for (const [id, message] of messages) {
+  for (const [, message] of messages) {
     //nekotina o nsb
     if (
       message.author.id == "439205512425504771" ||

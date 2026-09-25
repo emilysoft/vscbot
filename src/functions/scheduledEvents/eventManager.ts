@@ -9,7 +9,6 @@ import {
   EmbedBuilder,
   ColorResolvable,
   CategoryChannel,
-  PermissionFlagsBits,
   GuildScheduledEventEntityType,
   GuildScheduledEventPrivacyLevel,
   GuildScheduledEventStatus,

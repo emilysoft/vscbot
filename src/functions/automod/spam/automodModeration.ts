@@ -2,7 +2,6 @@
 import { Message, TextChannel } from "discord.js";
 import Client from "../../../interfaces/ICustomClient.js";
 import Iautomod from "../../../interfaces/Iautomod.js";
-import logger from "../../logger.js";
 import {
   handleAntiScam,
   handleDiscordInvite,

@@ -1,4 +1,4 @@
-import { Message, ChatInputCommandInteraction, SlashCommandBuilder, ChannelType, GuildChannel, TextChannel } from "discord.js";
+import { Message, ChatInputCommandInteraction, SlashCommandBuilder, TextChannel } from "discord.js";
 import ICommand from "../../interfaces/command.js";
 import config from "../../config/config.json" with {type: "json"}
 
@@ -23,7 +23,7 @@ const module: ICommand = {
     if (!config.OWNERS_ID.some((id) => id === AUTHOR_ID)) throw new Error("comando no autorizado");
     setChannelName(interaction, interaction.options.getString("nombre", true));
   },
-  async run(message: Message) {
+  async run(_message: Message) {
     // No se implementa para comandos de mensaje en este ejemplo.
   }
 };

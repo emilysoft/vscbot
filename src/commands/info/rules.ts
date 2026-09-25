@@ -14,7 +14,7 @@ const module: ICommand = {
   data: new SlashCommandBuilder()
     .setName("rules")
     .setDescription("Muestra las reglas"),
-  async execute(interaction: ChatInputCommandInteraction) {
+  async execute(_interaction: ChatInputCommandInteraction) {
   },
   async run(message: Message) {
     rules(message);

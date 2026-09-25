@@ -41,7 +41,7 @@ const module: Iautomod = {
   scope: "guild",
   ignoreBots: true,
   allowEdited: false,
-  execute: async function(message: Message, client: Client) {
+  execute: async function(message: Message, _client: Client) {
     if (message.channel.id == "1405830478480543838") {
       message.react(Emoji.THUMBS_UP)
       message.react(Emoji.THUMBS_DOWN)

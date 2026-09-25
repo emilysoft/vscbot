@@ -1,4 +1,4 @@
-import { Message, ChatInputCommandInteraction, SlashCommandBuilder, ChannelType, GuildChannel, TextChannel } from "discord.js";
+import { Message, ChatInputCommandInteraction, SlashCommandBuilder, TextChannel } from "discord.js";
 import ICommand from "../../interfaces/command.js";
 import config from "../../config/config.json" with {type: "json"}
 
@@ -24,7 +24,7 @@ const module: ICommand = {
 
     setChannelDescription(interaction, interaction.options.getString("descripcion", true));
   },
-  async run(message: Message) {
+  async run(_message: Message) {
     // No se implementa para comandos de mensaje en este ejemplo.
   }
 };

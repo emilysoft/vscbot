@@ -8,7 +8,7 @@ const port = process.env.API_PORT || 3000;
 
 
 function api() {
-  app.get('/status', (req, res) => {
+  app.get('/status', (_req, res) => {
     let botStatus;
     if (client.isReady()) {
       botStatus = {

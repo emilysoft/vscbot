@@ -16,7 +16,7 @@ import { WebhookClient } from "discord.js";
 import Client from "../../interfaces/ICustomClient.js";
 import ICommand from "../../interfaces/command.js";
 import config from "../../config/config.json" with { type: "json" };
-import { previewFeed, getLatestItemPreview, detectFeedFields } from "../../functions/timers/rssScheduler.js";
+import { previewFeed, detectFeedFields } from "../../functions/timers/rssScheduler.js";
 
 const parser = new Parser();
 
@@ -484,7 +484,7 @@ async function handlePreview(interaction: ChatInputCommandInteraction, client: C
       .setColor(config.EMBED_COLOR as ColorResolvable);
 
     await interaction.editReply({ embeds: [embed, variablesEmbed] });
-  } catch (err) {
+  } catch {
     await interaction.editReply({ content: "❌ No se pudo obtener el feed. Verifica que la URL sea válida." });
   }
 }

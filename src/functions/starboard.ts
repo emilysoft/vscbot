@@ -29,7 +29,7 @@ function sanitize(text: string): string {
     .replace(/@here/gim, "@!here");
 }
 
-const module = async (reaction: MessageReaction, user: User) => {
+const module = async (reaction: MessageReaction, _user: User) => {
   if (!targetChannels.includes(reaction.message.channel.id)) return;
 
   if (reaction.partial) {

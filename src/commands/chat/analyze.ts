@@ -17,7 +17,7 @@ const module: ICommand = {
   async execute(interaction: ChatInputCommandInteraction, client: Client) {
     analyze(interaction, client);
   },
-  async run(message: Message, client: Client) {
+  async run(_message: Message, _client: Client) {
     // No implementado por ahora
   }
 };

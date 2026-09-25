@@ -9,9 +9,8 @@ import {
 const formatsAllowed = ["image/jpeg", "image/png", "image/gif", "image/webp"];
 import { Jimp } from "jimp";
 import client from "../../index-vsc.js";
-import { DB_Role, DB_CustomRole } from "../../db/Idatabase.js";
+import { DB_Role } from "../../db/Idatabase.js";
 import dotenv from "dotenv";
-import path from "path";
 dotenv.config();
 const icon_dir = process.env.CUSTOM_ICONS_DIR || "/var/vscbot/custom_roles/";
 class RoleManager {

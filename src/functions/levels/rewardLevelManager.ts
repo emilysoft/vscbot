@@ -1,7 +1,6 @@
 // gestor de premios (los roles de niveles)
-import { DB_RewardRoles, DB_Server, DB_UserLevel } from "../../db/Idatabase.js";
+import { DB_RewardRoles, DB_Server } from "../../db/Idatabase.js";
 import { Database as SQLiteDatabase } from "sqlite";
-import { User, Role, Guild } from "discord.js";
 
 export default class RewardLevelManager {
   private db!: SQLiteDatabase;

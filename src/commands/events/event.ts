@@ -479,7 +479,6 @@ async function handleCreate(interaction: ChatInputCommandInteraction, client: Cl
 
 async function handleList(interaction: ChatInputCommandInteraction, client: Client, guild: Guild) {
   const filter = interaction.options.getString("filter") || "upcoming";
-  const now = new Date().toISOString();
   const events = await client.db.events.getEventsByGuild(guild.id);
   let filtered: DB_ScheduledEvent[];
 

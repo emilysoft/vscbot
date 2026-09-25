@@ -2,8 +2,6 @@ import {
   TextChannel,
   WebhookClient,
   GuildMember,
-  Message,
-  Guild,
   ChannelType,
 } from "discord.js";
 import dotenv from "dotenv";

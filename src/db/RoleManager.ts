@@ -1,4 +1,4 @@
-import { DB_Role, DB_CustomRole, DB_User, DB_Server} from './Idatabase.js'
+import { DB_Role, DB_User, DB_Server} from './Idatabase.js'
 import { Database as SQLiteDatabase } from 'sqlite';
 import { Guild, Role, User } from 'discord.js'
 import { IroleData } from '../db/Idatabase.js';

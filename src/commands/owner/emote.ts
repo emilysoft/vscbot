@@ -15,7 +15,7 @@ const module: ICommand = {
   data: new SlashCommandBuilder()
     .setName("emote")
     .setDescription("Add emotes"),
-  async run(message: Message, client: Client, args: string) {
+  async run(message: Message, client: Client, _args: string) {
     try {
       if (message.author.id != "302249242469335060") return;
       addEmote(message);
@@ -41,7 +41,7 @@ async function addEmote(message: Message) {
       // Obtener el nombre y el ID del emote
       const matchResult: RegExpMatchArray | null = emote.match(/<a?:(\w+):(\d+)>/);
       if (!matchResult || matchResult.length === 3) return
-      const [matched, name, id]: RegExpMatchArray = matchResult;
+      const [, name, id]: RegExpMatchArray = matchResult;
       const emoteURL = `https://cdn.discordapp.com/emojis/${id}.${format}`; // Construir la URL del emote
       console.log(`Insertando: ${name}`);
       if (!message.guild) return
@@ -50,7 +50,7 @@ async function addEmote(message: Message) {
         .then(emoji => {
           emojisAdded.push(`**${emoji.name}** :white_check_mark:`);
         })
-        .catch((e) => emojisAdded.push(`**${name}** :x:`));
+        .catch(() => emojisAdded.push(`**${name}** :x:`));
     });
     message.reply(`agregando`);
   }

@@ -1,13 +1,11 @@
 import {
-  Message,
   EmbedBuilder,
   ChatInputCommandInteraction,
   SlashCommandBuilder,
-  ColorResolvable,
 } from "discord.js";
 import Client from "../../interfaces/ICustomClient.js";
 import LevelSystem from "../../functions/levels/levelSystem.js";
-import { DB_User, DB_Server, RankData } from "../../db/Idatabase.js";
+import { DB_User, DB_Server } from "../../db/Idatabase.js";
 import ICommand from "../../interfaces/command.js";
 
 const module: ICommand = {

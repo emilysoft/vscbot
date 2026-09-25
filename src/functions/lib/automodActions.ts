@@ -218,7 +218,7 @@ export async function handleNoLinksPermissions(
   message: Message,
   content: string,
   regex: RegExp,
-  client: Client,
+  _client: Client,
 ): Promise<true | false> {
   const { author, member, guild, channel } = message;
   logger("ejecutando handlenolinkspermissions");

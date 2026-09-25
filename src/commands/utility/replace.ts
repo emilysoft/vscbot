@@ -23,7 +23,7 @@ const module: ICommand = {
   },
 };
 
-async function replace(message: Message, client: Client) {
+async function replace(message: Message, _client: Client) {
   if (config.OWNERS_ID.includes(message.author.id)) {
     if (message.reference) {
       await message.channel.messages

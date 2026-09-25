@@ -14,7 +14,7 @@ const module: ICommand = {
   cooldown: 0,
   slashCommand: false,
   messageCommand: true,
-  async run(message: Message, client: Client) {
+  async run(_message: Message, client: Client) {
     try {
       const newDate = new Date(); // Get current date
       newDate.setHours(0, 0, 0, 0);
