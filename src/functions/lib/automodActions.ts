@@ -36,7 +36,8 @@ export function muteUser(
   member.roles
     .add(mutedRole, `Enviar ${reason}`)
     .then(() => {
-      member.timeout(null); //  Aplica un timeout temporal
+      // Quitea el timeout para que pueda hablar en el canal de muteados
+      member.timeout(null);
       sendDM(message, `Has sido muteado por enviar ${reason}`);
     })
     .catch((error) => {
@@ -68,6 +69,7 @@ export async function handleDiscordInvite(
   //  Revisa si es un enlace de regalo (gift)
   if (content.includes("promos.discord.gg")) {
     message.delete().catch(() => null);
+    //  Quitea el timeout para que pueda hablar en el canal de muteados
     await member.timeout(null);
     sendDM(message, "No envíes regalos en general, pide sortearlo.");
   }
@@ -199,6 +201,7 @@ export async function handleImageScam(
       mutedRole,
       `Enviar 4 links sospechosos, posiblemente spam`,
     );
+    //  Quitea el timeout para que pueda hablar en el canal de muteados
     member.timeout(null);
     client.automodLogger(
       message,
