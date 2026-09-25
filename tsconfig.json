@@ -14,6 +14,8 @@
     "forceConsistentCasingInFileNames": true, /* Ensure that casing is correct in imports. */
     "strict": true, /* Enable all strict type-checking options. */
     "strictPropertyInitialization": false, /* Check for class properties that are declared but not set in the constructor. */
+    "noUnusedLocals": true, /* Report errors on unused local variables. */
+    "noUnusedParameters": true, /* Report errors on unused parameters in functions. */
     "skipLibCheck": true /* Skip type checking all .d.ts files. */
   }
 }

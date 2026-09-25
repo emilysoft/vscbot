@@ -7,7 +7,10 @@
     "start": "pnpm clear && pnpm build && node .",
     "dev": "pnpm clear && pnpm build && tsx watch src/index-vsc.ts",
     "build": "pnpm clear && tsc --build",
+    "check": "tsc --build && eslint .",
     "deploy-commands": "node src/handlers/deploy-commands.ts",
+    "lint": "eslint .",
+    "lint:fix": "prettier --write . && eslint . --fix",
     "clear": "rm -rf dist/**"
   },
   "keywords": [],
@@ -44,6 +47,7 @@
     "eslint": "^9.39.4",
     "globals": "^16.5.0",
     "pnpm": "^10.34.1",
+    "prettier": "^3.9.9",
     "tsx": "^4.22.4",
     "typescript-eslint": "^8.60.1"
   }
