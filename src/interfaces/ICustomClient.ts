@@ -12,8 +12,8 @@ export default class CustomClient extends Client {
   commands: Collection<string, ICommand>;
   iaUser: Collection<string, string>;
   automod: Collection<string, Iautomod>;
-  errorLogger: Function;
-  automodLogger: Function;
+  errorLogger: typeof errorLoggerlib;
+  automodLogger: typeof automodLoggerlib;
   db: DatabaseManager;
 
   constructor() {
