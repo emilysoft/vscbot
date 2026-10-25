@@ -37,12 +37,19 @@ export default async function levelDetector(message: Message, client: Client) {
 
     // Si el nivel actual es un hito de recompensa, actuamos
     if (REWARD_LEVELS.has(currentLevel)) {
-      await message.channel.send(
-        `✨ **${author}** ¡Qué elegancia! Has alcanzado el **nivel ${currentLevel}** ✨`,
+      const assignedLevels = await LevelSystem.syncRewardRoles(
+        member,
+        currentLevel,
+        client,
       );
+      const imagePermsMessage =
+        currentLevel === 5 && assignedLevels.has(5)
+          ? " Ahora puedes enviar imágenes y enlaces."
+          : "";
 
-      // Pasamos el control a la función de roles de forma ordenada
-      await LevelSystem.syncRewardRoles(member!, currentLevel, client);
+      await message.channel.send(
+        `✨ **${author}** ¡Qué elegancia! Has alcanzado el **nivel ${currentLevel}**.${imagePermsMessage} ✨`,
+      );
     }
   } catch (err) {
     client.errorLogger(err, client, "error", process.cwd() + " ");

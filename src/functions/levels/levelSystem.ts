@@ -150,20 +150,22 @@ export default class LevelSystem {
      * Sincroniza los reward roles según el nivel actual.
      * Niveles 1 y 5 son permanentes y nunca se remueven.
      * Para el resto, solo conserva el reward role más alto alcanzado.
+     * Devuelve los niveles de recompensa cuyo rol quedó asignado al miembro.
      */
-  public static async syncRewardRoles(member: GuildMember, currentLevel: number, client: Client): Promise<void> {
+  public static async syncRewardRoles(member: GuildMember, currentLevel: number, client: Client): Promise<Set<number>> {
+    const assignedLevels = new Set<number>();
     const { guild } = member;
-    if (!guild) return;
+    if (!guild) return assignedLevels;
 
     let serverDB = await client.db.guild.get(guild) as DB_Server | undefined;
     if (!serverDB) {
       const owner = await guild.fetchOwner();
       serverDB = await client.db.guild.create(guild, owner.user);
-      if (!serverDB) return;
+      if (!serverDB) return assignedLevels;
     }
 
     const allRewards = await client.db.levels.rewardLevels.getAll(serverDB.id as number) as DB_RewardRoles[] | undefined;
-    if (!allRewards?.length) return;
+    if (!allRewards?.length) return assignedLevels;
 
     const entries: { level: number; discordId: string }[] = [];
     for (const reward of allRewards) {
@@ -180,22 +182,44 @@ export default class LevelSystem {
       .sort((a, b) => b.level - a.level)[0] || null;
 
     for (const entry of entries) {
-      const hasRole = member.roles.cache.has(entry.discordId);
+      let hasRole = member.roles.cache.has(entry.discordId);
 
       if (PERMANENT.has(entry.level)) {
-        if (currentLevel >= entry.level && !hasRole) {
-          try { await member.roles.add(entry.discordId); } catch { }
+        if (currentLevel >= entry.level) {
+          if (!hasRole) {
+            try {
+              await member.roles.add(entry.discordId);
+              hasRole = true;
+            } catch {
+              // Ignore assignment failures and continue syncing other rewards.
+            }
+          }
+
+          if (hasRole) assignedLevels.add(entry.level);
         }
         continue;
       }
 
       if (entry.level === targetNonPerm?.level) {
         if (!hasRole) {
-          try { await member.roles.add(entry.discordId); } catch { }
+          try {
+            await member.roles.add(entry.discordId);
+            hasRole = true;
+          } catch {
+            // Ignore assignment failures and continue syncing other rewards.
+          }
         }
+
+        if (hasRole) assignedLevels.add(entry.level);
       } else if (hasRole) {
-        try { await member.roles.remove(entry.discordId); } catch { }
+        try {
+          await member.roles.remove(entry.discordId);
+        } catch {
+          // Ignore removal failures and continue syncing other rewards.
+        }
       }
     }
+
+    return assignedLevels;
   }
 }
