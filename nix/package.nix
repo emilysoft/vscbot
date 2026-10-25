@@ -17,7 +17,7 @@ in
     };
 
     nativeBuildInputs = [
-      pkgs.nodejs
+      pkgs.nodejs_latest
       pkgs.pnpm
       pkgs.pnpmConfigHook
       (pkgs.python3.withPackages (ps: [ps.distutils]))
