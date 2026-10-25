@@ -1,6 +1,7 @@
 import { Events, VoiceState } from "discord.js";
 import IEvents from "../../interfaces/iEvents.js";
 import Client from "../../interfaces/ICustomClient.js";
+import client from "../../index-vsc.js"
 import { handleVoiceJoin, handleVoiceLeave } from "../../functions/scheduledEvents/eventManager.js";
 
 const module: IEvents = {
@@ -17,7 +18,7 @@ const module: IEvents = {
         await handleVoiceJoin(client, newState.guild.id, newState.id, newState.channelId);
       }
     } catch (err) {
-      (newState.client as Client).errorLogger(err, newState.client, "error", `${process.cwd()} events/voiceStateUpdate`);
+      (newState.client as Client).errorLogger(err, client, "error", `${process.cwd()} events/voiceStateUpdate`);
     }
   },
 };
