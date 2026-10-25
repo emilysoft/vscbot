@@ -64,6 +64,13 @@ export interface DB_UserLevel {
   last_message: string;
 }
 
+export interface DB_LevelLeaderboardEntry {
+  discord_id: string;
+  username: string;
+  xp: number;
+  level: number;
+}
+
 export interface RankData {
   username: string;
   level: number;

@@ -1,4 +1,8 @@
-import { DB_UserLevel, DB_AllLogs } from "../../db/Idatabase.js";
+import {
+  DB_UserLevel,
+  DB_AllLogs,
+  DB_LevelLeaderboardEntry,
+} from "../../db/Idatabase.js";
 import { Database as SQLiteDatabase } from "sqlite";
 import { User, Guild } from "discord.js";
 import RewardLevelManager from "./rewardLevelManager.js";
@@ -86,6 +90,28 @@ export default class LevelManager {
     );
 
     return result ? result.rank : null;
+  }
+
+  public async getLeaderboard(
+    serverId: number,
+    limit: number,
+  ): Promise<DB_LevelLeaderboardEntry[]> {
+    return await this.db.all<DB_LevelLeaderboardEntry[]>(
+      `
+      SELECT
+        u.user_id AS discord_id,
+        u.username,
+        l.xp,
+        l.level
+      FROM levels AS l
+      JOIN users AS u ON u.id = l.user_id
+      WHERE l.server_id = ?
+      ORDER BY l.xp DESC, l.last_message ASC
+      LIMIT ?
+    `,
+      serverId,
+      limit,
+    );
   }
 
   public async getAllLogs(
