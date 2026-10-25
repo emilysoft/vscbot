@@ -2,7 +2,6 @@ import { Message, TextChannel } from "discord.js";
 import { getFbVideoInfo } from "fb-downloader-scrapper";
 import { instagramGetUrl } from "instagram-url-direct";
 import { downloadFromURL, clearDownload } from "../../functions/lib/download.js"; // Asegúrate de que esta ruta sea correcta.
-import yt_dlp from "../../functions/lib/yt-dlp-api.js"
 const UNKNOWN_MESSAGE_ERROR_CODE = 10008;
 
 class VideoDownloader {
@@ -124,25 +123,6 @@ class VideoDownloader {
       console.error("Error al procesar descarga de Instagram:", err);
       // Siempre notificar para Instagram, ya que generalmente es una acción directa del usuario.
       this.sendTemporaryErrorMessage(`Hubo un error al descargar el video de Instagram: ${err.message || 'Error desconocido'}.`, true);
-    }
-  }
-
-  public async downloadYouTubeVideo(link: string): Promise<void> {
-    try {
-      const download = new yt_dlp(link);
-      const result = await download.StartDownload()
-      if (!result || !result.filePath) {
-        this.sendTemporaryErrorMessage("No pude obtener la información del video de YouTube o no encontré una calidad HD.");
-        return;
-      }
-
-      await this.sendFileAndClean(result.filePath);
-
-    } catch (err: any) {
-      console.error("Error al procesar descarga de YouTube:", err);
-      if (this.isCommandContext) { // Solo si fue un comando explícito, envia el mensaje de error al usuario
-        this.sendTemporaryErrorMessage(`Hubo un error al descargar el video de YouTube: ${err.message || 'Error desconocido'}.`, true);
-      }
     }
   }
 }
