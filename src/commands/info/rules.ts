@@ -1,7 +1,7 @@
 import { Message, ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder, ColorResolvable } from "discord.js"
 import config from "../../config/config.json" with {type: "json"}
 import ICommand from "../../interfaces/command.js"
-import client from "../../index-vsc.js"
+import Client from "../../interfaces/ICustomClient.js"
 import rule from "../../config/rules.json" with {type: "json"}
 const UNKHOWN_MESSAGE = 10008;
 const module: ICommand = {
@@ -64,6 +64,7 @@ function rules(message: Message) {
       }
     }
   } catch (err) {
+    const client = message.client as Client
     client.errorLogger(err, client, "error", process.cwd() + " ")
     console.error(err)
   }

@@ -1,11 +1,17 @@
-import { AutocompleteInteraction, Events, ChatInputCommandInteraction } from 'discord.js'
+import { Events, Interaction } from 'discord.js'
 import commandSlashLogger from '../../functions/loggers/commandSlashLogger.js'
 import client from "../../index-vsc.js"
 import IEvents from "../../interfaces/iEvents.js"
+import {
+  CUSTOM_ROLE_PANEL_BUTTON_ID,
+  CUSTOM_ROLE_PANEL_MODAL_ID,
+  handleCustomRolePanelButton,
+  handleCustomRolePanelModal,
+} from '../../functions/lib/customRolePanel.js'
 const cooldowns = new Map<string, Map<string, number>>();
 const module: IEvents = {
   name: Events.InteractionCreate,
-  async execute(interaction: ChatInputCommandInteraction | AutocompleteInteraction) {
+  async execute(interaction: Interaction) {
     try {
       if (interaction.isChatInputCommand()) {
         commandSlashLogger(interaction)
@@ -52,10 +58,22 @@ const module: IEvents = {
         if (!command?.autocomplete) return
         await command.autocomplete(interaction);
       }
+      else if (
+        interaction.isButton() &&
+        interaction.customId === CUSTOM_ROLE_PANEL_BUTTON_ID
+      ) {
+        await handleCustomRolePanelButton(interaction);
+      }
+      else if (
+        interaction.isModalSubmit() &&
+        interaction.customId === CUSTOM_ROLE_PANEL_MODAL_ID
+      ) {
+        await handleCustomRolePanelModal(interaction);
+      }
     }
     catch (error) {
       client.errorLogger(error, client, 'error')
-      console.error(`Error executing ${interaction.commandName}`);
+      console.error("Error executing interaction");
       console.error(error);
     }
 

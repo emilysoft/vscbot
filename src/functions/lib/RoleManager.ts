@@ -6,17 +6,22 @@ import {
   Role,
   RoleCreateOptions,
 } from "discord.js";
-const formatsAllowed = ["image/jpeg", "image/png", "image/gif", "image/webp"];
-import { Jimp } from "jimp";
-import client from "../../index-vsc.js";
-import { DB_Role } from "../../db/Idatabase.js";
-import dotenv from "dotenv";
-dotenv.config();
-const icon_dir = process.env.CUSTOM_ICONS_DIR || "/var/vscbot/custom_roles/";
+import Client from "../../interfaces/ICustomClient.js";
+import {
+  ROLE_ICONS_UNAVAILABLE_MESSAGE,
+  canUseRoleIcons,
+  saveRoleIcon,
+  updateCustomRoleForMember,
+} from "./customRoleService.js";
+
 class RoleManager {
   private interaction: ChatInputCommandInteraction;
   private guild: Guild;
   private user: User;
+
+  private get client(): Client {
+    return this.interaction.client as Client;
+  }
 
   constructor(interaction: ChatInputCommandInteraction) {
     if (!interaction.inGuild()) {
@@ -48,8 +53,12 @@ class RoleManager {
   }
 
   public async createCustomRole(): Promise<void> {
+    if (!canUseRoleIcons(this.guild)) {
+      throw new Error(ROLE_ICONS_UNAVAILABLE_MESSAGE);
+    }
+
     const user = this.interaction.options.getUser("usuario", true);
-    const existingCustomRole = await client.db.roles.custom.get(
+    const existingCustomRole = await this.client.db.roles.custom.get(
       user.id,
       this.guild.id,
     );
@@ -65,45 +74,21 @@ class RoleManager {
   }
 
   private async saveCustomRole(role: Role, user: User, guild: Guild) {
-    await client.db.roles.custom.create(role, user, guild);
+    await this.client.db.roles.custom.create(role, user, guild);
   }
 
   public async updateCustomRoleName() {
-    let customRole_db: DB_Role | undefined;
+    const name =
+      this.interaction.options.getString("nombre", false) ?? undefined;
+    const icon =
+      this.interaction.options.getAttachment("icon", false) ?? undefined;
 
-    customRole_db = await client.db.roles.custom.get(
-      this.user.id,
-      this.guild.id,
-    );
-    if (customRole_db == undefined)
-      throw new Error("no tienes un rol personalizado");
+    if (!name && !icon) {
+      throw new Error("ingresá un nombre o un icono");
+    }
 
-    const role = await this.guild.roles.fetch(customRole_db.role_id);
-    if (!role) throw new Error("error al buscar el role en el servidor");
-
-    const roleName = this.interaction.options.getString("nombre", false);
-    if (roleName == undefined)
-      throw new Error("nombre a colocar al rol no encontrado");
-
-    await role.setName(roleName);
-    await this.setIconToRole();
-  }
-
-  public async setIconToRole() {
-    const custom_role_db = await client.db.roles.custom.get(
-      this.user.id,
-      this.guild.id,
-    );
-    if (custom_role_db?.role_id == undefined)
-      throw new Error("error no se consiguio role");
-
-    const role = await this.guild.roles.fetch(custom_role_db.role_id);
-    const iconPath = await this.processAndSaveIcon();
-
-    if (!iconPath) throw new Error("error al actualizar icon");
-    if (!role) throw new Error("error al colocar icon");
-
-    await role.setIcon(iconPath, "Update icon role");
+    const member = await this.guild.members.fetch(this.user.id);
+    await updateCustomRoleForMember(member, name, icon, this.interaction.id);
   }
 
   private async processAndSaveIcon(): Promise<string> {
@@ -112,17 +97,7 @@ class RoleManager {
       throw new Error("ingrese un icon");
     }
 
-    const imageType = image.contentType;
-    if (!formatsAllowed.some((format) => format === imageType)) {
-      throw new Error("formato de imagen no aceptado");
-    }
-
-    const imageResize = await Jimp.read(image.url);
-    imageResize.resize({ w: 150, h: 150 });
-    const iconPath =
-      `${icon_dir}${this.interaction.id}.png` as `${string}.${string}`;
-    await imageResize.write(iconPath);
-    return iconPath;
+    return await saveRoleIcon(image, this.interaction.id);
   }
 
   private async setupRoleData(): Promise<RoleCreateOptions> {

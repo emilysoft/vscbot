@@ -87,9 +87,59 @@ export async function deployCommands(clientId?: string, guildId?: string): Promi
   return data.length;
 }
 
+export async function deployGlobalCommands(
+  commandNames: string[],
+  clientId?: string,
+): Promise<number> {
+  const commands = (await collectCommands()).filter((command) =>
+    commandNames.includes(command.name),
+  );
+
+  if (!commands.length) return 0;
+
+  console.log(
+    `Started refreshing ${commands.length} global application (/) commands.`,
+  );
+
+  const token = process.env.TOKEN;
+  if (!token) {
+    console.error(chalk.bgRedBright.black("[ERROR] Missing bot token in environment variables."));
+    return 0;
+  }
+
+  const rest = new REST({ version: "10" }).setToken(token);
+  const cid = clientId || process.env.CLIENT_ID;
+  if (!cid) throw new Error("Missing CLIENT_ID");
+
+  const existing = (await rest.get(
+    Routes.applicationCommands(cid),
+  )) as Array<{ id: string; name: string }>;
+
+  for (const command of commands) {
+    const current = existing.find((entry) => entry.name === command.name);
+
+    if (current) {
+      await rest.patch(Routes.applicationCommand(cid, current.id), {
+        body: command,
+      });
+    } else {
+      await rest.post(Routes.applicationCommands(cid), { body: command });
+    }
+
+    console.log(
+      chalk.bgGreenBright.black(
+        `[GLOBAL COMMAND UPDATED] ${command.name}.`,
+      ),
+    );
+  }
+
+  return commands.length;
+}
+
 async function main() {
   try {
     await deployCommands();
+    await deployGlobalCommands(["role"]);
   } catch (error) {
     console.error(chalk.bgRedBright.black("[ERROR] Failed to deploy commands:"), error);
   }

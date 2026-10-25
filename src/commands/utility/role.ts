@@ -1,7 +1,8 @@
-import { MessageFlags, SlashCommandBuilder } from "discord.js"
+import { ChannelType, MessageFlags, SlashCommandBuilder } from "discord.js"
 import config from "../../config/config.json" with {type: "json"}
 import ICommand from "../../interfaces/command.js"
 import RoleManager from "../../functions/lib/RoleManager.js";
+import { buildCustomRolePanel } from "../../functions/lib/customRolePanel.js";
 
 const module: ICommand = {
   name: "role",
@@ -27,12 +28,23 @@ const module: ICommand = {
     .addSubcommand(subcommand =>
       subcommand
         .setName("cambiar")
-        .setDescription("Cambia tu icon personalizado")
+        .setDescription("Cambia el nombre o el icono de tu rol personalizado")
         .addAttachmentOption((option) =>
           option.setName("icon").setDescription("tu icono")
         )
         .addStringOption(option =>
           option.setName("nombre").setDescription("cambia el nombre de tu role personalizado")
+        )
+    )
+    .addSubcommand(subcommand =>
+      subcommand
+        .setName("panel")
+        .setDescription("Publica el panel para crear o editar roles personalizados")
+        .addChannelOption((option) =>
+          option
+            .setName("canal")
+            .setDescription("Canal donde publicar el panel")
+            .addChannelTypes(ChannelType.GuildText)
         )
     ),
   async execute(interaction, client) {
@@ -61,6 +73,23 @@ const module: ICommand = {
 
             )
             ; break;
+        } case "panel": {
+          if (!config.OWNERS_ID.some((id) => id === AUTHOR_ID)) throw new Error("comando no autorizado");
+
+          const selectedChannel = interaction.options.getChannel("canal");
+          const targetChannel = selectedChannel && interaction.guild
+            ? await interaction.guild.channels.fetch(selectedChannel.id).catch(() => null)
+            : interaction.channel;
+
+          if (!targetChannel || !targetChannel.isTextBased() || targetChannel.isDMBased()) {
+            throw new Error("canal no valido");
+          }
+
+          await targetChannel.send(buildCustomRolePanel());
+          await interaction.editReply({
+            content: `Panel publicado en <#${targetChannel.id}>`,
+          });
+          break;
         }
       }
 
