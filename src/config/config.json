@@ -32,6 +32,11 @@
     "bardo": "876095489148325889",
     "ultimas-confesiones": "926515205855383562"
   },
+  "allowedChannels": {
+    "general": "813538324320092164",
+    "zona-chill": "1345943077470076979",
+    "ciencias-sociales": "853387980335874078"
+  },
   "NEW_MEMBER_VC_ROLE_ID": "1517737763724726473",
   "backupChannel": "1112164583344443433",
   "DELETE_MESSAGES": {
