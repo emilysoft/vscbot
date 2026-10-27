@@ -7,29 +7,38 @@ const SOCIAL_MEDIA_PATTERNS = [
     name: "twitter",
     domains: ["x.com", "twitter.com"],
     replacement: "fixupx.com",
-    regex: /https?:\/\/(?:www\.)?\b(x|twitter)\b\.com\/[a-zA-Z0-9_]+\/status\/[0-9]+/gim,
+    regex:
+      /https?:\/\/(?:www\.)?\b(x|twitter)\b\.com\/[a-zA-Z0-9_]+\/status\/[0-9]+/gim,
   },
   {
     name: "instagram",
     domains: ["instagram.com"],
     replacement: "oginstagram.com",
-    regex: /https?:\/\/(?:www\.)?instagram\.com\/(?:[a-zA-Z0-9_.]+\/)?(?:p|reel|reels|tv)\/[a-zA-Z0-9_-]+/gim,
+    regex:
+      /https?:\/\/(?:www\.)?instagram\.com\/(?:[a-zA-Z0-9_.]+\/)?(?:p|reel|reels|tv)\/[a-zA-Z0-9_-]+/gim,
   },
   {
     name: "facebook",
     domains: ["facebook.com", "fb.watch"],
     replacement: "facebed.com",
-    regex: /https?:\/\/(?:www\.)?(facebook\.com|fb\.watch)\/[a-zA-Z0-9_/]+\/?/gim,
+    regex:
+      /https?:\/\/(?:www\.)?(facebook\.com|fb\.watch)\/[a-zA-Z0-9_/]+\/?/gim,
   },
   {
     name: "tiktok",
     domains: ["tiktok.com"],
     replacement: "kktiktok.com",
-    regex: /https?:\/\/(?:www\.|vm\.|m\.|vt\.)?tiktok\.com\/[a-zA-Z0-9@_./]+/gim,
+    regex:
+      /https?:\/\/(?:www\.|vm\.|m\.|vt\.)?tiktok\.com\/[a-zA-Z0-9@_./]+/gim,
   },
 ];
 
-const REPLACEMENT_DOMAINS = ["fixupx.com", "oginstagram.com", "facebed.com", "kktiktok.com"];
+const REPLACEMENT_DOMAINS = [
+  "fixupx.com",
+  "oginstagram.com",
+  "facebed.com",
+  "kktiktok.com",
+];
 
 const EMBED_SUPPRESSION_DELAY = 1500;
 const MAX_RETRIES = 3;
@@ -40,7 +49,9 @@ const messagesNeedingEmbedSuppression = new Set<string>();
 function extractUrlsOutsideCodeBlocks(content: string): string[] {
   const urls: string[] = [];
   const codeBlockRegex = /```[\s\S]*?```|`[^`]+`/g;
-  const cleanedContent = content.replace(codeBlockRegex, (match) => " ".repeat(match.length));
+  const cleanedContent = content.replace(codeBlockRegex, (match) =>
+    " ".repeat(match.length),
+  );
 
   for (const pattern of SOCIAL_MEDIA_PATTERNS) {
     const matches = cleanedContent.match(pattern.regex);
@@ -69,10 +80,12 @@ function replaceDomains(url: string): string {
   return url;
 }
 
-const TWITTER_URL_REGEX = /https?:\/\/(?:www\.)?\b(x|twitter)\b\.com\/([a-zA-Z0-9_]+)\/status\/(\d+)/im;
+const TWITTER_URL_REGEX =
+  /https?:\/\/(?:www\.)?\b(x|twitter)\b\.com\/([a-zA-Z0-9_]+)\/status\/(\d+)/im;
 
 const SPANISH_STOPWORD_COUNT_THRESHOLD = 2;
-const SPANISH_STOPWORD_REGEX = /\b(?:de|la|el|que|y|en|es|por|un|una|con|no|lo|se|los|las|del|para|como)\b/gi;
+const SPANISH_STOPWORD_REGEX =
+  /\b(?:de|la|el|que|y|en|es|por|un|una|con|no|lo|se|los|las|del|para|como)\b/gi;
 
 const TWEET_INFO_CACHE_TTL = 6 * 60 * 60 * 1000;
 
@@ -96,7 +109,9 @@ interface TweetInfo {
 
 const tweetInfoCache = new Map<string, TweetInfo>();
 
-function extractTwitterInfo(url: string): { id: string; handle: string } | null {
+function extractTwitterInfo(
+  url: string,
+): { id: string; handle: string } | null {
   const match = url.match(TWITTER_URL_REGEX);
   if (!match) {
     return null;
@@ -188,7 +203,11 @@ async function fixTwitterUrl(url: string): Promise<string> {
   return needsTranslation ? `${baseUrl}/es` : baseUrl;
 }
 
-async function suppressEmbedsWithRetry(message: Message, retries = MAX_RETRIES, delay = RETRY_DELAY): Promise<boolean> {
+async function suppressEmbedsWithRetry(
+  message: Message,
+  retries = MAX_RETRIES,
+  delay = RETRY_DELAY,
+): Promise<boolean> {
   for (let attempt = 0; attempt < retries; attempt++) {
     try {
       await message.suppressEmbeds(true);
@@ -213,7 +232,11 @@ async function suppressEmbedsWithRetry(message: Message, retries = MAX_RETRIES, 
 }
 
 async function processMessage(message: Message): Promise<void> {
-  if (!message.guild || !message.channel || !(message.channel instanceof TextChannel)) {
+  if (
+    !message.guild ||
+    !message.channel ||
+    !(message.channel instanceof TextChannel)
+  ) {
     return;
   }
   if (!message.content || message.content.trim() === "") {
@@ -230,7 +253,9 @@ async function processMessage(message: Message): Promise<void> {
 
   const candidates = urls.filter((url) => !isAlreadyFixed(url));
   const fixedUrls = await Promise.all(
-    candidates.map((url) => (extractTwitterInfo(url) ? fixTwitterUrl(url) : replaceDomains(url)))
+    candidates.map((url) =>
+      extractTwitterInfo(url) ? fixTwitterUrl(url) : replaceDomains(url),
+    ),
   );
   const processedUrls = [...new Set(fixedUrls)];
 
@@ -238,7 +263,17 @@ async function processMessage(message: Message): Promise<void> {
     return;
   }
 
-  const replyContent = processedUrls.map((url) => `[.](${url})`).join("\n");
+  const getLabel = (url: string): string => {
+    if (url.includes("fixupx.com")) return "See on X";
+    if (url.includes("oginstagram.com")) return "See on Instagram";
+    if (url.includes("facebed.com")) return "See on Facebook";
+    if (url.includes("kktiktok.com")) return "See on TikTok";
+    return ".";
+  };
+
+  const replyContent = processedUrls
+    .map((url) => `-# [${getLabel(url)}](${url})`)
+    .join("\n");
   await message.reply({
     content: replyContent,
     allowedMentions: { repliedUser: false },
@@ -249,7 +284,9 @@ async function processMessage(message: Message): Promise<void> {
 
   setTimeout(async () => {
     try {
-      const fetchedMessage = await message.channel.messages.fetch(message.id).catch(() => null);
+      const fetchedMessage = await message.channel.messages
+        .fetch(message.id)
+        .catch(() => null);
       if (fetchedMessage && fetchedMessage.embeds.length > 0) {
         await suppressEmbedsWithRetry(fetchedMessage);
       }
@@ -277,18 +314,20 @@ export default {
   scope: "global",
   ignoreBots: true,
   allowEdited: false,
-  execute: async function (message: Message, client: Client) {
+  execute: async function(message: Message, client: Client) {
     try {
       await processMessage(message);
     } catch (err) {
       client.errorLogger(err, client, "error", process.cwd() + " ");
     }
   },
-  onMessageUpdate: async function (message: Message, client: Client) {
+  onMessageUpdate: async function(message: Message, client: Client) {
     try {
       await handleMessageUpdate(message);
     } catch (err) {
       client.errorLogger(err, client, "error", process.cwd() + " ");
     }
   },
-} as Iautomod & { onMessageUpdate?: (message: Message, client: Client) => Promise<void> };
+} as Iautomod & {
+  onMessageUpdate?: (message: Message, client: Client) => Promise<void>;
+};
