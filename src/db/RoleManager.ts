@@ -161,14 +161,40 @@ class CustomRole {
       user_id_str: string;
       server_id_str: string;
       role_id_str: string;
+      left_since?: string | null;
     }>
   > {
+    try {
+      await this.db
+        .run(`ALTER TABLE customRoles ADD COLUMN left_since TEXT`)
+        .catch(() => {});
+    } catch {
+      /* ignore */
+    }
     return await this.db.all(
-      `SELECT u.user_id as user_id_str, s.server_id as server_id_str, r.role_id as role_id_str
+      `SELECT u.user_id as user_id_str, s.server_id as server_id_str, r.role_id as role_id_str, cr.left_since as left_since
        FROM customRoles cr
        JOIN users u ON u.id = cr.user_id
        JOIN servers s ON s.id = cr.server_id
        JOIN roles r ON r.id = cr.role_id`,
+    );
+  }
+
+  public async setLeftSince(
+    roleIdStr: string,
+    iso: string | null,
+  ): Promise<void> {
+    try {
+      await this.db
+        .run(`ALTER TABLE customRoles ADD COLUMN left_since TEXT`)
+        .catch(() => {});
+    } catch {
+      /* ignore */
+    }
+    await this.db.run(
+      `UPDATE customRoles SET left_since = ? WHERE role_id = (SELECT id FROM roles WHERE role_id = ?)`,
+      iso,
+      roleIdStr,
     );
   }
 

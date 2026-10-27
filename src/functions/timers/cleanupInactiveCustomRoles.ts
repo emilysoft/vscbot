@@ -43,7 +43,56 @@ async function cleanup(client: Client): Promise<void> {
       const member = await guild.members
         .fetch(entry.user_id_str)
         .catch(() => null);
-      if (!member) continue;
+
+      if (!member) {
+        if (!entry.left_since) {
+          await client.db.roles.custom.setLeftSince(
+            entry.role_id_str,
+            new Date().toISOString(),
+          );
+          continue;
+        }
+
+        const leftAt = new Date(entry.left_since).getTime();
+        if (Number.isNaN(leftAt) || leftAt >= cutoff) {
+          continue;
+        }
+
+        const role =
+          guild.roles.cache.get(entry.role_id_str) ??
+          (await guild.roles.fetch(entry.role_id_str).catch(() => null));
+
+        if (!role) {
+          await client.db.roles.custom.deleteByRoleIdStr(entry.role_id_str);
+          continue;
+        }
+
+        const me = guild.members.me;
+        if (!me || me.roles.highest.comparePositionTo(role) <= 0) {
+          await logGoneHierarchySkip(guild, logChannelId, entry, role);
+          continue;
+        }
+
+        if (dryRun) {
+          await logGoneCleanup(guild, logChannelId, entry, role, true);
+          continue;
+        }
+
+        await role
+          .delete("Inactividad: ausente del servidor por 3 meses")
+          .catch((err) => {
+            client.errorLogger(err, client, "error");
+          });
+
+        await client.db.roles.custom.deleteByRoleIdStr(entry.role_id_str);
+
+        await logGoneCleanup(guild, logChannelId, entry, role, false);
+        continue;
+      }
+
+      if (entry.left_since) {
+        await client.db.roles.custom.setLeftSince(entry.role_id_str, null);
+      }
 
       if (guild.ownerId === entry.user_id_str) continue;
 
@@ -195,6 +244,99 @@ async function logHierarchySkip(
       {
         name: "Último mensaje",
         value: `<t:${lastMessageTimestamp}:R>`,
+        inline: true,
+      },
+      {
+        name: "Acción",
+        value:
+          "No se eliminó el rol ni se limpió la base de datos (revisar manualmente)",
+        inline: false,
+      },
+    )
+    .setTimestamp();
+
+  await channel.send({ embeds: [embed] }).catch(() => null);
+}
+
+async function logGoneCleanup(
+  guild: any,
+  channelId: string,
+  entry: any,
+  role: Role,
+  dryRun: boolean,
+): Promise<void> {
+  if (!channelId) return;
+
+  const channel =
+    guild.channels.cache.get(channelId) ??
+    (await guild.channels.fetch(channelId).catch(() => null));
+
+  if (!(channel instanceof TextChannel)) return;
+
+  const leftSince = entry.left_since
+    ? new Date(entry.left_since).getTime()
+    : Date.now();
+  const leftTimestamp = Math.floor(leftSince / 1000);
+
+  const embed = new EmbedBuilder()
+    .setColor((config as any).EMBED_COLOR)
+    .setTitle(
+      dryRun
+        ? "🧪 [DRY RUN] Rol personalizado por eliminar - Ausente del servidor"
+        : "🗑️ Rol personalizado eliminado - Ausente del servidor",
+    )
+    .addFields(
+      {
+        name: "Usuario",
+        value: `<@${entry.user_id_str}> (${entry.user_id_str})`,
+        inline: true,
+      },
+      { name: "Rol", value: `${role.name} (${role.id})`, inline: true },
+      {
+        name: "Ausente desde",
+        value: `<t:${leftTimestamp}:R>`,
+        inline: true,
+      },
+    )
+    .setTimestamp();
+
+  await channel.send({ embeds: [embed] }).catch(() => null);
+}
+
+async function logGoneHierarchySkip(
+  guild: any,
+  channelId: string,
+  entry: any,
+  role: Role,
+): Promise<void> {
+  if (!channelId) return;
+
+  const channel =
+    guild.channels.cache.get(channelId) ??
+    (await guild.channels.fetch(channelId).catch(() => null));
+
+  if (!(channel instanceof TextChannel)) return;
+
+  const leftSince = entry.left_since
+    ? new Date(entry.left_since).getTime()
+    : Date.now();
+  const leftTimestamp = Math.floor(leftSince / 1000);
+
+  const embed = new EmbedBuilder()
+    .setColor((config as any).EMBED_COLOR)
+    .setTitle(
+      "⚠️ Rol personalizado por eliminar - Ausente del servidor - Jerarquía insuficiente",
+    )
+    .addFields(
+      {
+        name: "Usuario",
+        value: `<@${entry.user_id_str}> (${entry.user_id_str})`,
+        inline: true,
+      },
+      { name: "Rol", value: `${role.name} (${role.id})`, inline: true },
+      {
+        name: "Ausente desde",
+        value: `<t:${leftTimestamp}:R>`,
         inline: true,
       },
       {
