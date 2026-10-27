@@ -55,14 +55,17 @@ export function buildCustomRolePanel(): {
     .setTitle("🎨 Rol personalizado")
     .setDescription(
       [
-        "Desde acá podés crear tu rol personalizado o cambiarle el **nombre** y el **icono**.",
+        "Aquí puedes crear tu rol personalizado o cambiarle el **nombre** y el **icono**.",
         "",
         "**Requisitos**",
-        "• Si todavía no tenés un rol, necesitás ser **booster** para crearlo.",
+        "• Si todavía no tienes un rol, necesitas ser **booster** para crearlo.",
         "• El servidor necesita **Nivel 2** de boosts para usar iconos de rol.",
         "",
-        "Hacé clic en el botón para empezar.",
+        "Haz clic en el botón para empezar.",
       ].join("\n"),
+    )
+    .setImage(
+      "https://cdn.discordapp.com/attachments/1024260771326197781/1564763195485196438/8t6shpz.jpg?ex=6ae272c9&is=6ae12149&hm=f4b45f8c55203b7095c0b21d0cbb2419c22a765acb7411186864eaf916bf6260",
     )
     .setFooter({
       text: "PNG, JPG, GIF o WEBP • Máximo 8 MB",
