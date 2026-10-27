@@ -11,7 +11,7 @@ const parser = new Parser({
 });
 
 const SEND_DELAY_MS = 15 * 60 * 1000;
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 interface BlacklistCondition {
   field: string;
@@ -33,7 +33,11 @@ function normalizeTitle(title: string): string {
   return title.trim().toLowerCase().replace(/\s+/g, " ");
 }
 
-function parsePostedGuids(raw: string): { entries: PostedEntry[]; lookupTitle: Set<string>; lookupGuid: Set<string> } {
+function parsePostedGuids(raw: string): {
+  entries: PostedEntry[];
+  lookupTitle: Set<string>;
+  lookupGuid: Set<string>;
+} {
   const entries: PostedEntry[] = [];
   try {
     const parsed = JSON.parse(raw || "[]");
@@ -46,24 +50,37 @@ function parsePostedGuids(raw: string): { entries: PostedEntry[]; lookupTitle: S
         }
       }
     }
-  } catch { }
+  } catch {
+    /* ignore */
+  }
   return {
     entries,
-    lookupTitle: new Set(entries.map(e => e.t).filter(Boolean)),
-    lookupGuid: new Set(entries.map(e => e.g).filter(Boolean)),
+    lookupTitle: new Set(entries.map((e) => e.t).filter(Boolean)),
+    lookupGuid: new Set(entries.map((e) => e.g).filter(Boolean)),
   };
 }
 
 function getFieldValue(item: Parser.Item, field: string): string {
   if (field === "title") return item.title || "";
   if (field === "link") return item.link || "";
-  if (field === "description") return (item as any).contentSnippet || (item as any).content || (item as any).description || "";
-  if (field === "author") return (item as any).creator || (item as any).author || "";
-  if (field === "pubDate") return (item as any).pubDate || (item as any).isoDate || "";
+  if (field === "description")
+    return (
+      (item as any).contentSnippet ||
+      (item as any).content ||
+      (item as any).description ||
+      ""
+    );
+  if (field === "author")
+    return (item as any).creator || (item as any).author || "";
+  if (field === "pubDate")
+    return (item as any).pubDate || (item as any).isoDate || "";
   return (item as any)[field] || "";
 }
 
-function evaluateCondition(item: Parser.Item, condition: BlacklistCondition): boolean {
+function evaluateCondition(
+  item: Parser.Item,
+  condition: BlacklistCondition,
+): boolean {
   const fieldValue = getFieldValue(item, condition.field);
   let match: boolean;
 
@@ -88,41 +105,62 @@ function evaluateCondition(item: Parser.Item, condition: BlacklistCondition): bo
   return condition.negative ? !match : match;
 }
 
-export function isBlacklisted(item: Parser.Item, blacklistJson: string): boolean {
+export function isBlacklisted(
+  item: Parser.Item,
+  blacklistJson: string,
+): boolean {
   if (!blacklistJson) return false;
   try {
     const config: BlacklistConfig = JSON.parse(blacklistJson);
     if (!config.conditions?.length) return false;
-    return config.conditions.every(c => evaluateCondition(item, c));
+    return config.conditions.every((c) => evaluateCondition(item, c));
   } catch {
     return false;
   }
 }
 
-function applyTemplate(template: string, item: Parser.Item, feed: Parser.Output<Parser.Item>): string {
+function applyTemplate(
+  template: string,
+  item: Parser.Item,
+  feed: Parser.Output<Parser.Item>,
+): string {
   return template
-    .replace(/\{title\}/g, item.title || '')
-    .replace(/\{link\}/g, item.link || '')
-    .replace(/\{description\}/g, (item as any).contentSnippet || (item as any).content || (item as any).description || '')
-    .replace(/\{author\}/g, (item as any).creator || (item as any).author || '')
-    .replace(/\{pubDate\}/g, (item as any).pubDate || (item as any).isoDate || '')
-    .replace(/\{feedTitle\}/g, feed.title || '')
-    .replace(/\{feedLink\}/g, feed.link || '');
+    .replace(/\{title\}/g, item.title || "")
+    .replace(/\{link\}/g, item.link || "")
+    .replace(
+      /\{description\}/g,
+      (item as any).contentSnippet ||
+        (item as any).content ||
+        (item as any).description ||
+        "",
+    )
+    .replace(/\{author\}/g, (item as any).creator || (item as any).author || "")
+    .replace(
+      /\{pubDate\}/g,
+      (item as any).pubDate || (item as any).isoDate || "",
+    )
+    .replace(/\{feedTitle\}/g, feed.title || "")
+    .replace(/\{feedLink\}/g, feed.link || "");
 }
 
 function getItemGuid(item: Parser.Item): string {
-  return item.guid || item.link || item.title || '';
+  return item.guid || item.link || item.title || "";
 }
 
-export async function previewFeed(feedUrl: string, template: string): Promise<{ rendered: string; item: Parser.Item | null; feedTitle: string }> {
+export async function previewFeed(
+  feedUrl: string,
+  template: string,
+): Promise<{ rendered: string; item: Parser.Item | null; feedTitle: string }> {
   const parsed = await parser.parseURL(feedUrl);
   const item = parsed.items?.[0] || null;
-  const rendered = item ? applyTemplate(template, item, parsed) : '*No hay items en el feed*';
-  return { rendered, item, feedTitle: parsed.title || 'Sin título' };
+  const rendered = item
+    ? applyTemplate(template, item, parsed)
+    : "*No hay items en el feed*";
+  return { rendered, item, feedTitle: parsed.title || "Sin título" };
 }
 
 function truncate(s: string, max: number): string {
-  return s.length > max ? s.slice(0, max) + '…' : s;
+  return s.length > max ? s.slice(0, max) + "…" : s;
 }
 
 export async function detectFeedFields(feedUrl: string): Promise<{
@@ -136,16 +174,39 @@ export async function detectFeedFields(feedUrl: string): Promise<{
     const i = (item || {}) as any;
 
     return {
-      feedTitle: parsed.title || 'Sin título',
+      feedTitle: parsed.title || "Sin título",
       itemAvailable: !!item,
       fields: [
-        { variable: '{title}', available: !!i.title, value: i.title || '' },
-        { variable: '{link}', available: !!i.link, value: i.link || '' },
-        { variable: '{description}', available: !!(i.contentSnippet || i.content || i.description), value: truncate(i.contentSnippet || i.content || i.description || '', 200) },
-        { variable: '{author}', available: !!(i.creator || i.author), value: i.creator || i.author || '' },
-        { variable: '{pubDate}', available: !!(i.pubDate || i.isoDate), value: i.pubDate || i.isoDate || '' },
-        { variable: '{feedTitle}', available: !!parsed.title, value: parsed.title || '' },
-        { variable: '{feedLink}', available: !!parsed.link, value: parsed.link || '' },
+        { variable: "{title}", available: !!i.title, value: i.title || "" },
+        { variable: "{link}", available: !!i.link, value: i.link || "" },
+        {
+          variable: "{description}",
+          available: !!(i.contentSnippet || i.content || i.description),
+          value: truncate(
+            i.contentSnippet || i.content || i.description || "",
+            200,
+          ),
+        },
+        {
+          variable: "{author}",
+          available: !!(i.creator || i.author),
+          value: i.creator || i.author || "",
+        },
+        {
+          variable: "{pubDate}",
+          available: !!(i.pubDate || i.isoDate),
+          value: i.pubDate || i.isoDate || "",
+        },
+        {
+          variable: "{feedTitle}",
+          available: !!parsed.title,
+          value: parsed.title || "",
+        },
+        {
+          variable: "{feedLink}",
+          available: !!parsed.link,
+          value: parsed.link || "",
+        },
       ],
     };
   } catch {
@@ -153,18 +214,27 @@ export async function detectFeedFields(feedUrl: string): Promise<{
   }
 }
 
-export async function getLatestItemPreview(feedUrl: string): Promise<{ title: string; link: string; description: string; pubDate: string; author: string } | null> {
+export async function getLatestItemPreview(feedUrl: string): Promise<{
+  title: string;
+  link: string;
+  description: string;
+  pubDate: string;
+  author: string;
+} | null> {
   try {
     const parsed = await parser.parseURL(feedUrl);
     const item = parsed.items?.[0];
     if (!item) return null;
     const i = item as any;
     return {
-      title: truncate(i.title || 'Sin título', 200),
-      link: i.link || '',
-      description: truncate(i.contentSnippet || i.content || i.description || '', 500),
-      pubDate: i.pubDate || i.isoDate || '',
-      author: i.creator || i.author || '',
+      title: truncate(i.title || "Sin título", 200),
+      link: i.link || "",
+      description: truncate(
+        i.contentSnippet || i.content || i.description || "",
+        500,
+      ),
+      pubDate: i.pubDate || i.isoDate || "",
+      author: i.creator || i.author || "",
     };
   } catch {
     return null;
@@ -176,7 +246,11 @@ async function checkFeed(client: Client, feed: DB_RssFeed) {
     const parsed = await parser.parseURL(feed.url);
     if (!parsed.items || parsed.items.length === 0) return;
 
-    const { entries: postedEntries, lookupTitle, lookupGuid } = parsePostedGuids(feed.posted_guids);
+    const {
+      entries: postedEntries,
+      lookupTitle,
+      lookupGuid,
+    } = parsePostedGuids(feed.posted_guids);
     const isFirstRun = postedEntries.length === 0;
 
     const newItems: Parser.Item[] = [];
@@ -185,23 +259,37 @@ async function checkFeed(client: Client, feed: DB_RssFeed) {
       const guid = getItemGuid(item);
       if (!titleNorm && !guid) continue;
 
-      if (lookupTitle.has(titleNorm) || lookupGuid.has(guid)) break;
+      if (lookupTitle.has(titleNorm) || lookupGuid.has(guid)) continue;
       newItems.push(item);
     }
-    newItems.reverse();
+
+    newItems.sort((a, b) => {
+      const da = new Date(
+        (a as any).isoDate || (a as any).pubDate || 0,
+      ).getTime();
+      const db = new Date(
+        (b as any).isoDate || (b as any).pubDate || 0,
+      ).getTime();
+      return da - db;
+    });
 
     if (newItems.length === 0) {
-      await client.db.rss.update(feed.id!, { last_checked: new Date().toISOString() });
+      await client.db.rss.update(feed.id!, {
+        last_checked: new Date().toISOString(),
+      });
       return;
     }
 
     const toSend = isFirstRun ? [newItems[newItems.length - 1]] : newItems;
 
     const filtered = feed.blacklist_json
-      ? toSend.filter(item => !isBlacklisted(item, feed.blacklist_json))
+      ? toSend.filter((item) => !isBlacklisted(item, feed.blacklist_json))
       : toSend;
 
-    const allEntries = newItems.map(item => ({ g: getItemGuid(item), t: normalizeTitle(item.title || "") }));
+    const allEntries = newItems.map((item) => ({
+      g: getItemGuid(item),
+      t: normalizeTitle(item.title || ""),
+    }));
     const updatedPosted = [...allEntries, ...postedEntries].slice(0, 100);
 
     await client.db.rss.update(feed.id!, {
@@ -223,16 +311,27 @@ async function checkFeed(client: Client, feed: DB_RssFeed) {
       await delay(SEND_DELAY_MS);
     }
   } catch (err) {
-    const enriched = err instanceof Error
-      ? new Error(`Feed "${feed.name}" (#${feed.id}): ${err.message}\nURL: ${feed.url}`)
-      : err;
-    client.errorLogger(enriched, client, "error", `${process.cwd()} timers/rssScheduler`);
+    const enriched =
+      err instanceof Error
+        ? new Error(
+            `Feed "${feed.name}" (#${feed.id}): ${err.message}\nURL: ${feed.url}`,
+          )
+        : err;
+    client.errorLogger(
+      enriched,
+      client,
+      "error",
+      `${process.cwd()} timers/rssScheduler`,
+    );
   }
 }
 
 const feedLocks = new Map<number, Promise<void>>();
 
-function withFeedLock(feedId: number, task: () => Promise<void>): Promise<void> {
+function withFeedLock(
+  feedId: number,
+  task: () => Promise<void>,
+): Promise<void> {
   const previous = feedLocks.get(feedId) ?? Promise.resolve();
   const next = previous.then(task, task);
   feedLocks.set(
@@ -246,28 +345,35 @@ export async function initRssScheduler(client: Client) {
   const feeds = await client.db.rss.getActive();
 
   await Promise.all(
-    feeds.map(feed =>
-      feed.id ? withFeedLock(feed.id, () => checkFeed(client, feed)) : Promise.resolve(),
+    feeds.map((feed) =>
+      feed.id
+        ? withFeedLock(feed.id, () => checkFeed(client, feed))
+        : Promise.resolve(),
     ),
   );
 
   console.log(`[rssScheduler] Checked ${feeds.length} RSS feeds`);
 
   let tickRunning = false;
-  setInterval(async () => {
-    if (tickRunning) return;
-    tickRunning = true;
-    try {
-      const active = await client.db.rss.getActive();
-      await Promise.all(
-        active.map(feed =>
-          feed.id ? withFeedLock(feed.id, () => checkFeed(client, feed)) : Promise.resolve(),
-        ),
-      );
-    } catch (err) {
-      console.error("[rssScheduler] Error en el tick:", err);
-    } finally {
-      tickRunning = false;
-    }
-  }, 5 * 60 * 1000);
+  setInterval(
+    async () => {
+      if (tickRunning) return;
+      tickRunning = true;
+      try {
+        const active = await client.db.rss.getActive();
+        await Promise.all(
+          active.map((feed) =>
+            feed.id
+              ? withFeedLock(feed.id, () => checkFeed(client, feed))
+              : Promise.resolve(),
+          ),
+        );
+      } catch (err) {
+        console.error("[rssScheduler] Error en el tick:", err);
+      } finally {
+        tickRunning = false;
+      }
+    },
+    5 * 60 * 1000,
+  );
 }
