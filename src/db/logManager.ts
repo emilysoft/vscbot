@@ -1,15 +1,19 @@
-import { DB_Logs, DB_Logs_Fetched } from './Idatabase.js'
-import { Database as SQLiteDatabase } from 'sqlite';
+import { DB_Logs, DB_Logs_Fetched } from "./Idatabase.js";
+import { Database as SQLiteDatabase } from "sqlite";
 
 export default class LogManager {
-  private db!: SQLiteDatabase
+  private db!: SQLiteDatabase;
 
   constructor(db: SQLiteDatabase) {
     this.db = db;
   }
 
-  public async get(guild_id: string, channel_id?: string, user_id?: string): Promise<DB_Logs_Fetched[] | undefined> {
-    if (!guild_id) return
+  public async get(
+    guild_id: string,
+    channel_id?: string,
+    user_id?: string,
+  ): Promise<DB_Logs_Fetched[] | undefined> {
+    if (!guild_id) return;
 
     if (channel_id != undefined && user_id != undefined) {
       return await this.db.all<DB_Logs_Fetched[]>(
@@ -22,8 +26,10 @@ export default class LogManager {
         JOIN servers AS s ON s.id = l.server_id 
         JOIN channels AS chl ON chl.id = l.channel_id
         WHERE chl.channel_id = ? AND u.user_id = ? AND s.server_id = ?`,
-        channel_id, user_id, guild_id)
-
+        channel_id,
+        user_id,
+        guild_id,
+      );
     } else if (channel_id != undefined) {
       return await this.db.all<DB_Logs_Fetched[]>(
         `SELECT 
@@ -35,9 +41,11 @@ export default class LogManager {
         JOIN servers AS s ON s.id = l.server_id 
         JOIN channels AS chl ON chl.id = l.channel_id
         WHERE chl.channel_id = ? AND s.server_id = ?`,
-        channel_id, guild_id)
-
-    } if (user_id != undefined) {
+        channel_id,
+        guild_id,
+      );
+    }
+    if (user_id != undefined) {
       return await this.db.all<DB_Logs_Fetched[]>(
         `SELECT 
         chl.name AS channel_name,
@@ -48,12 +56,12 @@ export default class LogManager {
         JOIN servers AS s ON s.id = l.server_id 
         JOIN channels AS chl ON chl.id = l.channel_id
         WHERE u.user_id = ? AND s.server_id = ?`,
-        user_id, guild_id)
-
+        user_id,
+        guild_id,
+      );
     } else {
-      return
+      return;
     }
-
   }
 
   public async create(logData: DB_Logs): Promise<void> {
@@ -70,9 +78,23 @@ export default class LogManager {
       logData.channel_id,
       logData.interaction,
       logData.logType,
-      logData.creation_date
-    )
+      logData.creation_date,
+    );
   }
 
-
+  public async getLastMessageDate(
+    userId: string,
+    guildId: string,
+  ): Promise<string | undefined> {
+    const row = await this.db.get<{ creation_date: string }>(
+      `SELECT MAX(l.creation_date) as creation_date
+       FROM logs l
+       JOIN users u ON u.id = l.user_id
+       JOIN servers s ON s.id = l.server_id
+       WHERE u.user_id = ? AND s.server_id = ? AND l.log_type = 'MESSAGE CREATED'`,
+      userId,
+      guildId,
+    );
+    return row?.creation_date;
+  }
 }

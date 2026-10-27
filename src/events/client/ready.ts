@@ -12,6 +12,7 @@ import { initNewMemberRestrictionScheduler } from "../../functions/timers/newMem
 import { initMudaeResetScheduler } from "../../functions/timers/mudaeResetScheduler.js";
 import { clearGulag } from "../../functions/automod/workers/clearChat.js";
 import { deployCommands } from "../../handlers/deploy-commands.js";
+import { startInactiveCustomRoleCleanup } from "../../functions/timers/cleanupInactiveCustomRoles.js";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -27,6 +28,8 @@ const module = {
     await initRssScheduler(client);
     await initNewMemberRestrictionScheduler(client);
     await initMudaeResetScheduler(client);
+
+    startInactiveCustomRoleCleanup(client);
 
     setInterval(
       () => {
