@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "drizzle-sqlite": {
+      "source": "pproenca/dot-skills",
+      "sourceType": "github",
+      "skillPath": "skills/.experimental/drizzle-sqlite/SKILL.md",
+      "computedHash": "1174a8051b6dcb87e9c5de084fe7c77971f472ff5ea3ba22109c20c66a30ae61"
+    }
+  }
+}

@@ -16,4 +16,5 @@ daemon
 tsconfig.tsbuildinfo
 .editorconfig
 .vscode/
-agent.md
+AGENTS.md
+.agents/**
