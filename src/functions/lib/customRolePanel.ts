@@ -18,6 +18,7 @@ import config from "../../config/config.json" with { type: "json" };
 import Client from "../../interfaces/ICustomClient.js";
 import {
   BOOSTER_REQUIRED_MESSAGE,
+  CUSTOM_ROLES_NO_SLOTS_MESSAGE,
   ROLE_ICONS_UNAVAILABLE_MESSAGE,
   canUseRoleIcons,
   createCustomRoleForMember,
@@ -166,6 +167,24 @@ export async function handleCustomRolePanelButton(
   if (!existingRole && !isBooster(member)) {
     await replyButtonError(interaction, BOOSTER_REQUIRED_MESSAGE);
     return;
+  }
+
+  if (!existingRole) {
+    try {
+      const maxSlots = Number((config as any).CUSTOM_ROLES_MAX_SLOTS || 0);
+      const reserved = Number((config as any).CUSTOM_ROLES_RESERVED_SLOTS || 2);
+      if (maxSlots > 0) {
+        const trackerId = (config as any).CUSTOM_ROLE_TRACKER_ROLE_ID;
+        const trackerRole = guild.roles.cache.get(trackerId);
+        const count = trackerRole?.members.size || 0;
+        if (count >= maxSlots - reserved) {
+          await replyButtonError(interaction, CUSTOM_ROLES_NO_SLOTS_MESSAGE);
+          return;
+        }
+      }
+    } catch {
+      /* ignore */
+    }
   }
 
   await interaction.showModal(

@@ -127,6 +127,8 @@ async function cleanup(client: Client): Promise<void> {
         continue;
       }
 
+      const trackerId = (config as any).CUSTOM_ROLE_TRACKER_ROLE_ID;
+
       if (dryRun) {
         await logCleanup(
           guild,
@@ -142,6 +144,12 @@ async function cleanup(client: Client): Promise<void> {
       if (member.roles.cache.has(role.id)) {
         await member.roles
           .remove(role, "Inactividad: sin mensajes en 3 meses")
+          .catch(() => null);
+      }
+
+      if (trackerId && member.roles.cache.has(trackerId)) {
+        await member.roles
+          .remove(trackerId, "Inactividad: sin mensajes en 3 meses")
           .catch(() => null);
       }
 
