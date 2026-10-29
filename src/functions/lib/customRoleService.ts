@@ -90,6 +90,41 @@ export async function getCustomRoleSlotState(guild: Guild): Promise<{
   };
 }
 
+export async function getCustomRolePosition(guild: Guild): Promise<number> {
+  const anchorRoleId = (config as any).CUSTOM_ROLES_ANCHOR_ROLE_ID as
+    string | undefined;
+
+  if (!anchorRoleId) return 10;
+
+  const anchorRole =
+    guild.roles.cache.get(anchorRoleId) ??
+    (await guild.roles.fetch(anchorRoleId).catch(() => null));
+
+  if (!anchorRole) {
+    throw new Error(
+      "No se encontró el rol de referencia para crear los roles personalizados.",
+    );
+  }
+
+  // Role positions are array indexes; one below the anchor keeps it directly underneath.
+  const position = anchorRole.position - 1;
+
+  if (position < 1) {
+    throw new Error(
+      "El rol de referencia no tiene espacio debajo en la jerarquía.",
+    );
+  }
+
+  const me = guild.members.me;
+  if (me && anchorRole.position > me.roles.highest.position) {
+    throw new Error(
+      "No puedo crear roles debajo de ese rol porque está por encima de mi rol más alto.",
+    );
+  }
+
+  return position;
+}
+
 export async function saveRoleIcon(
   icon: Attachment,
   storageId: string,
@@ -255,10 +290,12 @@ export async function createCustomRoleForMember(
         throw new Error(CUSTOM_ROLES_NO_SLOTS_MESSAGE);
       }
 
+      const position = await getCustomRolePosition(member.guild);
+
       const role = await member.guild.roles.create({
         name: roleName,
         icon: iconPath,
-        position: 10,
+        position,
         reason: "Custom role created from panel",
       });
 

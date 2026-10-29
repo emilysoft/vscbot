@@ -10,6 +10,7 @@ import Client from "../../interfaces/ICustomClient.js";
 import {
   ROLE_ICONS_UNAVAILABLE_MESSAGE,
   canUseRoleIcons,
+  getCustomRolePosition,
   saveRoleIcon,
   updateCustomRoleForMember,
 } from "./customRoleService.js";
@@ -103,9 +104,10 @@ class RoleManager {
   private async setupRoleData(): Promise<RoleCreateOptions> {
     const name = this.interaction.options.getString("nombre", true);
     const icon = this.interaction.options.getAttachment("icon", false);
+    const position = await getCustomRolePosition(this.guild);
     const roleData: RoleCreateOptions = {
       name,
-      position: 10,
+      position,
     };
     if (icon) {
       const attachIcon = await this.processAndSaveIcon();
