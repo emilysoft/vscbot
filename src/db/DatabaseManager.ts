@@ -99,6 +99,7 @@ export default class DatabaseManager {
         user_id INTEGER NOT NULL,
         server_id INTEGER NOT NULL,
         role_id INTEGER NOT NULL,
+        left_since TEXT DEFAULT NULL,
         FOREIGN KEY (server_id) REFERENCES servers(id) ON DELETE CASCADE,
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
         FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE
@@ -266,6 +267,9 @@ export default class DatabaseManager {
       `ALTER TABLE events ADD COLUMN events_channel_message_id TEXT DEFAULT NULL`,
       `ALTER TABLE events ADD COLUMN is_private INTEGER DEFAULT 0`,
     ]
+    const customRoleMigrations = [
+      `ALTER TABLE customRoles ADD COLUMN left_since TEXT DEFAULT NULL`,
+    ]
     const reminderMigrations = [
       `ALTER TABLE reminders ADD COLUMN recurring INTEGER DEFAULT 0`,
     ]
@@ -279,17 +283,20 @@ export default class DatabaseManager {
       `ALTER TABLE mudae_reset_config ADD COLUMN min_messages INTEGER NOT NULL DEFAULT 80`,
       `ALTER TABLE mudae_activity ADD COLUMN msg_count INTEGER NOT NULL DEFAULT 0`,
     ]
+    for (const sql of customRoleMigrations) {
+      try { await this.db.run(sql) } catch { /* ignore */ }
+    }
     for (const sql of reminderMigrations) {
-      try { await this.db.run(sql) } catch { }
+      try { await this.db.run(sql) } catch { /* ignore */ }
     }
     for (const sql of rssMigrations) {
-      try { await this.db.run(sql) } catch { }
+      try { await this.db.run(sql) } catch { /* ignore */ }
     }
     for (const sql of mudaeMigrations) {
-      try { await this.db.run(sql) } catch { }
+      try { await this.db.run(sql) } catch { /* ignore */ }
     }
     for (const sql of migrations) {
-      try { await this.db.run(sql) } catch { }
+      try { await this.db.run(sql) } catch { /* ignore */ }
     }
   }
   /**

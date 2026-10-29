@@ -23,6 +23,7 @@ import {
   canUseRoleIcons,
   createCustomRoleForMember,
   getCustomRoleForMember,
+  getCustomRoleSlotState,
   isBooster,
   updateCustomRoleForMember,
 } from "./customRoleService.js";
@@ -170,20 +171,11 @@ export async function handleCustomRolePanelButton(
   }
 
   if (!existingRole) {
-    try {
-      const maxSlots = Number((config as any).CUSTOM_ROLES_MAX_SLOTS || 0);
-      const reserved = Number((config as any).CUSTOM_ROLES_RESERVED_SLOTS || 2);
-      if (maxSlots > 0) {
-        const trackerId = (config as any).CUSTOM_ROLE_TRACKER_ROLE_ID;
-        const trackerRole = guild.roles.cache.get(trackerId);
-        const count = trackerRole?.members.size || 0;
-        if (count >= maxSlots - reserved) {
-          await replyButtonError(interaction, CUSTOM_ROLES_NO_SLOTS_MESSAGE);
-          return;
-        }
-      }
-    } catch {
-      /* ignore */
+    const slotState = await getCustomRoleSlotState(guild);
+
+    if (!slotState.available) {
+      await replyButtonError(interaction, CUSTOM_ROLES_NO_SLOTS_MESSAGE);
+      return;
     }
   }
 

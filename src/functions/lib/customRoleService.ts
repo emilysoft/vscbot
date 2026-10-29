@@ -17,7 +17,7 @@ export const ROLE_ICONS_UNAVAILABLE_MESSAGE =
 export const BOOSTER_REQUIRED_MESSAGE =
   "Necesitás ser booster para crearte un rol personalizado.";
 export const CUSTOM_ROLES_NO_SLOTS_MESSAGE =
-  "No hay slots disponibles para crear un rol personalizado. Solo quedan 2 libres.";
+  "No hay slots disponibles para crear un rol personalizado en este servidor.";
 
 const ICON_FORMATS = ["image/jpeg", "image/png", "image/gif", "image/webp"];
 const MAX_ICON_SIZE = 8 * 1024 * 1024;
@@ -52,6 +52,42 @@ export function isBooster(member: GuildMember): boolean {
     member.premiumSince ||
     (boosterRole && member.roles.cache.has(boosterRole.id)),
   );
+}
+
+export async function getCustomRoleSlotState(guild: Guild): Promise<{
+  available: boolean;
+  used: number;
+  limit: number;
+  reserved: number;
+}> {
+  const rawLimit = Number(
+    (config as any).CUSTOM_ROLES_SERVER_ROLE_LIMIT ?? 250,
+  );
+  const rawReserved = Number((config as any).CUSTOM_ROLES_RESERVED_SLOTS ?? 2);
+  const limit = Number.isFinite(rawLimit) ? rawLimit : 250;
+  const reserved = Number.isFinite(rawReserved) ? Math.max(0, rawReserved) : 2;
+
+  let used = guild.roles.cache.size;
+
+  try {
+    const roles = await guild.roles.fetch();
+    used = roles.size;
+  } catch {
+    /* use cache if fetch fails */
+  }
+
+  if (limit <= 0) {
+    return { available: true, used, limit, reserved };
+  }
+
+  const maxAllowed = Math.max(0, limit - reserved);
+
+  return {
+    available: maxAllowed > 0 && used < maxAllowed,
+    used,
+    limit,
+    reserved,
+  };
 }
 
 export async function saveRoleIcon(
@@ -155,6 +191,26 @@ export async function updateCustomRoleForMember(
   return role;
 }
 
+const guildCreationLocks = new Map<string, Promise<void>>();
+
+async function withGuildCreationLock<T>(
+  guildId: string,
+  task: () => Promise<T>,
+): Promise<T> {
+  const previous = guildCreationLocks.get(guildId) ?? Promise.resolve();
+  const run = previous.catch(() => undefined).then(task);
+
+  guildCreationLocks.set(
+    guildId,
+    run.then(
+      () => undefined,
+      () => undefined,
+    ),
+  );
+
+  return await run;
+}
+
 export async function createCustomRoleForMember(
   member: GuildMember,
   name: string,
@@ -169,7 +225,8 @@ export async function createCustomRoleForMember(
     throw new Error(BOOSTER_REQUIRED_MESSAGE);
   }
 
-  const existingRole = await (member.client as Client).db.roles.custom.get(
+  const database = (member.client as Client).db;
+  const existingRole = await database.roles.custom.get(
     member.id,
     member.guild.id,
   );
@@ -180,75 +237,145 @@ export async function createCustomRoleForMember(
 
   const roleName = normalizeRoleName(name);
   const iconPath = await saveRoleIcon(icon, storageId);
-  const role = await member.guild.roles.create({
-    name: roleName,
-    icon: iconPath,
-    position: 10,
-    reason: "Custom role created from panel",
-  });
 
   try {
-    const maxSlots = Number((config as any).CUSTOM_ROLES_MAX_SLOTS || 0);
-    const reserved = Number((config as any).CUSTOM_ROLES_RESERVED_SLOTS || 2);
-    if (maxSlots > 0) {
-      const trackerId = (config as any).CUSTOM_ROLE_TRACKER_ROLE_ID;
-      const trackerRole = member.guild.roles.cache.get(trackerId);
-      const count = trackerRole?.members.size || 0;
-      if (count >= maxSlots - reserved) {
-        await role.delete("No custom role slots available").catch(() => null);
+    return await withGuildCreationLock(member.guild.id, async () => {
+      const currentRole = await database.roles.custom.get(
+        member.id,
+        member.guild.id,
+      );
+
+      if (currentRole) {
+        throw new Error("Ya tenés un rol personalizado.");
+      }
+
+      const slotState = await getCustomRoleSlotState(member.guild);
+
+      if (!slotState.available) {
         throw new Error(CUSTOM_ROLES_NO_SLOTS_MESSAGE);
       }
-    }
 
-    await member.roles.add(role, "Custom role assignment");
-    const trackerId = (config as any).CUSTOM_ROLE_TRACKER_ROLE_ID;
-    if (trackerId) {
-      await member.roles
-        .add(trackerId, "custom role tracker assignment")
-        .catch(() => null);
-    }
-    await (member.client as Client).db.roles.custom.create(
-      role,
-      member.user,
-      member.guild,
-    );
+      const role = await member.guild.roles.create({
+        name: roleName,
+        icon: iconPath,
+        position: 10,
+        reason: "Custom role created from panel",
+      });
+
+      const trackerId = (config as any).CUSTOM_ROLE_TRACKER_ROLE_ID as
+        string | undefined;
+      let trackerAdded = false;
+
+      try {
+        await member.roles.add(role, "Custom role assignment");
+
+        if (trackerId) {
+          trackerAdded = await member.roles
+            .add(trackerId, "custom role tracker assignment")
+            .then(() => true)
+            .catch(() => false);
+        }
+
+        await database.roles.custom.create(role, member.user, member.guild);
+      } catch (error) {
+        await role.delete("Error creating custom role").catch(() => null);
+
+        if (trackerAdded && trackerId) {
+          await member.roles
+            .remove(trackerId, "Error creating custom role")
+            .catch(() => null);
+        }
+
+        throw error;
+      }
+
+      return role;
+    });
   } catch (error) {
-    await role.delete("Error creating custom role").catch(() => null);
+    await fs.unlink(iconPath).catch(() => null);
     throw error;
   }
-
-  return role;
 }
 
-export async function syncCustomRoleTracker(
-  client: Client,
-  guild: Guild,
-): Promise<void> {
-  const trackerId = (config as any).CUSTOM_ROLE_TRACKER_ROLE_ID;
-  if (!trackerId) return;
+interface CustomRoleEntry {
+  user_id_str: string;
+  server_id_str: string;
+  role_id_str: string;
+  left_since?: string | null;
+}
 
-  const trackerRole = guild.roles.cache.get(trackerId);
-  if (!trackerRole) return;
+export async function syncCustomRoleTrackers(client: Client): Promise<void> {
+  const trackerId = (config as any).CUSTOM_ROLE_TRACKER_ROLE_ID as
+    string | undefined;
+  if (!trackerId) return;
 
   const entries = await client.db.roles.custom.getAll();
   if (!entries?.length) return;
 
+  const entriesByGuild = new Map<string, CustomRoleEntry[]>();
+
   for (const entry of entries) {
-    if (entry.server_id_str !== guild.id) continue;
+    const guildEntries = entriesByGuild.get(entry.server_id_str);
 
-    try {
-      const member = await guild.members
-        .fetch(entry.user_id_str)
-        .catch(() => null);
-      if (!member) continue;
-
-      if (member.roles.cache.has(trackerId)) continue;
-
-      await member.roles
-        .add(trackerRole, "custom role tracker sync")
-        .catch(() => null);
-    } catch {
-      /* ignore */
+    if (guildEntries) {
+      guildEntries.push(entry);
+    } else {
+      entriesByGuild.set(entry.server_id_str, [entry]);
     }
+  }
+
+  for (const [guildId, guildEntries] of entriesByGuild) {
+    const guild = client.guilds.cache.get(guildId);
+    if (!guild) continue;
+
+    await syncGuildCustomRoleTracker(guild, trackerId, guildEntries);
+  }
+}
+
+async function syncGuildCustomRoleTracker(
+  guild: Guild,
+  trackerId: string,
+  entries: CustomRoleEntry[],
+): Promise<void> {
+  const trackerRole = guild.roles.cache.get(trackerId);
+
+  if (!trackerRole) {
+    console.warn(
+      `[custom-roles] El rol tracker ${trackerId} no existe en ${guild.name} (${guild.id}).`,
+    );
+    return;
+  }
+
+  const members = await guild.members.fetch().catch(() => guild.members.cache);
+  const validUsers = new Set<string>();
+
+  for (const entry of entries) {
+    if (!guild.roles.cache.has(entry.role_id_str)) continue;
+
+    const member = members.get(entry.user_id_str);
+    if (!member) continue;
+    if (!member.roles.cache.has(entry.role_id_str)) continue;
+
+    validUsers.add(member.id);
+
+    if (member.roles.cache.has(trackerId)) continue;
+
+    await member.roles
+      .add(trackerRole, "custom role tracker sync")
+      .catch((error) => {
+        console.warn(
+          `[custom-roles] No se pudo asignar el rol tracker a ${member.id} en ${guild.id}:`,
+          error,
+        );
+      });
+  }
+
+  for (const member of trackerRole.members.values()) {
+    if (member.user.bot) continue;
+    if (validUsers.has(member.id)) continue;
+
+    await member.roles
+      .remove(trackerId, "custom role tracker cleanup")
+      .catch(() => null);
   }
 }

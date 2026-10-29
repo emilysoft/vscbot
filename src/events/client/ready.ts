@@ -13,7 +13,7 @@ import { initMudaeResetScheduler } from "../../functions/timers/mudaeResetSchedu
 import { clearGulag } from "../../functions/automod/workers/clearChat.js";
 import { deployCommands } from "../../handlers/deploy-commands.js";
 import { startInactiveCustomRoleCleanup } from "../../functions/timers/cleanupInactiveCustomRoles.js";
-import { syncCustomRoleTracker } from "../../functions/lib/customRoleService.js";
+import { syncCustomRoleTrackers } from "../../functions/lib/customRoleService.js";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -32,18 +32,15 @@ const module = {
 
     startInactiveCustomRoleCleanup(client);
 
-    for (const guild of client.guilds.cache.values()) {
-      syncCustomRoleTracker(client, guild).catch((err) =>
-        client.errorLogger(err, client, "error"),
-      );
-    }
+    syncCustomRoleTrackers(client).catch((err) =>
+      client.errorLogger(err, client, "error"),
+    );
+
     setInterval(
       () => {
-        for (const guild of client.guilds.cache.values()) {
-          syncCustomRoleTracker(client, guild).catch((err) =>
-            client.errorLogger(err, client, "error"),
-          );
-        }
+        syncCustomRoleTrackers(client).catch((err) =>
+          client.errorLogger(err, client, "error"),
+        );
       },
       60 * 60 * 1000,
     );
