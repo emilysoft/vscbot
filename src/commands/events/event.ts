@@ -235,15 +235,15 @@ async function handleSetup(interaction: ChatInputCommandInteraction, client: Cli
     const discordEvents = interaction.options.getBoolean("discord_events");
     const requireConfirmation = interaction.options.getBoolean("require_confirmation");
 
-    if (enabled !== null) updates.enabled = enabled ? 1 : 0;
+    if (enabled !== null) updates.enabled = enabled;
     if (role) updates.default_role_id = role.id;
     if (eventsChannel) updates.events_channel = eventsChannel.id;
     if (logsChannel) updates.logs_channel = logsChannel.id;
     if (voiceCategory) updates.voice_category = voiceCategory.id;
     if (textCategory) updates.text_category = textCategory.id;
     if (archiveCategory) updates.archive_category = archiveCategory.id;
-    if (discordEvents !== null) updates.use_discord_events = discordEvents ? 1 : 0;
-    if (requireConfirmation !== null) updates.require_confirmation = requireConfirmation ? 1 : 0;
+    if (discordEvents !== null) updates.use_discord_events = discordEvents;
+    if (requireConfirmation !== null) updates.require_confirmation = requireConfirmation;
 
     if (Object.keys(updates).length === 0) {
       await interaction.reply({ content: "No especificaste ninguna opción para cambiar. Usa `/event settings` para ver la configuración actual.", ephemeral: true });
@@ -346,10 +346,10 @@ async function createEventCore(
     name: params.name,
     description: params.description,
     role_id: params.roleId,
-    is_private: params.isPrivate ? 1 : 0,
+    is_private: params.isPrivate ?? false,
     channel_id: params.channelId,
     custom_message: params.message || null,
-    use_discord_event: eventConfig.use_discord_events ? 1 : 0,
+    use_discord_event: eventConfig.use_discord_events,
     start_time: params.startTime.toISO()!,
     end_time: params.endTime?.toISO() || null,
     recurrence: params.recurrence,
@@ -362,14 +362,14 @@ async function createEventCore(
     channel_topic: params.channelTopic,
     voice_channel_name: params.voiceChannelName,
     image_url: params.imageUrl,
-    require_confirmation: params.requireConfirmation ? 1 : (params.requireConfirmation === false ? 0 : null),
-    send_events_channel_msg: params.sendEventsChannelMsg ? 1 : (params.sendEventsChannelMsg === false ? 0 : null),
+    require_confirmation: params.requireConfirmation ?? null,
+    send_events_channel_msg: params.sendEventsChannelMsg ?? null,
     events_channel_message_id: params.eventsChannelMessageId ?? null,
     voice_channel_id: voiceChannelId,
     text_channel_id: null,
     message_id: null,
     discord_event_id: discordEventId,
-    reminder_sent: 0,
+    reminder_sent: false,
   });
 
   if (params.activities.length > 0) {
@@ -547,7 +547,7 @@ async function handleEdit(interaction: ChatInputCommandInteraction, client: Clie
   if (voiceChannelName !== null && voiceChannelName !== undefined) updates.voice_channel_name = voiceChannelName;
   if (channelTopic !== null && channelTopic !== undefined) updates.channel_topic = channelTopic;
   if (imageUrl !== null && imageUrl !== undefined) updates.image_url = imageUrl;
-  if (requireConfirmation !== null) updates.require_confirmation = requireConfirmation ? 1 : 0;
+  if (requireConfirmation !== null) updates.require_confirmation = requireConfirmation;
 
   if (startTimeStr) {
     const startTime = DateTime.fromFormat(startTimeStr, "yyyy-MM-dd HH:mm");

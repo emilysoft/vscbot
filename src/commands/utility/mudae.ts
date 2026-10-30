@@ -29,8 +29,8 @@ async function getOrCreateConfig(
     interval_days: existing?.interval_days ?? 15,
     active_days: existing?.active_days ?? 7,
     min_messages: existing?.min_messages ?? 80,
-    auto_send: existing?.auto_send ?? 0,
-    enabled: existing?.enabled ?? 1,
+    auto_send: existing?.auto_send ?? false,
+    enabled: existing?.enabled ?? true,
     last_run_at: existing?.last_run_at ?? new Date().toISOString(),
     created_at: existing?.created_at ?? new Date().toISOString(),
   };
@@ -134,7 +134,7 @@ async function handleSetup(interaction: ChatInputCommandInteraction, client: Cli
   const intervalDays = interaction.options.getInteger("intervalo") ?? cfg.interval_days;
   const activeDays = interaction.options.getInteger("activos") ?? cfg.active_days;
   const minMessages = interaction.options.getInteger("min_mensajes") ?? cfg.min_messages;
-  const autoSend = interaction.options.getBoolean("auto") ?? cfg.auto_send === 1;
+  const autoSend = interaction.options.getBoolean("auto") ?? cfg.auto_send;
 
   if (intervalDays < 1 || activeDays < 1 || activeDays > intervalDays || minMessages < 1) {
     await interaction.reply({
@@ -153,8 +153,8 @@ async function handleSetup(interaction: ChatInputCommandInteraction, client: Cli
     interval_days: intervalDays,
     active_days: activeDays,
     min_messages: minMessages,
-    auto_send: autoSend ? 1 : 0,
-    enabled: cfg.enabled ?? 1,
+    auto_send: autoSend,
+    enabled: cfg.enabled ?? true,
   });
 
   await refreshTrackedChannels(client);
@@ -254,7 +254,7 @@ async function handleEnable(interaction: ChatInputCommandInteraction, client: Cl
     await interaction.reply({ content: "No hay configuración. Usa `/mudae setup`.", ephemeral: true });
     return;
   }
-  await client.db.mudae.update(guildId, { enabled: enabled ? 1 : 0 });
+  await client.db.mudae.update(guildId, { enabled });
   await refreshTrackedChannels(client);
   await interaction.reply({
     content: enabled ? "✅ Reset automático activado." : "⏸️ Reset automático pausado.",

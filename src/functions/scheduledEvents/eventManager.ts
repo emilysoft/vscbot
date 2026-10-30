@@ -330,7 +330,7 @@ export async function sendReminder(client: Client, eventId: number): Promise<voi
     const reminderText = `⏰ **Recordatorio:** El evento "${event.name}" está programado para las ${new Date(event.start_time).toLocaleString()}. ¿Vas a realizarlo?`;
 
     if (!user) {
-      await client.db.events.updateEvent(eventId, { reminder_sent: 1 });
+      await client.db.events.updateEvent(eventId, { reminder_sent: true });
       if (eventConfig.logs_channel) {
         const guild = client.guilds.cache.get(event.server_id);
         if (guild) {
@@ -390,7 +390,7 @@ export async function sendReminder(client: Client, eventId: number): Promise<voi
       }
     });
 
-    await client.db.events.updateEvent(eventId, { reminder_sent: 1 });
+    await client.db.events.updateEvent(eventId, { reminder_sent: true });
   } catch (err) {
     client.errorLogger(err, client, "warn", `${process.cwd()} scheduledEvents/sendReminder`);
     try {
@@ -405,7 +405,7 @@ export async function sendReminder(client: Client, eventId: number): Promise<voi
         }
       }
     } catch { /* fallback total — no hay más que hacer */ }
-    await client.db.events.updateEvent(eventId, { reminder_sent: 1 }).catch(() => {});
+    await client.db.events.updateEvent(eventId, { reminder_sent: true }).catch(() => {});
   }
 }
 
@@ -627,7 +627,7 @@ async function createNextRecurrence(client: Client, event: DB_ScheduledEvent): P
       text_channel_id: textChannelId,
       message_id: null,
       discord_event_id: discordEventId,
-      reminder_sent: event.is_private ? 1 : 0,
+      reminder_sent: event.is_private,
     });
   } catch (err) {
     client.errorLogger(err, client, "error", `${process.cwd()} scheduledEvents/createNextRecurrence`);
@@ -663,7 +663,7 @@ export async function handleConfirmationResponse(client: Client, eventId: number
     if (!event || event.status !== 'scheduled') return;
 
     if (confirmed) {
-      await client.db.events.updateEvent(eventId, { reminder_sent: 1 });
+      await client.db.events.updateEvent(eventId, { reminder_sent: true });
     } else {
       await client.db.events.updateEvent(eventId, { status: 'cancelled' });
     }

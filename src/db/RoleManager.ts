@@ -1,16 +1,18 @@
+import { and, eq, inArray } from "drizzle-orm";
 import { DB_Role, DB_User, DB_Server } from "./Idatabase.js";
-import { Database as SQLiteDatabase } from "sqlite";
 import { Guild, Role, User } from "discord.js";
 import { IroleData } from "../db/Idatabase.js";
 import DatabaseManager from "./DatabaseManager.js";
+import type { AppDatabase } from "./client.js";
+import { customRoles, roles, servers, users } from "./schema.js";
 
 export default class RoleManager {
-  private db!: SQLiteDatabase;
+  private db: AppDatabase;
   update: UpdateRole;
   custom: CustomRole;
   databaseManager: DatabaseManager;
 
-  constructor(db: SQLiteDatabase, databaseManager: DatabaseManager) {
+  constructor(db: AppDatabase, databaseManager: DatabaseManager) {
     this.db = db;
     this.update = new UpdateRole(this.db);
     this.custom = new CustomRole(db, this, databaseManager);
@@ -19,18 +21,24 @@ export default class RoleManager {
 
   public async get(roleData: IroleData): Promise<DB_Role | undefined> {
     if (roleData?.id) {
-      return await this.db.get<DB_Role>(
-        `SELECT * FROM roles WHERE id = ?`,
-        roleData.id,
-      );
+      return this.db
+        .select()
+        .from(roles)
+        .where(eq(roles.id, roleData.id))
+        .get();
     }
 
     if (roleData.role?.id && roleData.server?.id) {
-      return await this.db.get<DB_Role>(
-        `SELECT * FROM roles WHERE role_id = ? AND server_id = ?`,
-        roleData.role.id,
-        roleData.server.id,
-      );
+      return this.db
+        .select()
+        .from(roles)
+        .where(
+          and(
+            eq(roles.role_id, roleData.role.id),
+            eq(roles.server_id, roleData.server.id),
+          ),
+        )
+        .get();
     }
 
     return undefined;
@@ -40,16 +48,12 @@ export default class RoleManager {
     role: Role,
     server: DB_Server,
   ): Promise<DB_Role | undefined> {
-    const result = await this.db.run(
-      `INSERT INTO roles (role_id, name, server_id) VALUES (?, ?, ?)`,
-      role.id,
-      role.name,
-      server.id,
-    );
-    return await this.db.get<DB_Role>(
-      `SELECT * FROM roles WHERE id = ?`,
-      result.lastID,
-    );
+    if (server.id === undefined) return undefined;
+    return this.db
+      .insert(roles)
+      .values({ role_id: role.id, name: role.name, server_id: server.id })
+      .returning()
+      .get();
   }
 
   public async ensure(roleData: IroleData): Promise<DB_Role | undefined> {
@@ -69,8 +73,12 @@ export default class RoleManager {
       const newRole = await this.create(roleData.role, roleData.server);
       if (newRole) return newRole;
     } catch (error: any) {
-      // 4. Manejo del SQLITE_CONSTRAINT
-      if (error.code === "SQLITE_CONSTRAINT") {
+      // 4. Manejo del SQLITE_CONSTRAINT (better-sqlite3 usa el codigo extendido:
+      //    SQLITE_CONSTRAINT_UNIQUE, SQLITE_CONSTRAINT_NOTNULL, ...)
+      if (
+        typeof error?.code === "string" &&
+        error.code.startsWith("SQLITE_CONSTRAINT")
+      ) {
         // Si falló por restricción, significa que alguien lo creó justo después de nuestro primer 'get'
         return await this.get(roleData);
       }
@@ -79,16 +87,19 @@ export default class RoleManager {
   }
 
   public async delete(db_role_id: number): Promise<void> {
-    await this.db.run(`DELETE FROM customRoles WHERE role_id = ?`, db_role_id);
+    this.db
+      .delete(customRoles)
+      .where(eq(customRoles.role_id, db_role_id))
+      .run();
   }
 }
 
 class CustomRole {
-  private db!: SQLiteDatabase;
+  private db: AppDatabase;
   roleManager: RoleManager;
   databaseManager: DatabaseManager;
   constructor(
-    db: SQLiteDatabase,
+    db: AppDatabase,
     roleManager: RoleManager,
     databaseManager: DatabaseManager,
   ) {
@@ -101,20 +112,19 @@ class CustomRole {
     user_id: string,
     server_id: string,
   ): Promise<DB_Role | undefined> {
-    return await this.db.get<DB_Role>(
-      `
-      SELECT
-      r.id,
-      r.role_id,
-      r.name
-      FROM customRoles AS cr
-      JOIN users AS u ON u.id = cr.user_id
-      JOIN roles AS r ON r.id = cr.role_id
-      JOIN servers AS s ON s.id = cr.server_id
-      WHERE u.user_id = ? AND s.server_id = ?`,
-      user_id,
-      server_id,
-    );
+    return this.db
+      .select({
+        id: roles.id,
+        role_id: roles.role_id,
+        name: roles.name,
+        server_id: roles.server_id,
+      })
+      .from(customRoles)
+      .innerJoin(users, eq(users.id, customRoles.user_id))
+      .innerJoin(roles, eq(roles.id, customRoles.role_id))
+      .innerJoin(servers, eq(servers.id, customRoles.server_id))
+      .where(and(eq(users.user_id, user_id), eq(servers.server_id, server_id)))
+      .get();
   }
 
   public async create(
@@ -147,13 +157,16 @@ class CustomRole {
     )
       throw new Error("error al crear custom role");
 
-    const result = await this.db.run(
-      `INSERT INTO customRoles (user_id, server_id, role_id) VALUES (?, ?, ?)`,
-      user_db.id,
-      serverDB.id,
-      role_db.id,
-    );
-    return result.lastID;
+    const inserted = this.db
+      .insert(customRoles)
+      .values({
+        user_id: user_db.id,
+        server_id: serverDB.id,
+        role_id: role_db.id,
+      })
+      .returning({ id: customRoles.id })
+      .get();
+    return inserted?.id;
   }
 
   public async getAll(): Promise<
@@ -164,37 +177,58 @@ class CustomRole {
       left_since?: string | null;
     }>
   > {
-    return await this.db.all(
-      `SELECT u.user_id as user_id_str, s.server_id as server_id_str, r.role_id as role_id_str, cr.left_since as left_since
-       FROM customRoles cr
-       JOIN users u ON u.id = cr.user_id
-       JOIN servers s ON s.id = cr.server_id
-       JOIN roles r ON r.id = cr.role_id`,
-    );
+    return this.db
+      .select({
+        user_id_str: users.user_id,
+        server_id_str: servers.server_id,
+        role_id_str: roles.role_id,
+        left_since: customRoles.left_since,
+      })
+      .from(customRoles)
+      .innerJoin(users, eq(users.id, customRoles.user_id))
+      .innerJoin(servers, eq(servers.id, customRoles.server_id))
+      .innerJoin(roles, eq(roles.id, customRoles.role_id))
+      .all();
   }
 
   public async setLeftSince(
     roleIdStr: string,
     iso: string | null,
   ): Promise<void> {
-    await this.db.run(
-      `UPDATE customRoles SET left_since = ? WHERE role_id = (SELECT id FROM roles WHERE role_id = ?)`,
-      iso,
-      roleIdStr,
-    );
+    this.db
+      .update(customRoles)
+      .set({ left_since: iso })
+      .where(
+        inArray(
+          customRoles.role_id,
+          this.db
+            .select({ id: roles.id })
+            .from(roles)
+            .where(eq(roles.role_id, roleIdStr)),
+        ),
+      )
+      .run();
   }
 
   public async deleteByRoleIdStr(roleIdStr: string): Promise<void> {
-    await this.db.run(
-      `DELETE FROM customRoles WHERE role_id = (SELECT id FROM roles WHERE role_id = ?)`,
-      roleIdStr,
-    );
+    this.db
+      .delete(customRoles)
+      .where(
+        inArray(
+          customRoles.role_id,
+          this.db
+            .select({ id: roles.id })
+            .from(roles)
+            .where(eq(roles.role_id, roleIdStr)),
+        ),
+      )
+      .run();
   }
 }
 
 class UpdateRole {
-  private db!: SQLiteDatabase;
-  constructor(db: SQLiteDatabase) {
+  private db: AppDatabase;
+  constructor(db: AppDatabase) {
     this.db = db;
   }
 
@@ -202,6 +236,6 @@ class UpdateRole {
     if (name.length == 0 || name.length == 0)
       throw new Error("datos de rol vacio");
 
-    this.db.run(`UPDATE roles SET name = ? WHERE role_id = ?`, name, role_id);
+    this.db.update(roles).set({ name }).where(eq(roles.role_id, role_id)).run();
   }
 }

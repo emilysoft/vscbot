@@ -10,7 +10,7 @@ export interface DB_Server {
   id?: number;
   server_id: string;
   name: string;
-  owner_id: number;
+  owner_id: number | null;
   creation_date: string;
 }
 

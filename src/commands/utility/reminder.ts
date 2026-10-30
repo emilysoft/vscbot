@@ -133,7 +133,7 @@ async function handleCreate(interaction: ChatInputCommandInteraction, client: Cl
     remind_at: targetTime.toISO()!,
     created_by: interaction.user.id,
     status: 'pending',
-    recurring: recurring ? 1 : 0,
+    recurring,
   });
 
   await rescheduleReminder(client, reminder.id!);

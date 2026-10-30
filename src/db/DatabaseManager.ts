@@ -1,20 +1,31 @@
-import sqlite3 from 'sqlite3';
-import { Database as SQLiteDatabase, open } from 'sqlite';
-import UserManager from "./userManager.js"
-import ServerManager from "./guildManager.js"
-import RoleManager from "./RoleManager.js"
-import ChannelManager from "./channelManager.js"
-import LogsManager from "./logManager.js"
-import { DB_ServerSettings } from './Idatabase.js'
-import LevelManager from "../functions/levels/levelManager.js"
-import EventManager from "./EventManager.js"
-import ReminderManager from "./ReminderManager.js"
-import RssManager from "./RssManager.js"
-import NewMemberRestrictionManager from "./NewMemberRestrictionManager.js"
-import MudaeResetManager from "./MudaeResetManager.js"
+import { mkdirSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import Database from "better-sqlite3";
+import { eq } from "drizzle-orm";
+import { drizzle } from "drizzle-orm/better-sqlite3";
+import { migrate } from "drizzle-orm/better-sqlite3/migrator";
+import UserManager from "./userManager.js";
+import ServerManager from "./guildManager.js";
+import RoleManager from "./RoleManager.js";
+import ChannelManager from "./channelManager.js";
+import LogsManager from "./logManager.js";
+import { DB_ServerSettings } from "./Idatabase.js";
+import LevelManager from "../functions/levels/levelManager.js";
+import EventManager from "./EventManager.js";
+import ReminderManager from "./ReminderManager.js";
+import RssManager from "./RssManager.js";
+import NewMemberRestrictionManager from "./NewMemberRestrictionManager.js";
+import MudaeResetManager from "./MudaeResetManager.js";
+import type { AppDatabase } from "./client.js";
+import * as schema from "./schema.js";
+
+const MIGRATIONS_FOLDER = fileURLToPath(
+  new URL("../../drizzle", import.meta.url),
+);
 
 export default class DatabaseManager {
-  private db!: SQLiteDatabase;
+  private sqlite!: Database.Database;
+  public db!: AppDatabase;
 
   users: UserManager;
   guild: ServerManager;
@@ -28,301 +39,86 @@ export default class DatabaseManager {
   newMemberRestrictions: NewMemberRestrictionManager;
   mudae: MudaeResetManager;
 
-  constructor(private dbPath: string) { }
+  constructor(private dbPath: string) {}
 
   private instance() {
-    this.users = new UserManager(this.db)
-    this.guild = new ServerManager(this.db, this)
-    this.roles = new RoleManager(this.db, this)
-    this.channels = new ChannelManager(this.db)
-    this.logs = new LogsManager(this.db)
-    this.levels = new LevelManager(this.db)
-    this.events = new EventManager(this.db)
-    this.reminders = new ReminderManager(this.db)
-    this.rss = new RssManager(this.db)
-    this.newMemberRestrictions = new NewMemberRestrictionManager(this.db)
-    this.mudae = new MudaeResetManager(this.db)
+    this.users = new UserManager(this.db);
+    this.guild = new ServerManager(this.db, this);
+    this.roles = new RoleManager(this.db, this);
+    this.channels = new ChannelManager(this.db);
+    this.logs = new LogsManager(this.db);
+    this.levels = new LevelManager(this.db);
+    this.events = new EventManager(this.db);
+    this.reminders = new ReminderManager(this.db);
+    this.rss = new RssManager(this.db);
+    this.newMemberRestrictions = new NewMemberRestrictionManager(this.db);
+    this.mudae = new MudaeResetManager(this.db);
   }
 
   /**
-     * Conecta a la base de datos.
-     * @returns {Promise<void>}
-     */
+   * Conecta a la base de datos y aplica las migraciones pendientes.
+   * @returns {Promise<void>}
+   */
   public async connect(): Promise<void> {
     try {
-      const dbPath = `${this.dbPath}/vscbot.db`
+      const dbPath = `${this.dbPath}/vscbot.db`;
       console.log(`[vscbot] Initializing database at: ${dbPath}`);
-      this.db = await open({
-        filename: dbPath,
-        driver: sqlite3.Database
-      });
-      this.instance()
-      await this.createTables()
-      console.log('Conectado a la base de datos SQLite.');
+      mkdirSync(this.dbPath, { recursive: true });
+
+      this.sqlite = new Database(dbPath);
+      // WAL: lecturas concurrentes con un único escritor.
+      this.sqlite.pragma("journal_mode = WAL");
+      this.sqlite.pragma("synchronous = NORMAL");
+      // SQLite no valida las FK por defecto: se activa por conexión.
+      this.sqlite.pragma("foreign_keys = ON");
+      this.sqlite.pragma("busy_timeout = 5000");
+
+      this.db = drizzle(this.sqlite, { schema });
+      migrate(this.db, { migrationsFolder: MIGRATIONS_FOLDER });
+
+      this.instance();
+      console.log("Conectado a la base de datos SQLite.");
     } catch (err) {
-      console.error(`error al conectar a la base de datos: ${err}`)
+      console.error(`error al conectar a la base de datos: ${err}`);
       process.exit(1);
     }
   }
 
-  private async createTables() {
-    const sqls = [
-      `CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id TEXT NOT NULL UNIQUE,
-        username VARCHAR NOT NULL
-      );`,
-      `CREATE TABLE IF NOT EXISTS servers (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        server_id TEXT NOT NULL UNIQUE,
-        name VARCHAR NOT NULL,
-        owner_id INTEGER,
-        creation_date TEXT NOT NULL,
-        FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE SET NULL
-      );`,
-      `CREATE TABLE IF NOT EXISTS channels (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        channel_id TEXT NOT NULL UNIQUE,
-        server_id INTEGER NOT NULL,
-        name VARCHAR NOT NULL,
-        FOREIGN KEY (server_id) REFERENCES servers(id) ON DELETE CASCADE
-      );`,
-      `CREATE TABLE IF NOT EXISTS roles (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        role_id TEXT NOT NULL UNIQUE,
-        server_id INTEGER NOT NULL,
-        name VARCHAR NOT NULL,
-        FOREIGN KEY (server_id) REFERENCES servers(id) ON DELETE CASCADE
-      );`,
-      `CREATE TABLE IF NOT EXISTS customRoles (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER NOT NULL,
-        server_id INTEGER NOT NULL,
-        role_id INTEGER NOT NULL,
-        left_since TEXT DEFAULT NULL,
-        FOREIGN KEY (server_id) REFERENCES servers(id) ON DELETE CASCADE,
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-        FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE
-      );`,
-      `CREATE TABLE IF NOT EXISTS logs (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        server_id INTEGER NOT NULL,
-        channel_id INTEGER,
-        user_id INTEGER NOT NULL,
-        interaction TEXT NOT NULL,
-        log_type TEXT NOT NULL,
-        creation_date TEXT NOT NULL,
-        FOREIGN KEY (server_id) REFERENCES servers(id) ON DELETE CASCADE,
-        FOREIGN KEY (channel_id) REFERENCES channels(id) ON DELETE CASCADE,
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-      );`,
-      `CREATE TABLE IF NOT EXISTS levels (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER,
-        server_id INTEGER,
-        xp INTEGER,
-        level INTEGER,
-        last_message TEXT NOT NULL,
-        FOREIGN KEY (server_id) REFERENCES servers(id) ON DELETE CASCADE,
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-      );`,
-      `CREATE TABLE IF NOT EXISTS reward_roles (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        role_id INTEGER,
-        level INTEGER,
-        server_id INTEGER,
-        FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE,
-        FOREIGN KEY (server_id) REFERENCES servers(id) ON DELETE CASCADE
-      );`,
-      `CREATE TABLE IF NOT EXISTS server_settings (
-        server_id INTEGER PRIMARY KEY,
-        prefix TEXT NOT NULL DEFAULT '!',
-        FOREIGN KEY (server_id) REFERENCES servers(id) ON DELETE CASCADE
-      );`,
-      `CREATE UNIQUE INDEX IF NOT EXISTS idx_levels_user_server ON levels(user_id, server_id);`,
-      `CREATE TABLE IF NOT EXISTS server_event_config (
-        server_id TEXT PRIMARY KEY,
-        enabled INTEGER DEFAULT 0,
-        default_role_id TEXT DEFAULT '',
-        events_channel TEXT DEFAULT '',
-        logs_channel TEXT DEFAULT '',
-        voice_category TEXT DEFAULT '',
-        text_category TEXT DEFAULT '',
-        archive_category TEXT DEFAULT '',
-        use_discord_events INTEGER DEFAULT 0,
-        created_at TEXT DEFAULT (datetime('now'))
-      );`,
-      `CREATE TABLE IF NOT EXISTS events (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        server_id TEXT NOT NULL,
-        name TEXT NOT NULL,
-        description TEXT DEFAULT '',
-        role_id TEXT,
-        channel_id TEXT,
-        custom_message TEXT,
-        use_discord_event INTEGER DEFAULT 0,
-        start_time TEXT NOT NULL,
-        end_time TEXT,
-        recurrence TEXT DEFAULT 'none',
-        activities TEXT DEFAULT '[]',
-        channel_behavior TEXT DEFAULT 'delete',
-        retention_hours INTEGER DEFAULT 0,
-        status TEXT DEFAULT 'scheduled',
-        created_by TEXT,
-        voice_channel_id TEXT,
-        text_channel_id TEXT,
-        message_id TEXT,
-        discord_event_id TEXT,
-        reminder_sent INTEGER DEFAULT 0,
-        created_at TEXT DEFAULT (datetime('now'))
-      );`,
-      `CREATE TABLE IF NOT EXISTS event_participants (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        event_id INTEGER NOT NULL,
-        user_id TEXT NOT NULL,
-        joined_at TEXT NOT NULL,
-        left_at TEXT,
-        duration_sec INTEGER,
-        source TEXT DEFAULT 'voice'
-      );`,
-      `CREATE TABLE IF NOT EXISTS event_activities (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        event_id INTEGER NOT NULL,
-        name TEXT NOT NULL,
-        success_count INTEGER DEFAULT 0,
-        total_count INTEGER DEFAULT 0
-      );`,
-      `CREATE TABLE IF NOT EXISTS reminders (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        server_id TEXT NOT NULL,
-        channel_id TEXT NOT NULL,
-        message TEXT NOT NULL,
-        remind_at TEXT NOT NULL,
-        created_by TEXT NOT NULL,
-        created_at TEXT DEFAULT (datetime('now')),
-        status TEXT DEFAULT 'pending'
-      );`,
-      `CREATE TABLE IF NOT EXISTS new_member_restrictions (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id TEXT NOT NULL,
-        server_id TEXT NOT NULL,
-        role_id TEXT NOT NULL,
-        assigned_at TEXT NOT NULL,
-        status TEXT DEFAULT 'pending'
-      );`,
-      `CREATE TABLE IF NOT EXISTS rss_feeds (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        server_id TEXT NOT NULL,
-        channel_id TEXT NOT NULL,
-        name TEXT NOT NULL,
-        url TEXT NOT NULL,
-        template TEXT NOT NULL,
-        webhook_url TEXT NOT NULL,
-        webhook_name TEXT DEFAULT '',
-        webhook_avatar TEXT DEFAULT '',
-        last_guid TEXT DEFAULT '',
-        last_checked TEXT DEFAULT '',
-        created_by TEXT NOT NULL,
-        created_at TEXT DEFAULT (datetime('now')),
-        status TEXT DEFAULT 'active',
-        blacklist_json TEXT DEFAULT '',
-        posted_guids TEXT DEFAULT '[]'
-      );`,
-      `CREATE TABLE IF NOT EXISTS mudae_reset_config (
-        server_id TEXT PRIMARY KEY,
-        channel_id TEXT NOT NULL,
-        output_channel_id TEXT NOT NULL,
-        game_name TEXT NOT NULL DEFAULT 'requiem',
-        restore_value INTEGER NOT NULL DEFAULT 1,
-        interval_days INTEGER NOT NULL DEFAULT 15,
-        active_days INTEGER NOT NULL DEFAULT 7,
-        min_messages INTEGER NOT NULL DEFAULT 80,
-        auto_send INTEGER NOT NULL DEFAULT 0,
-        enabled INTEGER NOT NULL DEFAULT 1,
-        last_run_at TEXT,
-        created_at TEXT DEFAULT (datetime('now'))
-      );`,
-      `CREATE TABLE IF NOT EXISTS mudae_activity (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id TEXT NOT NULL,
-        channel_id TEXT NOT NULL,
-        last_message TEXT NOT NULL,
-        msg_count INTEGER NOT NULL DEFAULT 0
-      );`,
-      `CREATE UNIQUE INDEX IF NOT EXISTS idx_mudae_activity_user_channel ON mudae_activity(user_id, channel_id);`
-    ]
-    for (const sql of sqls) {
-      await this.db.run(sql)
-    }
-    const migrations = [
-      `ALTER TABLE events ADD COLUMN channel_behavior TEXT DEFAULT 'delete'`,
-      `ALTER TABLE events ADD COLUMN retention_hours INTEGER DEFAULT 0`,
-      `ALTER TABLE events ADD COLUMN text_channel_name TEXT DEFAULT NULL`,
-      `ALTER TABLE events ADD COLUMN channel_topic TEXT DEFAULT NULL`,
-      `ALTER TABLE events ADD COLUMN voice_channel_name TEXT DEFAULT NULL`,
-      `ALTER TABLE events ADD COLUMN require_confirmation INTEGER DEFAULT NULL`,
-      `ALTER TABLE server_event_config ADD COLUMN require_confirmation INTEGER DEFAULT 1`,
-      `ALTER TABLE events ADD COLUMN image_url TEXT DEFAULT NULL`,
-      `ALTER TABLE events ADD COLUMN send_events_channel_msg INTEGER DEFAULT 1`,
-      `ALTER TABLE events ADD COLUMN events_channel_message_id TEXT DEFAULT NULL`,
-      `ALTER TABLE events ADD COLUMN is_private INTEGER DEFAULT 0`,
-    ]
-    const customRoleMigrations = [
-      `ALTER TABLE customRoles ADD COLUMN left_since TEXT DEFAULT NULL`,
-    ]
-    const reminderMigrations = [
-      `ALTER TABLE reminders ADD COLUMN recurring INTEGER DEFAULT 0`,
-    ]
-    const rssMigrations = [
-      `ALTER TABLE rss_feeds ADD COLUMN blacklist_json TEXT DEFAULT ''`,
-      `ALTER TABLE rss_feeds ADD COLUMN posted_guids TEXT DEFAULT '[]'`,
-    ]
-    const mudaeMigrations = [
-      `ALTER TABLE mudae_reset_config RENAME COLUMN thread_id TO channel_id`,
-      `ALTER TABLE mudae_activity RENAME COLUMN thread_id TO channel_id`,
-      `ALTER TABLE mudae_reset_config ADD COLUMN min_messages INTEGER NOT NULL DEFAULT 80`,
-      `ALTER TABLE mudae_activity ADD COLUMN msg_count INTEGER NOT NULL DEFAULT 0`,
-    ]
-    for (const sql of customRoleMigrations) {
-      try { await this.db.run(sql) } catch { /* ignore */ }
-    }
-    for (const sql of reminderMigrations) {
-      try { await this.db.run(sql) } catch { /* ignore */ }
-    }
-    for (const sql of rssMigrations) {
-      try { await this.db.run(sql) } catch { /* ignore */ }
-    }
-    for (const sql of mudaeMigrations) {
-      try { await this.db.run(sql) } catch { /* ignore */ }
-    }
-    for (const sql of migrations) {
-      try { await this.db.run(sql) } catch { /* ignore */ }
-    }
-  }
   /**
-     * Obtiene la configuración de un servidor por su ID interno.
-     * @param {number} serverId - ID interno del servidor.
-     * @returns {Promise<ServerSettings | undefined>}
-     */
-  public async getServerSettings(serverId: number): Promise<DB_ServerSettings | undefined> {
-    return await this.db.get<DB_ServerSettings>(`SELECT * FROM server_settings WHERE server_id = ?`, serverId);
+   * Obtiene la configuración de un servidor por su ID interno.
+   * @param {number} serverId - ID interno del servidor.
+   * @returns {Promise<DB_ServerSettings | undefined>}
+   */
+  public async getServerSettings(
+    serverId: number,
+  ): Promise<DB_ServerSettings | undefined> {
+    return this.db
+      .select()
+      .from(schema.serverSettings)
+      .where(eq(schema.serverSettings.server_id, serverId))
+      .get();
   }
 
   /**
-     * Actualiza o inserta la configuración de un servidor.
-     * @param {ServerSettings} settings - Datos de configuración.
-     * @returns {Promise<void>}
-     */
-  public async upsertServerSettings(settings: DB_ServerSettings): Promise<void> {
-    await this.db.run(
-      `INSERT OR REPLACE INTO server_settings (server_id, prefix) VALUES (?, ?)`,
-      settings.server_id,
-      settings.prefix
-    );
+   * Actualiza o inserta la configuración de un servidor.
+   * @param {DB_ServerSettings} settings - Datos de configuración.
+   * @returns {Promise<void>}
+   */
+  public async upsertServerSettings(
+    settings: DB_ServerSettings,
+  ): Promise<void> {
+    this.db
+      .insert(schema.serverSettings)
+      .values(settings)
+      .onConflictDoUpdate({
+        target: schema.serverSettings.server_id,
+        set: { prefix: settings.prefix },
+      })
+      .run();
   }
 
   public async close(): Promise<void> {
-    await this.db.close();
-    console.log('Conexión a la base de datos cerrada.');
+    this.sqlite.close();
+    console.log("Conexión a la base de datos cerrada.");
   }
 }

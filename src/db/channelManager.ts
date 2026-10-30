@@ -1,11 +1,13 @@
+import { eq } from "drizzle-orm";
 import { DB_Channel } from "./Idatabase.js";
-import { Database as SQLiteDatabase } from "sqlite";
 import { TextChannel } from "discord.js";
+import type { AppDatabase } from "./client.js";
+import { channels } from "./schema.js";
 
 export default class ChannelManager {
-  private db!: SQLiteDatabase;
+  private db: AppDatabase;
 
-  constructor(db: SQLiteDatabase) {
+  constructor(db: AppDatabase) {
     this.db = db;
   }
 
@@ -15,21 +17,19 @@ export default class ChannelManager {
     id?: number,
   ): Promise<DB_Channel | DB_Channel[] | undefined> {
     if (channel) {
-      const result = await this.db.get<DB_Channel>(
-        `SELECT * FROM channels WHERE channel_id = ?`,
-        channel.id,
-      );
+      const result = this.db
+        .select()
+        .from(channels)
+        .where(eq(channels.channel_id, channel.id))
+        .get();
       if (result == undefined) {
         return await this.create(channel, server_id);
       }
       return result;
     } else if (id) {
-      return await this.db.get<DB_Channel>(
-        `SELECT * FROM channels WHERE id = ?`,
-        id,
-      );
+      return this.db.select().from(channels).where(eq(channels.id, id)).get();
     } else {
-      return await this.db.all<DB_Channel[]>(`SELECT * FROM channels`);
+      return this.db.select().from(channels).all();
     }
   }
 
@@ -37,17 +37,22 @@ export default class ChannelManager {
     channel: TextChannel,
     server_id: number,
   ): Promise<DB_Channel | undefined> {
-    await this.db.run(
-      `INSERT OR IGNORE INTO channels
-      (channel_id, name, server_id) VALUES (?, ?, ?)`,
-      channel.id,
-      channel.name,
-      server_id,
-    );
+    const inserted = this.db
+      .insert(channels)
+      .values({
+        channel_id: channel.id,
+        name: channel.name,
+        server_id,
+      })
+      .onConflictDoNothing({ target: channels.channel_id })
+      .returning()
+      .get();
+    if (inserted) return inserted;
 
-    return await this.db.get<DB_Channel>(
-      `SELECT * FROM channels WHERE channel_id = ?`,
-      channel.id,
-    );
+    return this.db
+      .select()
+      .from(channels)
+      .where(eq(channels.channel_id, channel.id))
+      .get();
   }
 }

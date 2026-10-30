@@ -1,16 +1,18 @@
+import { and, asc, desc, eq, gte, sql } from "drizzle-orm";
 import {
   DB_UserLevel,
   DB_AllLogs,
   DB_LevelLeaderboardEntry,
 } from "../../db/Idatabase.js";
-import { Database as SQLiteDatabase } from "sqlite";
 import { User, Guild } from "discord.js";
 import RewardLevelManager from "./rewardLevelManager.js";
+import type { AppDatabase } from "../../db/client.js";
+import { levels, logs, servers, users } from "../../db/schema.js";
 
 export default class LevelManager {
-  private db!: SQLiteDatabase;
+  private db: AppDatabase;
   public rewardLevels: RewardLevelManager;
-  constructor(db: SQLiteDatabase) {
+  constructor(db: AppDatabase) {
     this.db = db;
     this.rewardLevels = new RewardLevelManager(this.db);
   }
@@ -20,53 +22,62 @@ export default class LevelManager {
     guild?: Guild,
   ): Promise<DB_UserLevel | Promise<DB_UserLevel[]> | undefined> {
     if (user?.id && guild?.id) {
-      return await this.db.get<DB_UserLevel | undefined>(
-        `
-        SELECT
-        u.id AS user_id,
-        s.id AS server_id,
-        l.id,
-        l.xp AS xp,
-        l.level,
-        l.last_message
-        FROM levels AS l
-        JOIN users AS u ON u.id = l.user_id
-        JOIN servers AS s ON s.id = l.server_id
-        WHERE u.user_id = ? AND s.server_id = ?`,
-        user.id,
-        guild.id,
-      );
-    } else {
-      return await this.db.all<DB_UserLevel[]>(`SELECT * FROM levels`);
+      return this.db
+        .select({
+          user_id: users.id,
+          server_id: servers.id,
+          id: levels.id,
+          xp: levels.xp,
+          level: levels.level,
+          last_message: levels.last_message,
+        })
+        .from(levels)
+        .innerJoin(users, eq(users.id, levels.user_id))
+        .innerJoin(servers, eq(servers.id, levels.server_id))
+        .where(and(eq(users.user_id, user.id), eq(servers.server_id, guild.id)))
+        .get();
     }
+    return this.db.select().from(levels).all();
   }
 
   public async create(
     userLevel: DB_UserLevel,
   ): Promise<DB_UserLevel | undefined> {
-    await this.db.run(
-      `INSERT OR IGNORE INTO levels (user_id, server_id, xp, level, last_message) VALUES (?, ?, ?, ?, ?)`,
-      userLevel.user_id,
-      userLevel.server_id,
-      userLevel.xp,
-      userLevel.level,
-      userLevel.last_message,
-    );
-    return await this.db.get<DB_UserLevel>(
-      `SELECT * FROM levels WHERE user_id = ? AND server_id = ?`,
-      userLevel.user_id,
-      userLevel.server_id,
-    );
+    this.db
+      .insert(levels)
+      .values({
+        user_id: userLevel.user_id,
+        server_id: userLevel.server_id,
+        xp: userLevel.xp,
+        level: userLevel.level,
+        last_message: userLevel.last_message,
+      })
+      .onConflictDoNothing()
+      .run();
+
+    return this.db
+      .select()
+      .from(levels)
+      .where(
+        and(
+          eq(levels.user_id, userLevel.user_id),
+          eq(levels.server_id, userLevel.server_id),
+        ),
+      )
+      .get();
   }
 
   public async update(userLevel: DB_UserLevel): Promise<void> {
-    await this.db.run(
-      `UPDATE levels SET xp = ?, level = ?, last_message = ? WHERE id = ?`,
-      userLevel.xp,
-      userLevel.level,
-      userLevel.last_message,
-      userLevel.id,
-    );
+    if (userLevel.id === undefined) return;
+    this.db
+      .update(levels)
+      .set({
+        xp: userLevel.xp,
+        level: userLevel.level,
+        last_message: userLevel.last_message,
+      })
+      .where(eq(levels.id, userLevel.id))
+      .run();
   }
 
   public async getRank(
@@ -74,20 +85,16 @@ export default class LevelManager {
     serverId: number,
   ): Promise<number | null> {
     // Consulta para obtener la posición de un usuario en un servidor
-    const result = await this.db.get<{ rank: number }>(
-      `
+    const result = this.db.get<{ rank: number }>(sql`
       SELECT rank FROM (
         SELECT
           user_id,
           ROW_NUMBER() OVER(ORDER BY xp DESC) as rank
         FROM levels
-        WHERE server_id = ?
+        WHERE server_id = ${serverId}
       )
-      WHERE user_id = ?
-    `,
-      serverId,
-      userId,
-    );
+      WHERE user_id = ${userId}
+    `);
 
     return result ? result.rank : null;
   }
@@ -96,39 +103,34 @@ export default class LevelManager {
     serverId: number,
     limit: number,
   ): Promise<DB_LevelLeaderboardEntry[]> {
-    return await this.db.all<DB_LevelLeaderboardEntry[]>(
-      `
-      SELECT
-        u.user_id AS discord_id,
-        u.username,
-        l.xp,
-        l.level
-      FROM levels AS l
-      JOIN users AS u ON u.id = l.user_id
-      WHERE l.server_id = ?
-      ORDER BY l.xp DESC, l.last_message ASC
-      LIMIT ?
-    `,
-      serverId,
-      limit,
-    );
+    return this.db
+      .select({
+        discord_id: users.user_id,
+        username: users.username,
+        xp: levels.xp,
+        level: levels.level,
+      })
+      .from(levels)
+      .innerJoin(users, eq(users.id, levels.user_id))
+      .where(eq(levels.server_id, serverId))
+      .orderBy(desc(levels.xp), asc(levels.last_message))
+      .limit(limit)
+      .all();
   }
 
   public async getAllLogs(
     timestamp: string,
   ): Promise<DB_AllLogs[] | undefined> {
-    return await this.db.all<DB_AllLogs[]>(
-      `
-      SELECT
-        u.id,
-        u.user_id,
-        l.creation_date
-      FROM logs AS l
-      JOIN users AS u ON u.id = l.user_id
-      WHERE creation_date >= ?
-      ORDER BY creation_date ASC;
-    `,
-      timestamp,
-    );
+    return this.db
+      .select({
+        userDB_id: users.id,
+        user_id: users.user_id,
+        creation_date: logs.creation_date,
+      })
+      .from(logs)
+      .innerJoin(users, eq(users.id, logs.user_id))
+      .where(gte(logs.creation_date, timestamp))
+      .orderBy(asc(logs.creation_date))
+      .all();
   }
 }

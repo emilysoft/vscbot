@@ -1,8 +1,4 @@
-export interface DB_NewMemberRestriction {
-  id?: number;
-  user_id: string;
-  server_id: string;
-  role_id: string;
-  assigned_at: string;
-  status: string;
-}
+import type { newMemberRestrictions } from "./schema.js";
+
+// Derivado del esquema Drizzle: no puede desincronizarse de la tabla.
+export type DB_NewMemberRestriction = typeof newMemberRestrictions.$inferSelect;

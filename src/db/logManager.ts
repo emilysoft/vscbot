@@ -1,10 +1,14 @@
+import { and, desc, eq, max } from "drizzle-orm";
 import { DB_Logs, DB_Logs_Fetched } from "./Idatabase.js";
-import { Database as SQLiteDatabase } from "sqlite";
+import type { AppDatabase } from "./client.js";
+import { channels, logs, servers, users } from "./schema.js";
+
+const LIST_LIMIT = 500;
 
 export default class LogManager {
-  private db!: SQLiteDatabase;
+  private db: AppDatabase;
 
-  constructor(db: SQLiteDatabase) {
+  constructor(db: AppDatabase) {
     this.db = db;
   }
 
@@ -15,86 +19,86 @@ export default class LogManager {
   ): Promise<DB_Logs_Fetched[] | undefined> {
     if (!guild_id) return;
 
+    const query = this.db
+      .select({
+        channel_name: channels.name,
+        username: users.username,
+        creation_date: logs.creation_date,
+      })
+      .from(logs)
+      .innerJoin(users, eq(users.id, logs.user_id))
+      .innerJoin(servers, eq(servers.id, logs.server_id))
+      .innerJoin(channels, eq(channels.id, logs.channel_id));
+
     if (channel_id != undefined && user_id != undefined) {
-      return await this.db.all<DB_Logs_Fetched[]>(
-        `SELECT 
-        chl.name AS channel_name,
-        u.username,
-        l.creation_date
-        FROM logs as l 
-        JOIN users AS u ON u.id = l.user_id
-        JOIN servers AS s ON s.id = l.server_id 
-        JOIN channels AS chl ON chl.id = l.channel_id
-        WHERE chl.channel_id = ? AND u.user_id = ? AND s.server_id = ?`,
-        channel_id,
-        user_id,
-        guild_id,
-      );
-    } else if (channel_id != undefined) {
-      return await this.db.all<DB_Logs_Fetched[]>(
-        `SELECT 
-        chl.name AS channel_name,
-        u.username,
-        l.creation_date
-        FROM logs as l 
-        JOIN users AS u ON u.id = l.user_id
-        JOIN servers AS s ON s.id = l.server_id 
-        JOIN channels AS chl ON chl.id = l.channel_id
-        WHERE chl.channel_id = ? AND s.server_id = ?`,
-        channel_id,
-        guild_id,
-      );
+      return query
+        .where(
+          and(
+            eq(channels.channel_id, channel_id),
+            eq(users.user_id, user_id),
+            eq(servers.server_id, guild_id),
+          ),
+        )
+        .orderBy(desc(logs.creation_date))
+        .limit(LIST_LIMIT)
+        .all();
     }
+
+    if (channel_id != undefined) {
+      return query
+        .where(
+          and(
+            eq(channels.channel_id, channel_id),
+            eq(servers.server_id, guild_id),
+          ),
+        )
+        .orderBy(desc(logs.creation_date))
+        .limit(LIST_LIMIT)
+        .all();
+    }
+
     if (user_id != undefined) {
-      return await this.db.all<DB_Logs_Fetched[]>(
-        `SELECT 
-        chl.name AS channel_name,
-        u.username,
-        l.creation_date
-        FROM logs as l 
-        JOIN users AS u ON u.id = l.user_id
-        JOIN servers AS s ON s.id = l.server_id 
-        JOIN channels AS chl ON chl.id = l.channel_id
-        WHERE u.user_id = ? AND s.server_id = ?`,
-        user_id,
-        guild_id,
-      );
-    } else {
-      return;
+      return query
+        .where(and(eq(users.user_id, user_id), eq(servers.server_id, guild_id)))
+        .orderBy(desc(logs.creation_date))
+        .limit(LIST_LIMIT)
+        .all();
     }
+
+    return;
   }
 
   public async create(logData: DB_Logs): Promise<void> {
-    await this.db.run(
-      `INSERT INTO logs(
-            server_id,
-            user_id,
-            channel_id,
-            interaction,
-            log_type,
-            creation_date) VALUES(?, ?, ?, ?, ?, ?)`,
-      logData.server_id,
-      logData.user_id,
-      logData.channel_id,
-      logData.interaction,
-      logData.logType,
-      logData.creation_date,
-    );
+    this.db
+      .insert(logs)
+      .values({
+        server_id: logData.server_id,
+        user_id: logData.user_id,
+        channel_id: logData.channel_id,
+        interaction: logData.interaction,
+        log_type: logData.logType,
+        creation_date: logData.creation_date,
+      })
+      .run();
   }
 
   public async getLastMessageDate(
     userId: string,
     guildId: string,
   ): Promise<string | undefined> {
-    const row = await this.db.get<{ creation_date: string }>(
-      `SELECT MAX(l.creation_date) as creation_date
-       FROM logs l
-       JOIN users u ON u.id = l.user_id
-       JOIN servers s ON s.id = l.server_id
-       WHERE u.user_id = ? AND s.server_id = ? AND l.log_type = 'MESSAGE CREATED'`,
-      userId,
-      guildId,
-    );
-    return row?.creation_date;
+    const row = this.db
+      .select({ creation_date: max(logs.creation_date) })
+      .from(logs)
+      .innerJoin(users, eq(users.id, logs.user_id))
+      .innerJoin(servers, eq(servers.id, logs.server_id))
+      .where(
+        and(
+          eq(users.user_id, userId),
+          eq(servers.server_id, guildId),
+          eq(logs.log_type, "MESSAGE CREATED"),
+        ),
+      )
+      .get();
+    return row?.creation_date ?? undefined;
   }
 }

@@ -1,46 +1,69 @@
-import { Database as SQLiteDatabase } from 'sqlite';
-import { DB_NewMemberRestriction } from './NewMemberRestrictionTypes.js';
+import { and, desc, eq, lte } from "drizzle-orm";
+import type { AppDatabase } from "./client.js";
+import { newMemberRestrictions } from "./schema.js";
+import type { DB_NewMemberRestriction } from "./NewMemberRestrictionTypes.js";
 
 export default class NewMemberRestrictionManager {
-  private db: SQLiteDatabase;
+  private db: AppDatabase;
 
-  constructor(db: SQLiteDatabase) {
+  constructor(db: AppDatabase) {
     this.db = db;
   }
 
-  async create(data: Omit<DB_NewMemberRestriction, 'id'>): Promise<DB_NewMemberRestriction> {
-    const result = await this.db.run(
-      `INSERT INTO new_member_restrictions (user_id, server_id, role_id, assigned_at, status)
-       VALUES (?, ?, ?, ?, ?)`,
-      data.user_id,
-      data.server_id,
-      data.role_id,
-      data.assigned_at,
-      data.status || 'pending'
-    );
-    const row = await this.db.get<DB_NewMemberRestriction>(
-      `SELECT * FROM new_member_restrictions WHERE id = ?`,
-      result.lastID
-    );
+  async create(
+    data: Omit<DB_NewMemberRestriction, "id">,
+  ): Promise<DB_NewMemberRestriction> {
+    const row = this.db
+      .insert(newMemberRestrictions)
+      .values({
+        user_id: data.user_id,
+        server_id: data.server_id,
+        role_id: data.role_id,
+        assigned_at: data.assigned_at,
+        status: data.status || "pending",
+      })
+      .returning()
+      .get();
     return row!;
   }
 
-  async getByUser(userId: string, serverId: string): Promise<DB_NewMemberRestriction | undefined> {
-    return this.db.get<DB_NewMemberRestriction>(
-      `SELECT * FROM new_member_restrictions WHERE user_id = ? AND server_id = ? ORDER BY id DESC LIMIT 1`,
-      userId,
-      serverId
-    );
+  async getByUser(
+    userId: string,
+    serverId: string,
+  ): Promise<DB_NewMemberRestriction | undefined> {
+    return this.db
+      .select()
+      .from(newMemberRestrictions)
+      .where(
+        and(
+          eq(newMemberRestrictions.user_id, userId),
+          eq(newMemberRestrictions.server_id, serverId),
+        ),
+      )
+      .orderBy(desc(newMemberRestrictions.id))
+      .limit(1)
+      .get();
   }
 
   async getPendingExpired(before: string): Promise<DB_NewMemberRestriction[]> {
-    return this.db.all<DB_NewMemberRestriction[]>(
-      `SELECT * FROM new_member_restrictions WHERE status = 'pending' AND assigned_at <= ? ORDER BY assigned_at ASC`,
-      before
-    );
+    return this.db
+      .select()
+      .from(newMemberRestrictions)
+      .where(
+        and(
+          eq(newMemberRestrictions.status, "pending"),
+          lte(newMemberRestrictions.assigned_at, before),
+        ),
+      )
+      .orderBy(newMemberRestrictions.assigned_at)
+      .all();
   }
 
   async markRemoved(id: number): Promise<void> {
-    await this.db.run(`UPDATE new_member_restrictions SET status = 'removed' WHERE id = ?`, id);
+    this.db
+      .update(newMemberRestrictions)
+      .set({ status: "removed" })
+      .where(eq(newMemberRestrictions.id, id))
+      .run();
   }
 }

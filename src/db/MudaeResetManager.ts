@@ -1,88 +1,142 @@
-import { Database as SQLiteDatabase } from "sqlite";
-import { DB_MudaeActivity, DB_MudaeResetConfig } from "./MudaeTypes.js";
+import { and, desc, eq, gte, or, sql } from "drizzle-orm";
+import type { AppDatabase } from "./client.js";
+import { mudaeActivity, mudaeResetConfig } from "./schema.js";
+import type { DB_MudaeActivity, DB_MudaeResetConfig } from "./MudaeTypes.js";
+import { omitKeys } from "./helpers.js";
 
 export default class MudaeResetManager {
-  private db: SQLiteDatabase;
+  private db: AppDatabase;
 
-  constructor(db: SQLiteDatabase) {
+  constructor(db: AppDatabase) {
     this.db = db;
   }
 
   public async upsertConfig(data: DB_MudaeResetConfig): Promise<void> {
-    await this.db.run(
-      `INSERT OR REPLACE INTO mudae_reset_config
-       (server_id, channel_id, output_channel_id, game_name, restore_value, interval_days, active_days, min_messages, auto_send, enabled, last_run_at, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      data.server_id,
-      data.channel_id,
-      data.output_channel_id,
-      data.game_name,
-      data.restore_value,
-      data.interval_days,
-      data.active_days,
-      data.min_messages,
-      data.auto_send,
-      data.enabled,
-      data.last_run_at,
-      data.created_at,
-    );
+    this.db
+      .insert(mudaeResetConfig)
+      .values({
+        server_id: data.server_id,
+        channel_id: data.channel_id,
+        output_channel_id: data.output_channel_id,
+        game_name: data.game_name,
+        restore_value: data.restore_value,
+        interval_days: data.interval_days,
+        active_days: data.active_days,
+        min_messages: data.min_messages,
+        auto_send: data.auto_send,
+        enabled: data.enabled,
+        last_run_at: data.last_run_at,
+        created_at: data.created_at,
+      })
+      .onConflictDoUpdate({
+        target: mudaeResetConfig.server_id,
+        set: {
+          channel_id: data.channel_id,
+          output_channel_id: data.output_channel_id,
+          game_name: data.game_name,
+          restore_value: data.restore_value,
+          interval_days: data.interval_days,
+          active_days: data.active_days,
+          min_messages: data.min_messages,
+          auto_send: data.auto_send,
+          enabled: data.enabled,
+          last_run_at: data.last_run_at,
+          created_at: data.created_at,
+        },
+      })
+      .run();
   }
 
-  public async getConfig(serverId: string): Promise<DB_MudaeResetConfig | undefined> {
-    return this.db.get<DB_MudaeResetConfig>(
-      `SELECT * FROM mudae_reset_config WHERE server_id = ?`,
-      serverId,
-    );
+  public async getConfig(
+    serverId: string,
+  ): Promise<DB_MudaeResetConfig | undefined> {
+    return this.db
+      .select()
+      .from(mudaeResetConfig)
+      .where(eq(mudaeResetConfig.server_id, serverId))
+      .get();
   }
 
   public async getAllEnabled(): Promise<DB_MudaeResetConfig[]> {
-    return this.db.all<DB_MudaeResetConfig[]>(
-      `SELECT * FROM mudae_reset_config WHERE enabled = 1`,
-    );
+    return this.db
+      .select()
+      .from(mudaeResetConfig)
+      .where(eq(mudaeResetConfig.enabled, true))
+      .all();
   }
 
-  public async update(serverId: string, data: Partial<DB_MudaeResetConfig>): Promise<void> {
-    const fields: string[] = [];
-    const values: (string | number | null)[] = [];
-    for (const [key, value] of Object.entries(data)) {
-      if (key === "server_id" || key === "created_at") continue;
-      fields.push(`${key} = ?`);
-      values.push(value);
-    }
-    if (fields.length === 0) return;
-    values.push(serverId);
-    await this.db.run(
-      `UPDATE mudae_reset_config SET ${fields.join(", ")} WHERE server_id = ?`,
-      ...values,
-    );
+  public async update(
+    serverId: string,
+    data: Partial<DB_MudaeResetConfig>,
+  ): Promise<void> {
+    const values = omitKeys(data, "server_id", "created_at");
+    if (Object.keys(values).length === 0) return;
+    this.db
+      .update(mudaeResetConfig)
+      .set(values)
+      .where(eq(mudaeResetConfig.server_id, serverId))
+      .run();
   }
 
   public async delete(serverId: string): Promise<void> {
-    await this.db.run(`DELETE FROM mudae_reset_config WHERE server_id = ?`, serverId);
-    await this.db.run(
-      `DELETE FROM mudae_activity WHERE channel_id IN (SELECT channel_id FROM mudae_reset_config WHERE server_id = ?)`,
-      serverId,
-    );
+    // El canal debe leerse antes de borrar la configuración (la fila desaparece).
+    this.db.transaction((tx) => {
+      const config = tx
+        .select({ channel_id: mudaeResetConfig.channel_id })
+        .from(mudaeResetConfig)
+        .where(eq(mudaeResetConfig.server_id, serverId))
+        .get();
+
+      if (config) {
+        tx.delete(mudaeActivity)
+          .where(eq(mudaeActivity.channel_id, config.channel_id))
+          .run();
+      }
+
+      tx.delete(mudaeResetConfig)
+        .where(eq(mudaeResetConfig.server_id, serverId))
+        .run();
+    });
   }
 
-  public async upsertActivity(userId: string, channelId: string, lastMessage: string): Promise<void> {
-    await this.db.run(
-      `INSERT INTO mudae_activity (user_id, channel_id, last_message, msg_count) VALUES (?, ?, ?, 1)
-       ON CONFLICT(user_id, channel_id) DO UPDATE SET last_message = excluded.last_message, msg_count = mudae_activity.msg_count + 1`,
-      userId,
-      channelId,
-      lastMessage,
-    );
+  public async upsertActivity(
+    userId: string,
+    channelId: string,
+    lastMessage: string,
+  ): Promise<void> {
+    this.db
+      .insert(mudaeActivity)
+      .values({
+        user_id: userId,
+        channel_id: channelId,
+        last_message: lastMessage,
+        msg_count: 1,
+      })
+      .onConflictDoUpdate({
+        target: [mudaeActivity.user_id, mudaeActivity.channel_id],
+        set: {
+          last_message: sql`excluded.last_message`,
+          msg_count: sql`${mudaeActivity.msg_count} + 1`,
+        },
+      })
+      .run();
   }
 
-  public async getUsersAfter(channelId: string, cutoffISO: string): Promise<DB_MudaeActivity[]> {
-    return this.db.all<DB_MudaeActivity[]>(
-      `SELECT * FROM mudae_activity
-       WHERE channel_id = ? AND last_message >= ?
-       ORDER BY last_message DESC`,
-      channelId,
-      cutoffISO,
-    );
+  public async getUsersAfter(
+    channelId: string,
+    cutoffISO: string,
+  ): Promise<DB_MudaeActivity[]> {
+    return this.db
+      .select()
+      .from(mudaeActivity)
+      .where(
+        and(
+          eq(mudaeActivity.channel_id, channelId),
+          gte(mudaeActivity.last_message, cutoffISO),
+        ),
+      )
+      .orderBy(desc(mudaeActivity.last_message))
+      .all();
   }
 
   public async getActiveUsers(
@@ -90,34 +144,45 @@ export default class MudaeResetManager {
     cutoffISO: string,
     minMessages: number,
   ): Promise<DB_MudaeActivity[]> {
-    return this.db.all<DB_MudaeActivity[]>(
-      `SELECT * FROM mudae_activity
-       WHERE channel_id = ? AND (last_message >= ? OR msg_count >= ?)
-       ORDER BY last_message DESC`,
-      channelId,
-      cutoffISO,
-      minMessages,
-    );
+    return this.db
+      .select()
+      .from(mudaeActivity)
+      .where(
+        and(
+          eq(mudaeActivity.channel_id, channelId),
+          or(
+            gte(mudaeActivity.last_message, cutoffISO),
+            gte(mudaeActivity.msg_count, minMessages),
+          ),
+        ),
+      )
+      .orderBy(desc(mudaeActivity.last_message))
+      .all();
   }
 
   public async resetMsgCounts(channelId: string): Promise<void> {
-    await this.db.run(
-      `UPDATE mudae_activity SET msg_count = 0 WHERE channel_id = ?`,
-      channelId,
-    );
+    this.db
+      .update(mudaeActivity)
+      .set({ msg_count: 0 })
+      .where(eq(mudaeActivity.channel_id, channelId))
+      .run();
   }
 
   public async getActivity(channelId: string): Promise<DB_MudaeActivity[]> {
-    return this.db.all<DB_MudaeActivity[]>(
-      `SELECT * FROM mudae_activity WHERE channel_id = ? ORDER BY last_message DESC`,
-      channelId,
-    );
+    return this.db
+      .select()
+      .from(mudaeActivity)
+      .where(eq(mudaeActivity.channel_id, channelId))
+      .orderBy(desc(mudaeActivity.last_message))
+      .all();
   }
 
   public async getOwnChannelIds(): Promise<string[]> {
-    const rows = await this.db.all<{ channel_id: string }[]>(
-      `SELECT DISTINCT channel_id FROM mudae_reset_config WHERE enabled = 1`,
-    );
-    return rows.map(r => r.channel_id);
+    const rows = this.db
+      .selectDistinct({ channel_id: mudaeResetConfig.channel_id })
+      .from(mudaeResetConfig)
+      .where(eq(mudaeResetConfig.enabled, true))
+      .all();
+    return rows.map((r) => r.channel_id);
   }
 }

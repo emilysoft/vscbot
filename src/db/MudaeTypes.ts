@@ -1,22 +1,5 @@
-export interface DB_MudaeResetConfig {
-  server_id: string;
-  channel_id: string;
-  output_channel_id: string;
-  game_name: string;
-  restore_value: number;
-  interval_days: number;
-  active_days: number;
-  min_messages: number;
-  auto_send: number;
-  enabled: number;
-  last_run_at: string | null;
-  created_at: string;
-}
+import type { mudaeActivity, mudaeResetConfig } from "./schema.js";
 
-export interface DB_MudaeActivity {
-  id?: number;
-  user_id: string;
-  channel_id: string;
-  last_message: string;
-  msg_count: number;
-}
+// Derivados del esquema Drizzle: no pueden desincronizarse de las tablas.
+export type DB_MudaeResetConfig = typeof mudaeResetConfig.$inferSelect;
+export type DB_MudaeActivity = typeof mudaeActivity.$inferSelect;

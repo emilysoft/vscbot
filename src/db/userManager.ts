@@ -1,11 +1,14 @@
-import { DB_User } from "./Idatabase.js";
-import { Database as SQLiteDatabase } from "sqlite";
+import { eq } from "drizzle-orm";
 import { User } from "discord.js";
+import { DB_User } from "./Idatabase.js";
+import type { AppDatabase } from "./client.js";
+import { users } from "./schema.js";
+
 export default class UserManager {
-  private db!: SQLiteDatabase;
+  private db: AppDatabase;
   update: UserUpdate;
 
-  constructor(db: SQLiteDatabase) {
+  constructor(db: AppDatabase) {
     this.db = db;
     this.update = new UserUpdate(this.db);
   }
@@ -14,44 +17,46 @@ export default class UserManager {
     user?: User,
   ): Promise<DB_User | Promise<DB_User[]> | undefined> {
     if (user) {
-      const result = await this.db.get<DB_User>(
-        `SELECT * FROM users WHERE user_id = ?`,
-        user.id,
-      );
+      const result = this.db
+        .select()
+        .from(users)
+        .where(eq(users.user_id, user.id))
+        .get();
       return result ? result : await this.create(user);
-    } else {
-      return await this.db.all<DB_User[]>(`SELECT * FROM users`);
     }
+    return this.db.select().from(users).all();
   }
 
   private async create(user: User): Promise<DB_User | undefined> {
-    await this.db.run(
-      `INSERT OR IGNORE INTO users (user_id, username) VALUES (?, ?)`,
-      user.id,
-      user.username,
-    );
-    return await this.db.get<DB_User>(
-      `SELECT * FROM users WHERE user_id = ?`,
-      user.id,
-    );
+    const inserted = this.db
+      .insert(users)
+      .values({ user_id: user.id, username: user.username })
+      .onConflictDoNothing({ target: users.user_id })
+      .returning()
+      .get();
+    if (inserted) return inserted;
+
+    // Carrera con otra inserción: la fila ya existe.
+    return this.db.select().from(users).where(eq(users.user_id, user.id)).get();
   }
 
   public async remove(user_id: string): Promise<void> {
-    await this.db.run(`DELETE FROM users WHERE user_id = ?`, user_id);
+    this.db.delete(users).where(eq(users.user_id, user_id)).run();
   }
 }
 
 class UserUpdate {
-  private db!: SQLiteDatabase;
+  private db: AppDatabase;
 
-  constructor(db: SQLiteDatabase) {
+  constructor(db: AppDatabase) {
     this.db = db;
   }
   public async username(user: DB_User): Promise<void> {
-    await this.db.run(
-      `UPDATE users SET username = ? WHERE id = ?`,
-      user.username,
-      user.id,
-    );
+    if (user.id === undefined) throw new Error("usuario sin id interno");
+    this.db
+      .update(users)
+      .set({ username: user.username })
+      .where(eq(users.id, user.id))
+      .run();
   }
 }
