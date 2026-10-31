@@ -175,7 +175,7 @@ async function handleEdit(interaction: ChatInputCommandInteraction, client: Clie
 
   if (channel) updates.channel_id = channel.id;
   if (message) updates.message = message;
-  if (recurring !== null) updates.recurring = recurring ? 1 : 0;
+  if (recurring !== null) updates.recurring = recurring;
 
   if (timeStr) {
     const targetTime = parseTime(timeStr);

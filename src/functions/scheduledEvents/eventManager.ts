@@ -140,7 +140,7 @@ export async function startEvent(client: Client, eventId: number): Promise<void>
         description: event.description,
         imageUrl: event.image_url,
       }, voiceChannel.id);
-      if ((event.send_events_channel_msg ?? 1) && discordEventId && eventConfig.events_channel) {
+      if ((event.send_events_channel_msg ?? true) && discordEventId && eventConfig.events_channel) {
         const eventsChannel = guild.channels.cache.get(eventConfig.events_channel) as TextChannel | undefined;
         if (eventsChannel) {
           const serverRoleMention = eventConfig.default_role_id

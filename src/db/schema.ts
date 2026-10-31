@@ -91,8 +91,9 @@ export const logs = sqliteTable(
     creation_date: text().notNull(),
   },
   (table) => [
-    // logs es la tabla mas grande: solo se indexa lo que usan las consultas.
-    index("idx_logs_channel").on(table.channel_id),
+    // logs es la tabla mas grande y solo se escribe en cada mensaje: se indexa
+    // exclusivamente lo que usan las consultas (logs.getLastMessageDate y el
+    // filtro por usuario/servidor).
     index("idx_logs_user_server_type_date").on(
       table.user_id,
       table.server_id,

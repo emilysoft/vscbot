@@ -103,7 +103,6 @@ CREATE TABLE IF NOT EXISTS `logs` (
 	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
-CREATE INDEX IF NOT EXISTS `idx_logs_channel` ON `logs` (`channel_id`);--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS `idx_logs_user_server_type_date` ON `logs` (`user_id`,`server_id`,`log_type`,`creation_date`);--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS `mudae_activity` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,

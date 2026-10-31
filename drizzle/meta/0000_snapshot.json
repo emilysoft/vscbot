@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "e45f5939-e40c-4e2f-9233-d09fa4711584",
+  "id": "3b2caf48-5d93-4a74-ab7b-53825ead7f2f",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "channels": {
@@ -702,13 +702,6 @@
         }
       },
       "indexes": {
-        "idx_logs_channel": {
-          "name": "idx_logs_channel",
-          "columns": [
-            "channel_id"
-          ],
-          "isUnique": false
-        },
         "idx_logs_user_server_type_date": {
           "name": "idx_logs_user_server_type_date",
           "columns": [
