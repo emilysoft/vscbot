@@ -627,7 +627,7 @@ async function createNextRecurrence(client: Client, event: DB_ScheduledEvent): P
       text_channel_id: textChannelId,
       message_id: null,
       discord_event_id: discordEventId,
-      reminder_sent: event.is_private,
+      reminder_sent: false,
     });
   } catch (err) {
     client.errorLogger(err, client, "error", `${process.cwd()} scheduledEvents/createNextRecurrence`);

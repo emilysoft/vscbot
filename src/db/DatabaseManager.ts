@@ -68,7 +68,9 @@ export default class DatabaseManager {
       this.sqlite = new Database(dbPath);
       // WAL: lecturas concurrentes con un único escritor.
       this.sqlite.pragma("journal_mode = WAL");
-      this.sqlite.pragma("synchronous = NORMAL");
+      // FULL: cada commit se sincroniza a disco, así un corte de luz no puede
+      // perder las últimas transacciones. El bot escribe poco, el costo es bajo.
+      this.sqlite.pragma("synchronous = FULL");
       // SQLite no valida las FK por defecto: se activa por conexión.
       this.sqlite.pragma("foreign_keys = ON");
       this.sqlite.pragma("busy_timeout = 5000");
