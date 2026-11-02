@@ -87,12 +87,6 @@ export interface DB_RewardRoles {
   server_id: number;
 }
 
-export interface DB_AllLogs {
-  userDB_id: number,
-  user_id : string,
-  creation_date: string
-}
-
 export interface IroleData {
   id?: number
   role?: Role

@@ -1,13 +1,12 @@
-import { and, asc, desc, eq, gte, sql } from "drizzle-orm";
+import { and, asc, desc, eq, sql } from "drizzle-orm";
 import {
   DB_UserLevel,
-  DB_AllLogs,
   DB_LevelLeaderboardEntry,
 } from "../../db/Idatabase.js";
 import { User, Guild } from "discord.js";
 import RewardLevelManager from "./rewardLevelManager.js";
 import type { AppDatabase } from "../../db/client.js";
-import { levels, logs, servers, users } from "../../db/schema.js";
+import { levels, servers, users } from "../../db/schema.js";
 
 export default class LevelManager {
   private db: AppDatabase;
@@ -115,22 +114,6 @@ export default class LevelManager {
       .where(eq(levels.server_id, serverId))
       .orderBy(desc(levels.xp), asc(levels.last_message))
       .limit(limit)
-      .all();
-  }
-
-  public async getAllLogs(
-    timestamp: string,
-  ): Promise<DB_AllLogs[] | undefined> {
-    return this.db
-      .select({
-        userDB_id: users.id,
-        user_id: users.user_id,
-        creation_date: logs.creation_date,
-      })
-      .from(logs)
-      .innerJoin(users, eq(users.id, logs.user_id))
-      .where(gte(logs.creation_date, timestamp))
-      .orderBy(asc(logs.creation_date))
       .all();
   }
 }
