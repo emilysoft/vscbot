@@ -16,6 +16,7 @@ import ReminderManager from "./ReminderManager.js";
 import RssManager from "./RssManager.js";
 import NewMemberRestrictionManager from "./NewMemberRestrictionManager.js";
 import MudaeResetManager from "./MudaeResetManager.js";
+import AutomodManager from "./automodManager.js";
 import type { AppDatabase } from "./client.js";
 import * as schema from "./schema.js";
 
@@ -38,6 +39,7 @@ export default class DatabaseManager {
   rss: RssManager;
   newMemberRestrictions: NewMemberRestrictionManager;
   mudae: MudaeResetManager;
+  automod: AutomodManager;
 
   constructor(private dbPath: string) {}
 
@@ -53,6 +55,7 @@ export default class DatabaseManager {
     this.rss = new RssManager(this.db);
     this.newMemberRestrictions = new NewMemberRestrictionManager(this.db);
     this.mudae = new MudaeResetManager(this.db);
+    this.automod = new AutomodManager(this.db);
   }
 
   /**

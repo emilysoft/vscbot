@@ -17,6 +17,7 @@ const module: IEvents = {
       if (!guild) return;
       await trackMudaeMessage(message, client as Client);
       if (!(message.channel instanceof TextChannel)) return;
+      const channel = message.channel;
       messageLogger(message, "create", client as Client);
       await levelDetector(message, client);
 
@@ -31,6 +32,9 @@ const module: IEvents = {
       if(message.channel.id == config.channels.metas2026) return // canal de metas
 
       // Automod
+      const isAutomodAllowed = (name: string) =>
+        client.db.automod.isEnabled(name, channel.id, channel.parentId)
+
       const automodActions = client.automod
         .filter(automod => {
           // Ignora bots si la configuración lo indica
@@ -39,13 +43,11 @@ const module: IEvents = {
           }
 
           if(automod.scope == "global") {
-            return true
+            return isAutomodAllowed(automod.name)
           }
 
           if (automod.scope == "guild") {
-            if(guild.id == config.guilds.main) {
-              return true
-            }
+            return guild.id == config.guilds.main && isAutomodAllowed(automod.name)
           }
 
           return false

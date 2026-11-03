@@ -345,6 +345,18 @@ export const mudaeActivity = sqliteTable(
   ],
 );
 
+export const automodSettings = sqliteTable("automod_settings", {
+  guild_id: text().primaryKey(),
+  global_enabled: integer({ mode: "boolean" }).notNull().default(true),
+  // JSON: string[] con los nombres de los automods apagados.
+  disabled: text().notNull().default("[]"),
+  // JSON: { channels: { [id]: { off: string[] } }, categories: { ... } }
+  overrides: text().notNull().default("{}"),
+  updated_at: text()
+    .notNull()
+    .default(sql`(datetime('now'))`),
+});
+
 export const schema = {
   users,
   servers,
@@ -364,4 +376,5 @@ export const schema = {
   rssFeeds,
   mudaeResetConfig,
   mudaeActivity,
+  automodSettings,
 };

@@ -15,6 +15,13 @@
       "when": 1793637594511,
       "tag": "0001_drop_night_join_restrictions",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1793741578137,
+      "tag": "0002_petite_callisto",
+      "breakpoints": true
     }
   ]
 }

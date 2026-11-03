@@ -8,10 +8,7 @@ import {
   Role,
   DMChannel,
 } from "discord.js";
-import config, {
-  ignoredCategoryIds,
-  ignoredChannelIds,
-} from "../../../config/index.js";
+import config from "../../../config/index.js";
 const aviso = `Mensaje borrado por texto excesivo. Usa <#${config.channels.comandos}>`;
 import isNumberInMessage from "./../../lib/isNumberInMessage.js";
 interface Excepciones {
@@ -67,12 +64,6 @@ export default {
       if (message.channel.id === config.channels.patas) return; //mudae
       if (message.author.id == config.users.hiraku) return; // hiraku
 
-      if (
-        ignoredCategoryIds.includes(message.channel.parentId as string)
-      )
-        return; //evitar categorias ignoradas
-      if (ignoredChannelIds.includes(message.channelId))
-        return; //evitar canales ignorados
       if (message.channel.name.startsWith("ticket")) return; //evitar canales de tickets
 
       //COMPROBACION

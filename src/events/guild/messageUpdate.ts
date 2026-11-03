@@ -9,8 +9,9 @@ export default {
   async execute(message: Message) {
     try {
       const guild = message.guild
+      const channel = message.channel
       if (!guild) return
-      if (!(message.channel instanceof TextChannel)) return
+      if (!(channel instanceof TextChannel)) return
 
       //automod
       client.automod.forEach(automod => {
@@ -18,6 +19,8 @@ export default {
         if (message.author.bot && automod.ignoreBots) return
         // Los automods de guild solo aplican en el servidor principal
         if (automod.scope === "guild" && guild.id !== config.guilds.main) return
+        // Respeta el estado global y las excepciones por canal/categoría
+        if (!client.db.automod.isEnabled(automod.name, channel.id, channel.parentId)) return
         if (automod.onMessageUpdate) {
           automod.onMessageUpdate(message, client)
         }
