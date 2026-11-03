@@ -14,7 +14,7 @@ import { DB_LevelLeaderboardEntry, DB_Server } from "../../db/Idatabase.js";
 import config from "../../config/config.json" with { type: "json" };
 
 const PAGE_SIZE = 10;
-const MAX_PAGES = 3;
+const TOP_LIMIT = 100;
 const COLLECTOR_TIME_MS = 2 * 60 * 1000;
 
 const module: ICommand = {
@@ -115,13 +115,10 @@ async function top(interaction: ChatInputCommandInteraction, client: Client) {
 
   const serverDB = (await client.db.guild.get(guild)) as DB_Server | undefined;
   const entries = serverDB?.id
-    ? await client.db.levels.getLeaderboard(serverDB.id, PAGE_SIZE * MAX_PAGES)
+    ? await client.db.levels.getLeaderboard(serverDB.id, TOP_LIMIT)
     : [];
 
-  const totalPages = Math.max(
-    1,
-    Math.min(MAX_PAGES, Math.ceil(entries.length / PAGE_SIZE)),
-  );
+  const totalPages = Math.max(1, Math.ceil(entries.length / PAGE_SIZE));
   let currentPage = 0;
 
   await interaction.editReply({
