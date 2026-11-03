@@ -1,13 +1,14 @@
 import { TextChannel, GuildMember, Events, Message } from 'discord.js';
 import client from "../../index-vsc.js";
 import IEvents from "../../interfaces/iEvents.js";
+import config from "../../config/index.js";
 
 const module: IEvents = {
   name: Events.GuildMemberRemove,
   async execute(member: GuildMember) {
     // IDs de configuración del servidor
-    const GUILD_ID = "813538324320092161";
-    const WELCOME_CHANNEL_ID = "1345943077470076979";
+    const GUILD_ID = config.guilds.main;
+    const WELCOME_CHANNEL_ID = config.channels.general;
 
     // Verifica si el miembro se fue del servidor correcto
     if (member.guild.id !== GUILD_ID) {

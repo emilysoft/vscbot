@@ -2,6 +2,7 @@ import { Message, TextChannel } from "discord.js"
 import Client from "../../../interfaces/ICustomClient.js"
 import Iautomod from "../../../interfaces/Iautomod.js"
 import ia from "./../../lib/ia.js"
+import config from "../../../config/index.js"
 export default {
   name: "ia",
   scope: "guild",
@@ -9,7 +10,7 @@ export default {
   allowEdited: true,
   execute: async function (message: Message, client: Client) {
     try {
-      if (message.channel.id != "1073774467282641038") return
+      if (message.channel.id != config.channels.ia) return
       if (message.channel instanceof TextChannel != true) return
 
       const ask = message.content

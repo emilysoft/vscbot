@@ -2,6 +2,7 @@ import { Message, TextChannel } from "discord.js";
 import LevelSystem from "../../functions/levels/levelSystem.js";
 import { DB_UserLevel } from "../../db/Idatabase.js";
 import Client from "../../interfaces/ICustomClient.js";
+import config from "../../config/index.js";
 
 export default async function levelDetector(message: Message, client: Client) {
   try {
@@ -12,7 +13,7 @@ export default async function levelDetector(message: Message, client: Client) {
       !(message.channel instanceof TextChannel)
     )
       return;
-    if (message.channel.id === "1539304446041788476") return;
+    if (message.channel.id === config.channels.patas) return;
 
     const { member, guild, author } = message;
     if (!member) return;

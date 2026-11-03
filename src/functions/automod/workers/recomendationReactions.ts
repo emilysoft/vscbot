@@ -1,6 +1,7 @@
 import { Message } from "discord.js";
 import Client from "../../../interfaces/ICustomClient.js"
 import Iautomod from "../../../interfaces/Iautomod.js"
+import config from "../../../config/index.js"
 
 const UNKNOWN_EMOJI_CODE = 10014;
 
@@ -22,18 +23,18 @@ enum Emoji {
 
 // Centraliza las IDs de los canales y las reacciones
 const CHANNEL_CONFIG = {
-  "1013280756757430364": [Emoji.SMASH, Emoji.PASS], //nsfw
-  "942934915396288542": [Emoji.SMASH, Emoji.PASS], //nsfw
-  "1230709697129091102": [Emoji.SMASH, Emoji.PASS], //nsfw
-  "1172695535468150814": [Emoji.SMASH, Emoji.PASS], //nsfw
-  "1391598283897573446": [Emoji.SMASH, Emoji.PASS], //nsfw
-  "868499065984393308": [Emoji.SMASH, Emoji.PASS], //nsfw
-  "813562445729628170": [Emoji.KEK, Emoji.HEART, Emoji.WEABOLIKE, Emoji.WOW], //multimedia
-  "813562363243921459": [Emoji.XD, Emoji.KEK], // memes-old
-  "813970132191674398": [Emoji.HEART], // arte
-  "1321222701775454218": [Emoji.HEART], //fotos 24-31
-  "1409143372052037744": [Emoji.KEK, Emoji.XDDD, Emoji.XDV, Emoji.PERRO_SUS], // memes
-  "1405830478480543838": [Emoji.THUMBS_UP, Emoji.THUMBS_DOWN] //sugerencias 
+  [config.channels.aportes]: [Emoji.SMASH, Emoji.PASS], //nsfw
+  [config.channels.aportes2D]: [Emoji.SMASH, Emoji.PASS], //nsfw
+  [config.channels.nsfwChannel1]: [Emoji.SMASH, Emoji.PASS], //nsfw
+  [config.channels.furry]: [Emoji.SMASH, Emoji.PASS], //nsfw
+  [config.channels.nsfwChannel2]: [Emoji.SMASH, Emoji.PASS], //nsfw
+  [config.channels.laNube]: [Emoji.SMASH, Emoji.PASS], //nsfw
+  [config.channels.multimedia]: [Emoji.KEK, Emoji.HEART, Emoji.WEABOLIKE, Emoji.WOW], //multimedia
+  [config.channels.memesOld]: [Emoji.XD, Emoji.KEK], // memes-old
+  [config.channels.dibujos]: [Emoji.HEART], // arte
+  [config.channels.fotos24a31]: [Emoji.HEART], //fotos 24-31
+  [config.channels.memes]: [Emoji.KEK, Emoji.XDDD, Emoji.XDV, Emoji.PERRO_SUS], // memes
+  [config.channels.sugerencias]: [Emoji.THUMBS_UP, Emoji.THUMBS_DOWN] //sugerencias 
 };
 
 const module: Iautomod = {
@@ -42,7 +43,7 @@ const module: Iautomod = {
   ignoreBots: true,
   allowEdited: false,
   execute: async function(message: Message, _client: Client) {
-    if (message.channel.id == "1405830478480543838") {
+    if (message.channel.id == config.channels.sugerencias) {
       message.react(Emoji.THUMBS_UP)
       message.react(Emoji.THUMBS_DOWN)
       return

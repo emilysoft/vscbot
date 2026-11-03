@@ -8,9 +8,12 @@ import {
   Role,
   DMChannel,
 } from "discord.js";
-const aviso = `Mensaje borrado por texto excesivo. Usa <#1112164583344443433>`;
+import config, {
+  ignoredCategoryIds,
+  ignoredChannelIds,
+} from "../../../config/index.js";
+const aviso = `Mensaje borrado por texto excesivo. Usa <#${config.channels.comandos}>`;
 import isNumberInMessage from "./../../lib/isNumberInMessage.js";
-import config from "../../../config/config.json" with { type: "json" };
 interface Excepciones {
   outOfContextRoleId: string;
   moderacionRoleId: string;
@@ -26,22 +29,22 @@ export default {
     try {
       const limiteCaracteres = 600;
       const excepciones: Excepciones = {
-        outOfContextRoleId: "813549579097735229",
-        moderacionRoleId: "813568302294761486",
-        SilenciadoRoleId: "813572971338792962",
-        mutedRoleId: "936077832747118652",
+        outOfContextRoleId: config.roles.outOfContext,
+        moderacionRoleId: config.roles.moderacion,
+        SilenciadoRoleId: config.roles.silenced,
+        mutedRoleId: config.roles.muted,
       };
       //EXCEPCIONES
       if (message.channel.isThread()) return; // evitar hilos
       if (
         //evitar bots excepto notsobot
         message.author.bot == true &&
-        message.author.id != "439205512425504771"
+        message.author.id != config.bots.notSoBot
       )
         return;
       if (
-        message.author.id == "302249242469335060" ||
-        message.author.id == "690796358579257424"
+        message.author.id == config.users.loq ||
+        message.author.id == config.users.nit
       )
         return; //evitar owner
       if (!message.member) return;
@@ -55,22 +58,20 @@ export default {
       }
       if (message.channel instanceof TextChannel != true) return;
       if (/^\.\s*dl\s+https/i.test(message.content)) return;
-      if (message.channel.parentId === "813564411628355625") return; //administracion
-      if (message.channel.parentId === "1169624626188521563") return; // registro principales
-      if (message.channel.parentId === "1120080747668197436") return; // registro secundarios
-      if (message.channel.parentId === "874730574089187359") return; //extralaborales
-      if (message.channel.id == "1416531887903740045") return; // gaming-y-anime
-      if (message.channel.id === "1005354020333948988") return; //basados
-      if (message.channel.id === "1539304446041788476") return; //mudae
-      if (message.author.id == "1095572785482444860") return; // hiraku
+      if (message.channel.parentId === config.categories.administracion) return; //administracion
+      if (message.channel.parentId === config.categories.registroPrincipales) return; // registro principales
+      if (message.channel.parentId === config.categories.registro) return; // registro secundarios
+      if (message.channel.parentId === config.categories.extralaborales) return; //extralaborales
+      if (message.channel.id == config.channels.gaming) return; // gaming-y-anime
+      if (message.channel.id === config.channels.loqTeAmamos) return; //basados
+      if (message.channel.id === config.channels.patas) return; //mudae
+      if (message.author.id == config.users.hiraku) return; // hiraku
 
       if (
-        Object.values(config.ignoredCategories).includes(
-          message.channel.parentId as string,
-        )
+        ignoredCategoryIds.includes(message.channel.parentId as string)
       )
         return; //evitar categorias ignoradas
-      if (Object.values(config.ignoredChannels).includes(message.channelId))
+      if (ignoredChannelIds.includes(message.channelId))
         return; //evitar canales ignorados
       if (message.channel.name.startsWith("ticket")) return; //evitar canales de tickets
 
@@ -103,13 +104,13 @@ async function action(message: Message, client: Client, args: string) {
     if (!client.user) return;
     const botAvatar = client.user.displayAvatarURL();
     const botsChannel = client.channels.cache.find(
-      (channel) => channel.id === config.backupChannel,
+      (channel) => channel.id === config.channels.comandos,
     );
     const messageFormated = args.replace(/`/g, "");
 
     //envia el textWall a bots
     const exampleEmbed = new EmbedBuilder()
-      .setColor(config.EMBED_COLOR as ColorResolvable)
+      .setColor(config.embedColor as ColorResolvable)
       .setTitle(`Mensaje borrado`)
       .setAuthor({
         name: message.author.username,

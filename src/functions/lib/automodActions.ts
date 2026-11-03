@@ -2,6 +2,7 @@ import { TextChannel, Message } from "discord.js";
 import Client from "../../interfaces/ICustomClient.js";
 import sendDM from "../lib/sendDM.js";
 import logger from "../logger.js";
+import config from "../../config/index.js";
 //import { createWorker } from 'tesseract.js';
 // ---
 //  Mensajes de sanción estandarizados
@@ -87,7 +88,7 @@ export async function handleDiscordInvite(
   }
 
   //  Si no es ninguna de las anteriores, mutea al usuario
-  if (message.guild?.id == "813538324320092161") {
+  if (message.guild?.id == config.guilds.main) {
     muteUser(message, client, "una Discord invite");
   }
   return true;
@@ -147,13 +148,13 @@ export async function handleNicolasMaduro(
   const { member, guild } = message;
 
   //  Solo aplica en un servidor específico
-  if (guild?.id !== "813538324320092161" || !member || !content.match(regex)) {
+  if (guild?.id !== config.guilds.main || !member || !content.match(regex)) {
     return false;
   }
 
   //  Verifica si el usuario tiene roles de rango 5 o 10
-  const roleFive = "813546760152547348";
-  const roleTen = "813545491957940244";
+  const roleFive = config.roles.levelFive;
+  const roleTen = config.roles.levelTen;
   if (member.roles.cache.has(roleFive) || member.roles.cache.has(roleTen)) {
     return false;
   }
@@ -233,17 +234,17 @@ export async function handleNoLinksPermissions(
     return false;
   }
   //  Solo aplica en un servidor específico
-  if (guild?.id !== "813538324320092161" || !regex.test(content)) {
+  if (guild?.id !== config.guilds.main || !regex.test(content)) {
     return false;
   }
 
-  const roleFive = "813546760152547348";
-  const roleTen = "813545491957940244";
+  const roleFive = config.roles.levelFive;
+  const roleTen = config.roles.levelTen;
   if (member.roles.cache.has(roleFive) || member.roles.cache.has(roleTen)) {
     return false;
   }
 
-  const bots = await guild.channels.fetch("1112164583344443433");
+  const bots = await guild.channels.fetch(config.channels.comandos);
   if (bots instanceof TextChannel) {
     await bots.send(
       `Sube al nivel 5 y podrás enviar links e imagenes <@${author.id}>`,

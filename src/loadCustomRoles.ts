@@ -2,6 +2,7 @@ import { GuildMember } from "discord.js"
 import Client from "./interfaces/ICustomClient.js";
 import dotenv from "dotenv";
 dotenv.config();
+import config from "./config/index.js";
 const client = new Client();
 
 client.on("clientReady", async () => {
@@ -17,11 +18,11 @@ client.on("clientReady", async () => {
     let pass = false
 
     for (const role of sortedRoles.values()) {
-      if (role.id == "1403242072848203817") {
+      if (role.id == config.roles.customRolesAnchor) {
         pass = true
         continue
       }
-      if (role.id == "1403242383793066004") break
+      if (role.id == config.roles.customRolesLimit) break
 
       if (pass) {
         const member = role.members.first()
@@ -30,7 +31,7 @@ client.on("clientReady", async () => {
           continue
         }
         console.log(`${role.id} ${role.name}`)
-        member.roles.add("1403939855364391024")
+        member.roles.add(config.roles.customRolesTracker)
         //await client.db.roles.custom.create(role, member.user, role.guild)
         //    .catch(err => console.log(err))
       }

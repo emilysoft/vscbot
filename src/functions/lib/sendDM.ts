@@ -10,7 +10,7 @@ export default async function sendDM(message: Message, mensaje: string) {
   const invite = invites.first()?.url;
   if (!name && !invite) return
   const embed = new EmbedBuilder()
-    .setColor(config.EMBED_COLOR as ColorResolvable)
+    .setColor(config.embedColor as ColorResolvable)
     .setTitle(message.author.username)
     .setDescription(mensaje)
     .setAuthor({

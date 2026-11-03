@@ -15,8 +15,8 @@ const module: ICommand = {
     .setDescription("borras todos los bots"),
   async run(message: Message, _client: Client) {
     if (
-      config.OWNERS_ID[0] == message.author.id ||
-      message.member?.roles.cache.has("813979041027457044")
+      config.users.loq == message.author.id ||
+      message.member?.roles.cache.has(config.roles.administrators)
     ) {
       await message.delete().catch(() => null);
       clearBots(message);

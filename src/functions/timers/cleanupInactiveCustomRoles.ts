@@ -1,13 +1,24 @@
-import { EmbedBuilder, GuildMember, Role, TextChannel } from "discord.js";
+import {
+  ColorResolvable,
+  EmbedBuilder,
+  GuildMember,
+  Role,
+  TextChannel,
+} from "discord.js";
 import Client from "../../interfaces/ICustomClient.js";
-import config from "../../config/config.json" with { type: "json" };
+import config, {
+  channelId,
+  roleId,
+  type ChannelKey,
+  type RoleKey,
+} from "../../config/index.js";
 
 const INTERVAL_MS = 24 * 60 * 60 * 1000;
 
 export function startInactiveCustomRoleCleanup(client: Client): void {
-  const settings = (config as any).INACTIVE_CUSTOM_ROLES;
+  const settings = config.customRoles.inactive;
 
-  if (!settings?.ENABLED) return;
+  if (!settings?.enabled) return;
 
   const run = async () => {
     try {
@@ -22,10 +33,10 @@ export function startInactiveCustomRoleCleanup(client: Client): void {
 }
 
 async function cleanup(client: Client): Promise<void> {
-  const settings = (config as any).INACTIVE_CUSTOM_ROLES;
-  const days = settings?.DAYS || 90;
-  const logChannelId = settings?.LOG_CHANNEL_ID;
-  const dryRun = !!settings?.DRY_RUN;
+  const settings = config.customRoles.inactive;
+  const days = settings?.days || 90;
+  const logChannelId = channelId(settings.logChannel as ChannelKey);
+  const dryRun = !!settings?.dryRun;
 
   const cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
 
@@ -127,7 +138,7 @@ async function cleanup(client: Client): Promise<void> {
         continue;
       }
 
-      const trackerId = (config as any).CUSTOM_ROLE_TRACKER_ROLE_ID;
+      const trackerId = roleId(config.customRoles.trackerRole as RoleKey);
 
       if (dryRun) {
         await logCleanup(
@@ -194,7 +205,7 @@ async function logCleanup(
   );
 
   const embed = new EmbedBuilder()
-    .setColor((config as any).EMBED_COLOR)
+    .setColor(config.embedColor as ColorResolvable)
     .setTitle(
       dryRun
         ? "🧪 [DRY RUN] Rol personalizado por eliminar por inactividad"
@@ -238,7 +249,7 @@ async function logHierarchySkip(
   );
 
   const embed = new EmbedBuilder()
-    .setColor((config as any).EMBED_COLOR)
+    .setColor(config.embedColor as ColorResolvable)
     .setTitle(
       "⚠️ Rol personalizado por eliminar por inactividad - Jerarquía insuficiente",
     )
@@ -287,7 +298,7 @@ async function logGoneCleanup(
   const leftTimestamp = Math.floor(leftSince / 1000);
 
   const embed = new EmbedBuilder()
-    .setColor((config as any).EMBED_COLOR)
+    .setColor(config.embedColor as ColorResolvable)
     .setTitle(
       dryRun
         ? "🧪 [DRY RUN] Rol personalizado por eliminar - Ausente del servidor"
@@ -331,7 +342,7 @@ async function logGoneHierarchySkip(
   const leftTimestamp = Math.floor(leftSince / 1000);
 
   const embed = new EmbedBuilder()
-    .setColor((config as any).EMBED_COLOR)
+    .setColor(config.embedColor as ColorResolvable)
     .setTitle(
       "⚠️ Rol personalizado por eliminar - Ausente del servidor - Jerarquía insuficiente",
     )

@@ -11,7 +11,7 @@ export default {
   ignoreBots: true,
   execute: async function(message: Message, client: Client) {
     try {
-      if (message.channel.id == "1024260771326197781") return;
+      if (message.channel.id == config.channels.panel) return;
       for (const regex of badWordsRegexed) {
         if (message.content.match(regex) != null) {
           sendMessage(message);
@@ -29,10 +29,10 @@ function sendMessage(message: Message) {
   const avatarPhoto = message.member.displayAvatarURL();
   const botAvatar = message.client.user.displayAvatarURL();
   const botsChannel = message.guild.channels.cache.find(
-    (channel) => channel.id === "1270476028619260018"
+    (channel) => channel.id === config.channels.badWordsLog
   );
   const embed = new EmbedBuilder()
-    .setColor(config.EMBED_COLOR as ColorResolvable)
+    .setColor(config.embedColor as ColorResolvable)
     .setTitle(message.author.username)
     .setDescription(
       `**Swear words sent by <@${message.author.id}> in ${message.url}**\n**Message:**\n${message.content}`

@@ -14,7 +14,7 @@ const module: ICommand = {
     .setName("shutdown")
     .setDescription("Apagas el bot"),
   async execute(interaction: ChatInputCommandInteraction, client: Client) {
-    if (config.OWNERS_ID[0] == interaction.user.id) {
+    if (config.users.loq == interaction.user.id) {
       shutdown(interaction, client);
     } else {
       interaction.reply({
@@ -24,7 +24,7 @@ const module: ICommand = {
     }
   },
   async run(message: Message, client: Client) {
-    if (config.OWNERS_ID[0] == message.author.id) {
+    if (config.users.loq == message.author.id) {
       shutdown(message, client);
     }
   },

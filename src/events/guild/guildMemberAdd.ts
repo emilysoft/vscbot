@@ -22,7 +22,7 @@ const module = {
       await LevelSystem.syncRewardRoles(member, levelDB.level, client);
     }
 
-    const roleId = config.NEW_MEMBER_VC_ROLE_ID;
+    const roleId = config.roles.newMemberVc;
     if (!roleId) return;
 
     try {

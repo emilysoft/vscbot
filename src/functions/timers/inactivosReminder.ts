@@ -1,9 +1,10 @@
-const canal_inactivos = "1272621881543102567";
-const canal_noVerificados = "1142222030377328750";
-const inactivo = "<@&1272564404193460286>";
-const noVerificado = "<@&1260331890406068325>";
 import Client from "../../interfaces/ICustomClient.js"
 import { TextChannel } from "discord.js";
+import config from "../../config/index.js";
+const canal_inactivos = config.channels.inactive;
+const canal_noVerificados = config.channels.verificate;
+const inactivo = `<@&${config.roles.inactive}>`;
+const noVerificado = `<@&${config.roles.unverified}>`;
 const module = async (now: Date, client:Client) => {
   try {
     const hour = now.getHours();

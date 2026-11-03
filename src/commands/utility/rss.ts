@@ -52,7 +52,7 @@ function buildFieldEmbed(
         ? "Campos del último item:"
         : "El feed no tiene items aún",
     )
-    .setColor(config.EMBED_COLOR as ColorResolvable);
+    .setColor(config.embedColor as ColorResolvable);
 
   for (const f of detection.fields) {
     embed.addFields({
@@ -376,7 +376,7 @@ async function handleCreate(
 
   const embed = new EmbedBuilder()
     .setTitle("✅ Feed RSS creado")
-    .setColor(config.EMBED_COLOR as ColorResolvable)
+    .setColor(config.embedColor as ColorResolvable)
     .addFields(
       { name: "ID", value: `#${feed.id}`, inline: true },
       { name: "Nombre", value: feed.name, inline: true },
@@ -503,7 +503,7 @@ async function handleEdit(
 
   const embed = new EmbedBuilder()
     .setTitle("✅ Feed RSS actualizado")
-    .setColor(config.EMBED_COLOR as ColorResolvable)
+    .setColor(config.embedColor as ColorResolvable)
     .addFields(
       { name: "ID", value: `#${feed.id}`, inline: true },
       { name: "Nombre", value: updates.name || feed.name, inline: true },
@@ -594,7 +594,7 @@ async function handleList(
   const embed = new EmbedBuilder()
     .setTitle(`Feeds RSS (${active.length} activos)`)
     .setDescription(lines.join("\n"))
-    .setColor(config.EMBED_COLOR as ColorResolvable);
+    .setColor(config.embedColor as ColorResolvable);
 
   await interaction.reply({ embeds: [embed], ephemeral: true });
 }
@@ -631,7 +631,7 @@ async function handlePreview(
 
     const embed = new EmbedBuilder()
       .setTitle(`Previsualización — ${feedTitle}`)
-      .setColor(config.EMBED_COLOR as ColorResolvable)
+      .setColor(config.embedColor as ColorResolvable)
       .addFields(
         { name: "Feed", value: feed.name, inline: true },
         {
@@ -661,7 +661,7 @@ async function handlePreview(
     const variablesEmbed = new EmbedBuilder()
       .setTitle("Variables disponibles")
       .setDescription(VARIABLES_INFO)
-      .setColor(config.EMBED_COLOR as ColorResolvable);
+      .setColor(config.embedColor as ColorResolvable);
 
     await interaction.editReply({ embeds: [embed, variablesEmbed] });
   } catch {
@@ -846,7 +846,7 @@ async function handleTemplate(
 
   const embed = new EmbedBuilder()
     .setTitle("✅ Plantilla actualizada")
-    .setColor(config.EMBED_COLOR as ColorResolvable)
+    .setColor(config.embedColor as ColorResolvable)
     .addFields(
       { name: "Feed", value: feed.name, inline: true },
       { name: "ID", value: `#${feed.id}`, inline: true },

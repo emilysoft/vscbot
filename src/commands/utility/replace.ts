@@ -1,5 +1,5 @@
 import { Message, SlashCommandBuilder } from "discord.js"
-import config from "../../config/config.json" with {type: "json"}
+import { isOwner } from "../../config/index.js"
 import ICommand from "../../interfaces/command.js"
 import Client from "../../interfaces/ICustomClient.js"
 const module: ICommand = {
@@ -24,7 +24,7 @@ const module: ICommand = {
 };
 
 async function replace(message: Message, _client: Client) {
-  if (config.OWNERS_ID.includes(message.author.id)) {
+  if (isOwner(message.author.id)) {
     if (message.reference) {
       await message.channel.messages
         .fetch(message.reference.messageId as string)

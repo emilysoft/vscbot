@@ -78,7 +78,7 @@ async function help(interaction: Message | ChatInputCommandInteraction, avatarPh
 
     // ... (resto de la función help, creando y enviando el embed)
     const embed = new EmbedBuilder()
-      .setColor(config.EMBED_COLOR as ColorResolvable)
+      .setColor(config.embedColor as ColorResolvable)
       .setTitle(`Comandos de ${interaction.client.user.username}`)
       .setAuthor({ name: authorTag, iconURL: avatarPhoto })
       // Aquí usamos \`/${command.name}\` en lugar de \`>${command.name}\` para los comandos de barra

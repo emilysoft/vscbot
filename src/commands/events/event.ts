@@ -196,7 +196,7 @@ async function handleSettings(interaction: ChatInputCommandInteraction, client: 
 
   const embed = new EmbedBuilder()
     .setTitle("Configuración de Eventos")
-    .setColor(config.EMBED_COLOR as ColorResolvable)
+    .setColor(config.embedColor as ColorResolvable)
     .addFields(
       { name: "Estado", value: enabled, inline: true },
       { name: "Rol por defecto", value: config_.default_role_id ? `<@&${config_.default_role_id}>` : "No configurado", inline: true },
@@ -459,7 +459,7 @@ async function handleCreate(interaction: ChatInputCommandInteraction, client: Cl
 
   const embed = new EmbedBuilder()
     .setTitle("✅ Evento creado")
-    .setColor(config.EMBED_COLOR as ColorResolvable)
+    .setColor(config.embedColor as ColorResolvable)
     .addFields(
       { name: "Nombre", value: name, inline: true },
       { name: "ID", value: `#${event.id}`, inline: true },
@@ -506,7 +506,7 @@ async function handleList(interaction: ChatInputCommandInteraction, client: Clie
   const embed = new EmbedBuilder()
     .setTitle(`Eventos — ${filter === 'upcoming' ? 'Próximos' : filter === 'past' ? 'Pasados' : 'Todos'}`)
     .setDescription(lines.join('\n'))
-    .setColor(config.EMBED_COLOR as ColorResolvable);
+    .setColor(config.embedColor as ColorResolvable);
 
   await interaction.reply({ embeds: [embed], ephemeral: true });
 }
@@ -689,7 +689,7 @@ async function handleInfo(interaction: ChatInputCommandInteraction, client: Clie
 
   const embed = new EmbedBuilder()
     .setTitle(`${statusEmoji[event.status] || ''} ${event.name}`)
-    .setColor(config.EMBED_COLOR as ColorResolvable)
+    .setColor(config.embedColor as ColorResolvable)
     .addFields(
       { name: "ID", value: `#${event.id}`, inline: true },
       { name: "Estado", value: event.status, inline: true },
@@ -826,7 +826,7 @@ async function handleTest(interaction: ChatInputCommandInteraction, client: Clie
         const exampleEmbed = new EmbedBuilder()
           .setTitle('🧪 Evento de prueba')
           .setDescription('Este es un mensaje de ejemplo en el canal temporal.')
-          .setColor(config.EMBED_COLOR as ColorResolvable)
+          .setColor(config.embedColor as ColorResolvable)
           .addFields(
             { name: 'Duración', value: `${Math.round(durationSec)} segundos`, inline: true },
             { name: 'Comportamiento', value: 'Se eliminará al finalizar', inline: true },

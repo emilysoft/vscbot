@@ -140,7 +140,7 @@ async function handleCreate(interaction: ChatInputCommandInteraction, client: Cl
 
   const embed = new EmbedBuilder()
     .setTitle("✅ Recordatorio creado")
-    .setColor(config.EMBED_COLOR as ColorResolvable)
+    .setColor(config.embedColor as ColorResolvable)
     .addFields(
       { name: "ID", value: `#${reminder.id}`, inline: true },
       { name: "Canal", value: `<#${channel.id}>`, inline: true },
@@ -238,7 +238,7 @@ async function handleList(interaction: ChatInputCommandInteraction, client: Clie
   const embed = new EmbedBuilder()
     .setTitle(`Recordatorios pendientes (${pending.length})`)
     .setDescription(lines.join('\n'))
-    .setColor(config.EMBED_COLOR as ColorResolvable);
+    .setColor(config.embedColor as ColorResolvable);
 
   await interaction.reply({ embeds: [embed], ephemeral: true });
 }

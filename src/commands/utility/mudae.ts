@@ -161,7 +161,7 @@ async function handleSetup(interaction: ChatInputCommandInteraction, client: Cli
 
   const embed = new EmbedBuilder()
     .setTitle("✅ Mudae reset configurado")
-    .setColor(config.EMBED_COLOR as ColorResolvable)
+    .setColor(config.embedColor as ColorResolvable)
     .addFields(
       { name: "Canal", value: `<#${channel.id}>`, inline: true },
       { name: "Salida", value: `<#${output.id}>`, inline: true },
@@ -193,7 +193,7 @@ async function handleRun(interaction: ChatInputCommandInteraction, client: Clien
 
   const embed = new EmbedBuilder()
     .setTitle("Reset ejecutado")
-    .setColor(config.EMBED_COLOR as ColorResolvable)
+    .setColor(config.embedColor as ColorResolvable)
     .setDescription(active.length
       ? active.map(u => `\`$restoreuser ${u.user_id} ${cfg.restore_value}\``).join("\n")
       : "Ningún usuario activo en la ventana.")
@@ -222,7 +222,7 @@ async function handleStatus(interaction: ChatInputCommandInteraction, client: Cl
 
   const embed = new EmbedBuilder()
     .setTitle("Estado del reset de Mudae")
-    .setColor(config.EMBED_COLOR as ColorResolvable)
+    .setColor(config.embedColor as ColorResolvable)
     .addFields(
       { name: "Canal", value: `<#${cfg.channel_id}>`, inline: true },
       { name: "Salida", value: `<#${cfg.output_channel_id}>`, inline: true },

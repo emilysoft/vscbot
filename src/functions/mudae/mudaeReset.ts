@@ -79,7 +79,7 @@ export async function sendReset(
     const embed = new EmbedBuilder()
       .setTitle(`Mudae Reset — ${cfg.game_name}`)
       .setDescription(commands.map(c => `\`${c}\``).join("\n"))
-      .setColor(config.EMBED_COLOR as ColorResolvable)
+      .setColor(config.embedColor as ColorResolvable)
       .addFields(
         { name: "Canal", value: `<#${cfg.channel_id}>`, inline: true },
         { name: `Usuarios (${cfg.interval_days}d)`, value: `${recent.length}`, inline: true },

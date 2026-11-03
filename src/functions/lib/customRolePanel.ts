@@ -53,7 +53,7 @@ export function buildCustomRolePanel(): {
   components: ActionRowBuilder<ButtonBuilder>[];
 } {
   const embed = new EmbedBuilder()
-    .setColor(config.EMBED_COLOR as ColorResolvable)
+    .setColor(config.embedColor as ColorResolvable)
     .setTitle("🎨 Rol personalizado")
     .setDescription(
       [

@@ -1,5 +1,5 @@
 import { ChannelType, MessageFlags, SlashCommandBuilder } from "discord.js"
-import config from "../../config/config.json" with {type: "json"}
+import { isOwner } from "../../config/index.js"
 import ICommand from "../../interfaces/command.js"
 import RoleManager from "../../functions/lib/RoleManager.js";
 import { buildCustomRolePanel } from "../../functions/lib/customRolePanel.js";
@@ -65,7 +65,7 @@ const module: ICommand = {
 
         } case "crear": {
 
-          if (!config.OWNERS_ID.some((id) => id === AUTHOR_ID)) throw new Error("comando no autorizado");
+          if (!isOwner(AUTHOR_ID)) throw new Error("comando no autorizado");
           await roleManager.createCustomRole()
             .then(() => {
               interaction.editReply({ content: "role creado exitosamente" })
@@ -74,7 +74,7 @@ const module: ICommand = {
             )
             ; break;
         } case "panel": {
-          if (!config.OWNERS_ID.some((id) => id === AUTHOR_ID)) throw new Error("comando no autorizado");
+          if (!isOwner(AUTHOR_ID)) throw new Error("comando no autorizado");
 
           const selectedChannel = interaction.options.getChannel("canal");
           const targetChannel = selectedChannel && interaction.guild

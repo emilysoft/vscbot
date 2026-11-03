@@ -1,71 +1,173 @@
 {
   "prefix": ">",
-  "LOGGER_STATUS": true,
-  "OWNERS_ID": ["302249242469335060", "690796358579257424"],
-  "EMBED_COLOR": "#72EDD8",
+  "loggerStatus": true,
+  "embedColor": "#72EDD8",
   "clientId": "883827073049845801",
-  "guildId": "813538324320092161",
-  "ignoredCategories": {
-    "nsfw": "813564125380214785",
-    "fijado": "879514144372580413",
-    "importante": "813565238247030804",
-    "vsc": "1006173920245850142",
-    "administracion": "813564411628355625",
-    "extralaborales": "874730574089187359",
-    "zona-gamer": "836011738662961162",
-    "registro": "1120080747668197436",
-    "servidores_exclusivos": "1257714815523360791"
+
+  "guilds": {
+    "main": "813538324320092161",
+    "nsb": "811827256489541643"
   },
-  "ignoredChannels": {
-    "sugerencias": "813553405695361105",
+
+  "channels": {
+    "panaderia": "813538324320092164",
+    "general": "1345943077470076979",
+    "cienciasSociales": "853387980335874078",
+    "metas2026": "1456086627062382643",
+    "starboard": "872866069767917598",
+    "memes": "1409143372052037744",
+    "memesOld": "813562363243921459",
+    "sugerencias": "1405830478480543838",
+    "sugerenciasOld": "813553405695361105",
+    "multimedia": "813562445729628170",
     "dibujos": "813970132191674398",
+    "fotos24a31": "1321222701775454218",
+    "aportes": "1013280756757430364",
+    "aportes2D": "942934915396288542",
+    "nsfwChannel1": "1230709697129091102",
+    "furry": "1172695535468150814",
+    "nsfwChannel2": "1391598283897573446",
+    "laNube": "868499065984393308",
+    "comandos": "1112164583344443433",
+    "patas": "1539304446041788476",
+    "ia": "1073774467282641038",
+    "gaming": "1416531887903740045",
+    "loqTeAmamos": "1005354020333948988",
+    "inactive": "1272621881543102567",
+    "verificate": "1142222030377328750",
+    "dolar": "1294633642865332287",
+    "panel": "1024260771326197781",
+    "memberLog": "1088423410905919550",
+    "deleteLog": "1277121114786496572",
+    "staffLog": "1564027992395485277",
+    "vscbotErrors": "1085335051732009113",
+    "automodLog": "936038476334370896",
+    "imageLog": "1160325903461666927",
+    "badWordsLog": "1270476028619260018",
+    "bienvenida": "937087166645960714",
+    "faq": "1110431376978759720",
+    "gulag": "1058586276854517873",
+    "nsbGeneral": "871386967726772234",
+    "staffBots": "948782010955104376",
     "mudae": "821067797157118013",
-    "debates": "853387980335874078",
     "english": "1253097593488277545",
-    "bots": "1112164583344443433",
     "confesiones": "815031494359253002",
     "fmbot": "813553355783405598",
     "iceberg": "841434152766799922",
     "juegos": "813553343233523712",
     "melomanos": "879524287629914153",
-    "chatgpt": "1073774467282641038",
     "bardo": "876095489148325889",
-    "ultimas-confesiones": "926515205855383562"
+    "ultimaConfesion": "926515205855383562"
   },
-  "allowedChannels": {
-    "general": "813538324320092164",
-    "zona-chill": "1345943077470076979",
-    "ciencias-sociales": "853387980335874078"
+
+  "categories": {
+    "general": "813538324320092162",
+    "zonaGamer": "836011738662961162",
+    "nsfw": "813564125380214785",
+    "tickets": "1122175563688317058",
+    "registroPrincipales": "1169624626188521563",
+    "registro": "1120080747668197436",
+    "administracion": "813564411628355625",
+    "extralaborales": "874730574089187359",
+    "fijado": "879514144372580413",
+    "importante": "813565238247030804",
+    "vsc": "1006173920245850142",
+    "servidoresExclusivos": "1257714815523360791"
   },
-  "NEW_MEMBER_VC_ROLE_ID": "1517737763724726473",
-  "backupChannel": "1112164583344443433",
-  "MUTED_ROLE_ID": "936077832747118652",
-  "MUTED_ADVISER_CHANNEL_ID": "1058586276854517873",
-  "INACTIVE_CUSTOM_ROLES": {
-    "ENABLED": true,
-    "DAYS": 90,
-    "LOG_CHANNEL_ID": "948782010955104376",
-    "DRY_RUN": false
+
+  "roles": {
+    "levelFive": "813545491957940244",
+    "levelTen": "813546760152547348",
+    "moderacion": "813568302294761486",
+    "outOfContext": "813549579097735229",
+    "silenced": "813572971338792962",
+    "muted": "936077832747118652",
+    "unverified": "1260331890406068325",
+    "inactive": "1272564404193460286",
+    "bcv": "830121766801244160",
+    "staff": "1049626515849084988",
+    "mediaStaff": "1160312456233619517",
+    "developers": "1294149003696410665",
+    "connectedCounter": "1147197053911433436",
+    "administrators": "813979041027457044",
+    "automodManagers": "844230283737038848",
+    "general1": "1345943357058187284",
+    "general2": "1345951301720342528",
+    "customRolesAnchor": "1403242072848203817",
+    "customRolesLimit": "1403242383793066004",
+    "customRolesTracker": "1403939855364391024",
+    "newMemberVc": "1517737763724726473"
   },
-  "CUSTOM_ROLE_TRACKER_ROLE_ID": "1403939855364391024",
-  "CUSTOM_ROLES_ANCHOR_ROLE_ID": "1403242072848203817",
-  "CUSTOM_ROLES_SERVER_ROLE_LIMIT": 250,
-  "CUSTOM_ROLES_RESERVED_SLOTS": 2,
-  "DELETE_MESSAGES": {
-    "CHANNELS": {
-      "GENERAL": ["813538324320092164", "1345943077470076979"],
-      "COMMAND": "1112164583344443433",
-      "NSB": "1112164583344443433"
+
+  "users": {
+    "loq": "302249242469335060",
+    "nit": "690796358579257424",
+    "vortex": "240254129333731328",
+    "hiraku": "1095572785482444860"
+  },
+
+  "bots": {
+    "notSoBot": "439205512425504771",
+    "nekotina": "429457053791158281",
+    "saucyBot": "647368715742216193",
+    "genAi": "974297735559806986",
+    "fmbot": "356268235697553409",
+    "chuu": "537353774205894676",
+    "mudae": "432610292342587392"
+  },
+
+  "messages": {
+    "keepInGulag": "1182114475906699305"
+  },
+
+  "owners": ["loq", "nit"],
+
+  "ignoredChannels": [
+    "sugerenciasOld",
+    "dibujos",
+    "mudae",
+    "cienciasSociales",
+    "english",
+    "comandos",
+    "confesiones",
+    "fmbot",
+    "iceberg",
+    "juegos",
+    "melomanos",
+    "ia",
+    "bardo",
+    "ultimaConfesion"
+  ],
+
+  "ignoredCategories": [
+    "nsfw",
+    "fijado",
+    "importante",
+    "vsc",
+    "administracion",
+    "extralaborales",
+    "zonaGamer",
+    "registro",
+    "servidoresExclusivos"
+  ],
+
+  "allowedChannels": ["panaderia", "general", "cienciasSociales"],
+
+  "deleteMessages": {
+    "channels": {
+      "general": ["panaderia", "general"],
+      "command": "comandos",
+      "nsb": "comandos"
     },
-    "BOTS": {
-      "NSB": "439205512425504771",
-      "GENERAL_CHANNEL": {
-        "FMBOT": "356268235697553409",
-        "CHUU": "537353774205894676",
-        "MUDAE": "432610292342587392"
+    "bots": {
+      "nsb": "notSoBot",
+      "generalChannel": {
+        "fmbot": "fmbot",
+        "chuu": "chuu",
+        "mudae": "mudae"
       }
     },
-    "REGEX": {
+    "regex": {
       "DOWNLOAD": "^(\\.|>)\\s*dl",
       "FMBOT": "^=[a-bA-Z]+$",
       "COMMNAD_ERROR": "Command Error",
@@ -73,6 +175,19 @@
       "EMPTY_TAG": "HTTP Exception: 400 \\(URL returned an empty response",
       "GENERAL_ERROR_TAG": "HTTP Exception\\: 400 \\(Expecting value\\: line 1 column 1",
       "UNDO_MESSAGE": "^\\.\\s*undo"
+    }
+  },
+
+  "customRoles": {
+    "serverRoleLimit": 250,
+    "reservedSlots": 2,
+    "anchorRole": "customRolesAnchor",
+    "trackerRole": "customRolesTracker",
+    "inactive": {
+      "enabled": true,
+      "days": 90,
+      "logChannel": "staffBots",
+      "dryRun": false
     }
   }
 }

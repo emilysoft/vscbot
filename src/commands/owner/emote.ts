@@ -1,6 +1,7 @@
 import { Message, SlashCommandBuilder, TextChannel } from "discord.js"
 import Client from "../../interfaces/ICustomClient.js"
 import ICommand from "../../interfaces/command.js"
+import config from "../../config/index.js"
 const module: ICommand = {
   name: "emote",
   description: "Add emotes",
@@ -17,7 +18,7 @@ const module: ICommand = {
     .setDescription("Add emotes"),
   async run(message: Message, client: Client, _args: string) {
     try {
-      if (message.author.id != "302249242469335060") return;
+      if (message.author.id != config.users.loq) return;
       addEmote(message);
       deleteEmoji(message);
       changeName(message);

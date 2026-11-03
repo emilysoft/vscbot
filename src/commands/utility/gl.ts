@@ -1,10 +1,12 @@
-const GENERAL_1 = "1345943357058187284";
-const GENERAL_2 = "1345951301720342528";
-const GENERAL_CHANNEL_1 = "813538324320092164";
-const GENERAL_CHANNEL_2 = "1345943077470076979";
 import { SlashCommandBuilder, Message, TextChannel } from "discord.js";
 import ICommand from "../../interfaces/command.js";
 import Client from "../../interfaces/ICustomClient.js";
+import config from "../../config/index.js";
+
+const GENERAL_1 = config.roles.general1;
+const GENERAL_2 = config.roles.general2;
+const GENERAL_CHANNEL_1 = config.channels.panaderia;
+const GENERAL_CHANNEL_2 = config.channels.general;
 const module: ICommand = {
   name: "gl",
   description: "cambia de general",

@@ -1,6 +1,7 @@
 import { Message, TextChannel } from "discord.js";
 import Client from "../../../interfaces/ICustomClient.js";
 import Iautomod from "../../../interfaces/Iautomod.js";
+import config from "../../../config/index.js";
 
 export default {
   name: "clearChat",
@@ -12,21 +13,21 @@ export default {
       if (!message.guild) return
       const { channel } = message
       if (!(channel instanceof TextChannel)) return
-      if (message.guild.id == "813538324320092161" &&
-                 message.channel.id == "813538324320092164"  ||
-                 message.channel.id == "1345943077470076979" ||
-                 message.channel.id == "853387980335874078"
+      if (message.guild.id == config.guilds.main &&
+                 message.channel.id == config.channels.panaderia  ||
+                 message.channel.id == config.channels.general ||
+                 message.channel.id == config.channels.cienciasSociales
         ) {
         //general
-        clearNSB(message, "813538324320092164");
+        clearNSB(message, config.channels.panaderia);
         //general 2
-        clearNSB(message, "1345943077470076979");
-        clearNSB(message, "853387980335874078");
+        clearNSB(message, config.channels.general);
+        clearNSB(message, config.channels.cienciasSociales);
         return
       }
       //neetoons
-      if (message.guild.id == "811827256489541643" && message.channel.id == "871386967726772234") {
-        clearNSB(message, "871386967726772234");
+      if (message.guild.id == config.guilds.nsb && message.channel.id == config.channels.nsbGeneral) {
+        clearNSB(message, config.channels.nsbGeneral);
       }
     } catch (err: any) {
       client.errorLogger(err, client, "error", process.cwd() + " ");
@@ -43,8 +44,8 @@ async function clearNSB(message: Message, channelId: string) {
   const messagesToDelete: string[] = [];
   //nekotina o nsb
   if (
-    message.author.id == "439205512425504771" ||
-    message.author.id == "429457053791158281"
+    message.author.id == config.bots.notSoBot ||
+    message.author.id == config.bots.nekotina
   ) {
     if (message.embeds.length == 0) return;
     if (message.reference?.messageId) {
@@ -76,8 +77,8 @@ export async function clearBots(msg: Message) {
   for (const [, message] of messages) {
     //nekotina o nsb
     if (
-      message.author.id == "439205512425504771" ||
-      message.author.id == "429457053791158281"
+      message.author.id == config.bots.notSoBot ||
+      message.author.id == config.bots.nekotina
     ) {
       messagesToDelete.push(message.id);
     }
@@ -87,9 +88,9 @@ export async function clearBots(msg: Message) {
 }
 export async function clearGulag(client: Client) {
   //general
-  const dontdeletemsgid = "1182114475906699305";
-  const gulagId = "1058586276854517873";
-  const guild = client.guilds.cache.get("813538324320092161");
+  const dontdeletemsgid = config.messages.keepInGulag;
+  const gulagId = config.channels.gulag;
+  const guild = client.guilds.cache.get(config.guilds.main);
   if (!guild) return;
   const channel = await guild.channels.fetch(gulagId);
 

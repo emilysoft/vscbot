@@ -1,7 +1,8 @@
 import Client from "../../interfaces/ICustomClient.js";
+import config from "../../config/index.js";
 const module = async (client: Client) => {
   try {
-    const guild = client.guilds.cache.get("813538324320092161")
+    const guild = client.guilds.cache.get(config.guilds.main)
     guild?.edit({
       banner:"asd" 
     })

@@ -6,6 +6,7 @@ import {
   Message,
   TextChannel,
 } from "discord.js";
+import config from "../../config/index.js";
 
 const CACHE_TTL_MS = 10 * 1000;
 const MATCH_WINDOW_MS = 5 * 1000;
@@ -176,7 +177,7 @@ export async function logStaffMessageDelete(
   entry: GuildAuditLogsEntry<AuditLogEvent.MessageDelete>,
   guild: Guild,
 ): Promise<void> {
-  const logChannelId = process.env.STAFF_LOG_CHANNEL_ID;
+  const logChannelId = config.channels.staffLog;
 
   if (!logChannelId) return;
   if (!entry.executorId) return;

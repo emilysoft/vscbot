@@ -1,6 +1,6 @@
 import { Message, ChatInputCommandInteraction, SlashCommandBuilder, TextChannel } from "discord.js";
 import ICommand from "../../interfaces/command.js";
-import config from "../../config/config.json" with {type: "json"}
+import { isOwner } from "../../config/index.js"
 
 const module: ICommand = {
   name: "setchanneldescription",
@@ -20,7 +20,7 @@ const module: ICommand = {
   messageCommand: false,
   async execute(interaction: ChatInputCommandInteraction) {
     const AUTHOR_ID = interaction.user.id;
-    if (!config.OWNERS_ID.some((id) => id === AUTHOR_ID)) throw new Error("comando no autorizado");
+    if (!isOwner(AUTHOR_ID)) throw new Error("comando no autorizado");
 
     setChannelDescription(interaction, interaction.options.getString("descripcion", true));
   },

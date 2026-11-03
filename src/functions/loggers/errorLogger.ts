@@ -2,6 +2,7 @@ import Client from "../../interfaces/ICustomClient.js"
 import { Guild, ColorResolvable, EmbedBuilder, TextChannel } from "discord.js"
 import dotenv from "dotenv"
 dotenv.config()
+import config from "../../config/index.js"
 const MAIN_SERVER = process.env.MAIN_SERVER
 
 enum tipo {
@@ -21,7 +22,7 @@ const module = async (error: any, client: Client, type: string, dir = "") => {
     } else {
       throw new Error("Error en especificar el type de error");
     }
-    const logChannelId = "1085335051732009113";
+    const logChannelId = config.channels.vscbotErrors;
     if (!client.user) return
     const botAvatar = client.user.displayAvatarURL();
     const exampleEmbed = new EmbedBuilder()
@@ -44,7 +45,7 @@ const module = async (error: any, client: Client, type: string, dir = "") => {
     if (guild.id != MAIN_SERVER) return
 
     await channel.send({
-      content: `<@&1294149003696410665> Error encontrado en: ${dir}`,
+      content: `<@&${config.roles.developers}> Error encontrado en: ${dir}`,
       embeds: [exampleEmbed]
     });
   } catch (err) {

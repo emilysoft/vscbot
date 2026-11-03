@@ -1,7 +1,7 @@
 import { Message, PermissionFlagsBits, TextChannel } from "discord.js";
 import Client from "../../../interfaces/ICustomClient.js";
 import Iautomod from "../../../interfaces/Iautomod.js";
-import config from "../../../config/config.json" with { type: "json" };
+import config, { allowedChannelIds, isOwner } from "../../../config/index.js";
 
 const MAX_MESSAGES = 5;
 const WINDOW_MS = 60 * 1000;
@@ -75,7 +75,7 @@ function isExempt(message: Message): boolean {
   if (channel.isThread()) return true;
 
   if (guild.ownerId === author.id) return true;
-  if (config.OWNERS_ID.includes(author.id)) return true;
+  if (isOwner(author.id)) return true;
 
   if (
     member.permissions.has(PermissionFlagsBits.ManageMessages) ||
@@ -86,7 +86,7 @@ function isExempt(message: Message): boolean {
 
   if (channel.name.toLowerCase().startsWith("ticket")) return true;
 
-  if (!Object.values(config.allowedChannels).includes(channel.id)) return true;
+  if (!allowedChannelIds.includes(channel.id)) return true;
 
   return false;
 }

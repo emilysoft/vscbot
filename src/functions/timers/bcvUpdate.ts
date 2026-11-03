@@ -2,9 +2,10 @@ import getBCVdata from "../../functions/lib/getBCVdata.js";
 import { TextChannel } from "discord.js";
 import errorLogger from "../../functions/loggers/errorLogger.js";
 import Client from "../../interfaces/ICustomClient.js";
+import config from "../../config/index.js";
 
-const TARGET_CHANNEL_ID = "1294633642865332287";
-const ROLE_MENTION = "<@&830121766801244160>";
+const TARGET_CHANNEL_ID = config.channels.dolar;
+const ROLE_MENTION = `<@&${config.roles.bcv}>`;
 
 const module = async (now: Date, client: Client) => {
   try {

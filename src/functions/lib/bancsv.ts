@@ -1,10 +1,11 @@
 import Client from "../../interfaces/ICustomClient.js"
+import config from "../../config/index.js"
 import fs from "fs"
 let razon = "";
 const module = async (client: Client) => {
   try {
     const neetoons = await client.guilds.cache.find(
-      (g) => g.id === "813538324320092161"
+      (g) => g.id === config.guilds.main
     );
     fs.writeFile(
       "baneados.csv",

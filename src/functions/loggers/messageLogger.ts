@@ -1,14 +1,15 @@
 import { Message, TextChannel } from "discord.js";
 import Client from "../../interfaces/ICustomClient.js";
 import { DB_User, DB_Channel, DB_Server } from "../../db/Idatabase.js";
+import config from "../../config/index.js";
 
 const module = async (message: Message, type: string, client: Client) => {
   try {
     const categories = [
-      "813538324320092162",
-      "836011738662961162",
-      "813564125380214785",
-      "1122175563688317058",
+      config.categories.general,
+      config.categories.zonaGamer,
+      config.categories.nsfw,
+      config.categories.tickets,
     ];
 
     if (message.content.match(/^\$wa/) != null) return;
@@ -20,12 +21,12 @@ const module = async (message: Message, type: string, client: Client) => {
     if (!(channel instanceof TextChannel)) return;
 
     // Filtros de canales
-    if (channel.id == "821067797157118013") return; // mudae
-    if (channel.parentId == "1169624626188521563") return; // registro principales
-    if (channel.parentId == "1120080747668197436") return; // registro secundarios
-    if (channel.id == "1024260771326197781") return; // panel
-    if (channel.id == "813562363243921459") return; // memes
-    if (channel.id == "1539304446041788476") return; // mudae
+    if (channel.id == config.channels.mudae) return; // mudae
+    if (channel.parentId == config.categories.registroPrincipales) return; // registro principales
+    if (channel.parentId == config.categories.registro) return; // registro secundarios
+    if (channel.id == config.channels.panel) return; // panel
+    if (channel.id == config.channels.memesOld) return; // memes
+    if (channel.id == config.channels.patas) return; // mudae
 
     let typeLog;
     if (type == "create") typeLog = ":green_circle:";
@@ -65,10 +66,10 @@ const module = async (message: Message, type: string, client: Client) => {
     console.log(log1);
 
     // Lógica de envío de logs a Discord
-    if (guild.id === "813538324320092161") {
+    if (guild.id === config.guilds.main) {
       if (categories.includes(channel.parentId as string)) {
         const logMsg = `${typeLog} __[#${channelName.replace(/[^a-zA-Z0-9-]+/, "")}](<https://discord.com/channels/${guild.id}/${channel.id}/${message.id}>)__ **${userName}**: ${messageContent} ||userID:[${authorID}]||`;
-        const logChannel = guild.channels.cache.get("1160325903461666927");
+        const logChannel = guild.channels.cache.get(config.channels.imageLog);
         if (logChannel instanceof TextChannel) {
           await logChannel.send(
             logMsg

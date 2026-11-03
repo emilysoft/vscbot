@@ -2,6 +2,7 @@
 import { Message, TextChannel } from "discord.js";
 import Client from "../../../interfaces/ICustomClient.js";
 import Iautomod from "../../../interfaces/Iautomod.js";
+import config from "../../../config/index.js";
 import {
   handleAntiScam,
   handleDiscordInvite,
@@ -43,16 +44,16 @@ export default {
 
       //  Ignorar usuarios específicos y canales que no sean de automod
       if (
-        author.id === "690796358579257424" || //  ID de nit
-        author.id === "302249242469335060" || //  ID de loq
+        author.id === config.users.nit || //  ID de nit
+        author.id === config.users.loq || //  ID de loq
         !channel.name.includes("automod")
       ) {
         return;
       }
 
       //  Manejar casos específicos del servidor "vsc"
-      if (guild.id === "813538324320092161") {
-        const staffRoleId = "813568302294761486";
+      if (guild.id === config.guilds.main) {
+        const staffRoleId = config.roles.moderacion;
         if (member.roles.cache.has(staffRoleId)) {
           //  Si es staff, no se hace nada y se evita el timeout.
           return member.timeout(null);

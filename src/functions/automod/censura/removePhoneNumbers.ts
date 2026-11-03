@@ -1,36 +1,32 @@
-import Inmunidad from "../../../config/inmunidad.json" with { type: "json" };
 import isNumberInMessage from "../../lib/isNumberInMessage.js";
 import { Message, TextChannel } from "discord.js";
 import Client from "../../../interfaces/ICustomClient.js";
 import Iautomod from "../../../interfaces/Iautomod.js";
+import config from "../../../config/index.js";
 
-interface IInmunidad {
-  outOfContextRoleId: string;
-  moderacionRoleId: string;
-  SilenciadoRoleId: string;
-  mutedRoleId: string;
-}
-const inmunidad: IInmunidad = Inmunidad;
+const inmunidad = [
+  config.roles.outOfContext,
+  config.roles.moderacion,
+  config.roles.silenced,
+  config.roles.muted,
+];
+
 export default {
   name: "removePhoneNumbers",
   scope: "guild",
   ignoreBots: true,
   execute: async function (message: Message, client: Client) {
     if (message.channel instanceof TextChannel != true) return;
-    if (message.author.id == "439205512425504771") return; // posiblemente es nsb
-    if (message.channel.parentId === "813564411628355625") return; //administracion
-    if (message.channel.parentId === "1120080747668197436") return; // registro
-    if (message.channel.parentId === "874730574089187359") return; //extralaborales
+    if (message.author.id == config.bots.notSoBot) return; // posiblemente es nsb
+    if (message.channel.parentId === config.categories.administracion) return; //administracion
+    if (message.channel.parentId === config.categories.registro) return; // registro
+    if (message.channel.parentId === config.categories.extralaborales) return; //extralaborales
 
     if (isNumberInMessage(message)) {
       try {
-        for (const inmune in inmunidad) {
+        for (const roleId of inmunidad) {
           if (!message.member) return;
-          if (
-            message.member.roles.cache.some(
-              (role) => role.id === inmunidad[inmune as keyof IInmunidad],
-            )
-          )
+          if (message.member.roles.cache.some((role) => role.id === roleId))
             return;
         }
         await message.delete().catch(() => null);

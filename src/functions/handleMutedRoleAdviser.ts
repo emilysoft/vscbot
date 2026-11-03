@@ -7,8 +7,8 @@ async function handleMutedRoleAdviser(
   newM: GuildMember,
 ): Promise<void> {
   try {
-    const mutedRoleId = config.MUTED_ROLE_ID;
-    const adviserChannelId = config.MUTED_ADVISER_CHANNEL_ID;
+    const mutedRoleId = config.roles.muted;
+    const adviserChannelId = config.channels.gulag;
 
     if (!mutedRoleId || !adviserChannelId) return;
 

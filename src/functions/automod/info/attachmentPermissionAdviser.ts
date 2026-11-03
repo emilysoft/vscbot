@@ -1,6 +1,7 @@
 import { Message } from "discord.js"
 import Client from "./../../../interfaces/ICustomClient.js"
 import Iautomod from "./../../../interfaces/Iautomod.js"
+import config from "./../../../config/index.js"
 const regex =
   /(puedo|deja)\s+(pasar|enviar|mandar)\s+(unas\s+|una\s+)?(imagenes|capturas?|imagen|foto|fotos|videos|m(e|o)m(o|e)s)/gim;
 export default {
@@ -12,9 +13,9 @@ export default {
     try {
       if (!message.member) return
       if (!message.guild) return
-      if (message.guild.id == "813538324320092161") {
-        if (message.member.roles.cache.has("813546760152547348")) return;
-        if (message.member.roles.cache.has("813545491957940244")) return;
+      if (message.guild.id == config.guilds.main) {
+        if (message.member.roles.cache.has(config.roles.levelTen)) return;
+        if (message.member.roles.cache.has(config.roles.levelFive)) return;
       }
 
       if (message.content.match(regex) != null) {

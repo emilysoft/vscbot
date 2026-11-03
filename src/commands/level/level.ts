@@ -128,7 +128,7 @@ async function handleSetLevel(
 
   const embed = new EmbedBuilder()
     .setTitle("✅ Nivel actualizado")
-    .setColor(config.EMBED_COLOR as ColorResolvable)
+    .setColor(config.embedColor as ColorResolvable)
     .addFields(
       { name: "Usuario", value: targetUser.username, inline: true },
       { name: "Nuevo nivel", value: String(targetLevel), inline: true },

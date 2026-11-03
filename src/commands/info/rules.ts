@@ -35,7 +35,7 @@ function rules(message: Message) {
           .setTitle(`Regla ${msg.title}`)
           .setAuthor({ name: message.client.user.username, iconURL: botAvatar })
           .setDescription(msg.rule)
-          .setColor(config.EMBED_COLOR as ColorResolvable)
+          .setColor(config.embedColor as ColorResolvable)
           .setFooter({
             text: message.author.username,
             iconURL: avatarPhoto,

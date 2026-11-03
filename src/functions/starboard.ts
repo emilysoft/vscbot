@@ -1,16 +1,17 @@
 import { EmbedBuilder, MessageReaction, TextChannel, User } from "discord.js";
+import config from "../config/index.js";
 
 const CONFIG = {
   emote: "kek",
   threshold: 6,
-  channelId: "872866069767917598",
+  channelId: config.channels.starboard,
 };
 
 const targetChannels = [
-  "813538324320092164", // general
-  "1345943077470076979", // general 2
-  "853387980335874078", // general ccss
-  "1409143372052037744", // memes
+  config.channels.panaderia, // general
+  config.channels.general, // general 2
+  config.channels.cienciasSociales, // general ccss
+  config.channels.memes, // memes
 ];
 
 const postedMessages = new Set<string>();
@@ -42,7 +43,7 @@ const module = async (reaction: MessageReaction, _user: User) => {
 
   const { message, emoji, count } = reaction;
 
-  if (message.author?.id == "974297735559806986") return; // genai
+  if (message.author?.id == config.bots.genAi) return; // genai
   if (emoji.name !== CONFIG.emote && emoji.id !== CONFIG.emote) return;
   if (count < CONFIG.threshold) return;
   if (postedMessages.has(message.id)) return;

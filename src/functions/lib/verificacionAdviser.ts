@@ -6,11 +6,12 @@ import {
 } from "discord.js";
 import dotenv from "dotenv";
 dotenv.config();
+import config from "../../config/index.js";
 
 // --- Configuration ---
-const UNVERIFIED_ROLE_ID = "1260331890406068325";
-const WELCOME_CHANNEL_ID = "1345943077470076979";
-const PING_CHANNEL_ID = "813538324320092164";
+const UNVERIFIED_ROLE_ID = config.roles.unverified;
+const WELCOME_CHANNEL_ID = config.channels.general;
+const PING_CHANNEL_ID = config.channels.panaderia;
 // --- Seguimiento para el Saludo Grupal ---
 const recentVerifications = new Map<
   string,
@@ -33,7 +34,7 @@ async function handleWelcomeMessages(
   const webhookClient = new WebhookClient({ url: WEBHOOK_URL });
 
   const guild = newMember.guild;
-  if (guild.id != "813538324320092161") return;
+  if (guild.id != config.guilds.main) return;
   // Verifica si el miembro ya no tiene el rol no verificado
   const wasUnverified = oldMember.roles.cache.has(UNVERIFIED_ROLE_ID);
   const isVerified = !newMember.roles.cache.has(UNVERIFIED_ROLE_ID);

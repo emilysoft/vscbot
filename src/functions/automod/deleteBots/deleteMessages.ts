@@ -2,11 +2,25 @@ import { Message, TextChannel } from "discord.js";
 import Client from "../../../interfaces/ICustomClient.js";
 import Iautomod from "../../../interfaces/Iautomod.js";
 import { deleteBulkMessage } from "../../../functions/lib/deleteBulkMessage.js";
-import CONFIGS from "../../../config/config.json" with { type: "json" };
+import CONFIGS, {
+  botId,
+  channelId,
+  channelIds,
+  type BotKey,
+  type ChannelKey,
+} from "../../../config/index.js";
 
-const CONFIG = CONFIGS.DELETE_MESSAGES;
+const CONFIG = CONFIGS.deleteMessages;
+const GENERAL_CHANNELS = channelIds(CONFIG.channels.general as ChannelKey[]);
+const COMMAND_CHANNEL = channelId(CONFIG.channels.command as ChannelKey);
+const NSB_CHANNEL = channelId(CONFIG.channels.nsb as ChannelKey);
+const NSB_BOT = botId(CONFIG.bots.nsb as BotKey);
+const GENERAL_BOTS = Object.values(CONFIG.bots.generalChannel).map((key) =>
+  botId(key as BotKey),
+);
+const MUDAE_BOT = botId(CONFIG.bots.generalChannel.mudae as BotKey);
 const REGEX = Object.fromEntries(
-  Object.entries(CONFIG.REGEX).map(([name, pattern]) => [
+  Object.entries(CONFIG.regex).map(([name, pattern]) => [
     name,
     new RegExp(pattern, "im"),
   ]),
@@ -14,7 +28,7 @@ const REGEX = Object.fromEntries(
 
 const deleteMsgs = {
   noMudae: function (message: Message) {
-    if (!(message.author.id == CONFIG.BOTS.GENERAL_CHANNEL.MUDAE)) return;
+    if (!(message.author.id == MUDAE_BOT)) return;
     const delay = 1000 * 30;
     deleteBulkMessage(message, delay);
   },
@@ -34,7 +48,7 @@ const deleteMsgs = {
     // borra bots de general con delay
     BotsFromGeneral: function (message: Message) {
       if (
-        Object.values(CONFIG.BOTS.GENERAL_CHANNEL).includes(message.author.id)
+        GENERAL_BOTS.includes(message.author.id)
       ) {
         const delay = 1000 * 60 * 3;
         deleteBulkMessage(message, delay);
@@ -82,10 +96,10 @@ const deleteMsgs = {
 };
 
 const isCommandChannelNoThread = (message: Message) =>
-  message.channel.id == CONFIG.CHANNELS.COMMAND && !message.channel.isThread();
+  message.channel.id == COMMAND_CHANNEL && !message.channel.isThread();
 const isGeneralChannel = (message: Message) =>
-  CONFIG.CHANNELS.GENERAL.includes(message.channel.id);
-const isNSBMessage = (message: Message) => message.author.id == CONFIG.BOTS.NSB;
+  GENERAL_CHANNELS.includes(message.channel.id);
+const isNSBMessage = (message: Message) => message.author.id == NSB_BOT;
 
 interface IHandlers {
   check: (message: Message) => boolean;
@@ -127,7 +141,7 @@ export default {
 // Le avisa al owner que un tag ha sido dañado
 async function warnOwner({ content, guild }: Message) {
   if (!guild) return;
-  const botsChannel = await guild.channels.fetch(CONFIG.CHANNELS.NSB);
+  const botsChannel = await guild.channels.fetch(NSB_CHANNEL);
   if (!(botsChannel instanceof TextChannel)) return;
   await botsChannel.send(`<@${guild.ownerId}>\n${content}`);
 }

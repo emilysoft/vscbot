@@ -40,7 +40,7 @@ export async function startEvent(client: Client, eventId: number): Promise<void>
         const contentStr = content || `**${event.name}** ha comenzado!`;
         if (event.image_url) {
           const embed = new EmbedBuilder()
-            .setColor(config.EMBED_COLOR as ColorResolvable)
+            .setColor(config.embedColor as ColorResolvable)
             .setDescription(`**${event.name}** ha comenzado!`)
             .setImage(event.image_url);
           await targetChannel.send({ content: contentStr, embeds: [embed] });
@@ -122,7 +122,7 @@ export async function startEvent(client: Client, eventId: number): Promise<void>
     let announcement;
     if (event.image_url) {
       const embed = new EmbedBuilder()
-        .setColor(config.EMBED_COLOR as ColorResolvable)
+        .setColor(config.embedColor as ColorResolvable)
         .setDescription(`**${event.name}** ha comenzado!`)
         .setImage(event.image_url);
       announcement = await textChannel.send({ content: contentStr, embeds: [embed] });
@@ -207,7 +207,7 @@ export async function endEvent(client: Client, eventId: number): Promise<void> {
 
     const embed = new EmbedBuilder()
       .setTitle(`Evento finalizado: ${event.name}`)
-      .setColor(config.EMBED_COLOR as ColorResolvable)
+      .setColor(config.embedColor as ColorResolvable)
       .addFields(
         { name: 'Participantes (voz)', value: `${voiceUnique}`, inline: true },
         { name: 'Participantes (reacción)', value: `${reactionUnique}`, inline: true },

@@ -94,7 +94,7 @@ const getMarketData = async (client: Client): Promise<EmbedBuilder | void> => {
 
     // Construcción del Embed con un gusto impecable
     const embed = new EmbedBuilder()
-      .setColor(config.EMBED_COLOR as ColorResolvable)
+      .setColor(config.embedColor as ColorResolvable)
       .setTitle("📊 Monitor de Divisas y Crypto")
       .setAuthor({
         name: "Finanzas",

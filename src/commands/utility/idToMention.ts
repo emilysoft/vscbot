@@ -1,6 +1,7 @@
 import { ChatInputCommandInteraction, Message, Role, SlashCommandBuilder } from "discord.js"
 import getIds from "../../functions/lib/getIds.js"
-const modId = "813568302294761486";
+import config from "../../config/index.js"
+const modId = config.roles.moderacion;
 import ICommand from "../../interfaces/command.js"
 const module: ICommand = {
   name: "getmention",

@@ -21,14 +21,14 @@ const module: IEvents = {
       await levelDetector(message, client);
 
       // la lupa
-      const authorizedUsers = ["647368715742216193"];
-      const targetChannel = "853387980335874078";
+      const authorizedUsers = [config.bots.saucyBot];
+      const targetChannel = config.channels.cienciasSociales;
 
       if (authorizedUsers.includes(message.author.id) && message.channel.id === targetChannel) {
         message.react("<:lupa:1155601662258458755>")
       }
 
-      if(message.channel.id == "1456086627062382643") return // canal de metas
+      if(message.channel.id == config.channels.metas2026) return // canal de metas
 
       // Automod
       const automodActions = client.automod
@@ -43,7 +43,7 @@ const module: IEvents = {
           }
 
           if (automod.scope == "guild") {
-            if(guild.id == config.guildId) {
+            if(guild.id == config.guilds.main) {
               return true
             }
           }

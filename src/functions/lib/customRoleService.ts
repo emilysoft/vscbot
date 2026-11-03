@@ -10,7 +10,7 @@ import { Jimp } from "jimp";
 import fs from "node:fs/promises";
 import path from "node:path";
 import Client from "../../interfaces/ICustomClient.js";
-import config from "../../config/config.json" with { type: "json" };
+import config, { roleId, type RoleKey } from "../../config/index.js";
 
 export const ROLE_ICONS_UNAVAILABLE_MESSAGE =
   "El servidor necesita Nivel 2 de boosts para usar iconos de rol.";
@@ -60,10 +60,8 @@ export async function getCustomRoleSlotState(guild: Guild): Promise<{
   limit: number;
   reserved: number;
 }> {
-  const rawLimit = Number(
-    (config as any).CUSTOM_ROLES_SERVER_ROLE_LIMIT ?? 250,
-  );
-  const rawReserved = Number((config as any).CUSTOM_ROLES_RESERVED_SLOTS ?? 2);
+  const rawLimit = Number(config.customRoles.serverRoleLimit ?? 250);
+  const rawReserved = Number(config.customRoles.reservedSlots ?? 2);
   const limit = Number.isFinite(rawLimit) ? rawLimit : 250;
   const reserved = Number.isFinite(rawReserved) ? Math.max(0, rawReserved) : 2;
 
@@ -91,10 +89,7 @@ export async function getCustomRoleSlotState(guild: Guild): Promise<{
 }
 
 export async function getCustomRolePosition(guild: Guild): Promise<number> {
-  const anchorRoleId = (config as any).CUSTOM_ROLES_ANCHOR_ROLE_ID as
-    string | undefined;
-
-  if (!anchorRoleId) return 10;
+  const anchorRoleId = roleId(config.customRoles.anchorRole as RoleKey);
 
   const anchorRole =
     guild.roles.cache.get(anchorRoleId) ??
@@ -299,8 +294,7 @@ export async function createCustomRoleForMember(
         reason: "Custom role created from panel",
       });
 
-      const trackerId = (config as any).CUSTOM_ROLE_TRACKER_ROLE_ID as
-        string | undefined;
+      const trackerId = roleId(config.customRoles.trackerRole as RoleKey);
       let trackerAdded = false;
 
       try {
@@ -342,8 +336,7 @@ interface CustomRoleEntry {
 }
 
 export async function syncCustomRoleTrackers(client: Client): Promise<void> {
-  const trackerId = (config as any).CUSTOM_ROLE_TRACKER_ROLE_ID as
-    string | undefined;
+  const trackerId = roleId(config.customRoles.trackerRole as RoleKey);
   if (!trackerId) return;
 
   const entries = await client.db.roles.custom.getAll();

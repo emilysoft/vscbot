@@ -69,7 +69,7 @@ function buildEmbed(
   totalPages: number,
 ): EmbedBuilder {
   const embed = new EmbedBuilder()
-    .setColor(config.EMBED_COLOR as ColorResolvable)
+    .setColor(config.embedColor as ColorResolvable)
     .setTitle(`🏆 Top de niveles — ${guildName}`)
     .setFooter({
       text: `Página ${page + 1}/${totalPages} • ${entries.length} jugadores`,

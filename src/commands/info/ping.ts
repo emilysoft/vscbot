@@ -23,7 +23,7 @@ const module: ICommand = {
 function ping(interaction: ChatInputCommandInteraction | Message) {
   const botAvatar = interaction.client.user.displayAvatarURL();
   const embed = new EmbedBuilder()
-    .setColor(config.EMBED_COLOR as ColorResolvable)
+    .setColor(config.embedColor as ColorResolvable)
     .setTitle("Ping!")
     .addFields([
       {

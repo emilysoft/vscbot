@@ -13,7 +13,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const MAIN_SERVER = process.env.MAIN_SERVER;
-const LOGS_CHANNEL_ID = "1277121114786496572";
+const LOGS_CHANNEL_ID = config.channels.deleteLog;
 
 const resolveLogsChannel = async (guild: Guild) => {
   const cached = guild.channels.cache.get(LOGS_CHANNEL_ID);
@@ -29,7 +29,7 @@ const resolveLogsChannel = async (guild: Guild) => {
 const module = async (message: Message, client: Client) => {
   try {
     if (message.author?.bot) return;
-    if (message.channel.id === "1024260771326197781") return;
+    if (message.channel.id === config.channels.panel) return;
     if (!message.attachments || message.attachments.size === 0) return;
     if (!message.guild || message.guild.id !== MAIN_SERVER) return;
 
@@ -84,7 +84,7 @@ const module = async (message: Message, client: Client) => {
         });
 
         const baseEmbed = new EmbedBuilder()
-          .setColor(config.EMBED_COLOR as ColorResolvable)
+          .setColor(config.embedColor as ColorResolvable)
           .setTitle(message.author.username)
           .setDescription(
             `**Message sent by <@${message.author.id}> deleted in <#${message.channel.id}>**`,

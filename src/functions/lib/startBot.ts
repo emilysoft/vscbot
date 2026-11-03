@@ -1,9 +1,10 @@
 import {TextChannel} from "discord.js"
 import Client from "../../interfaces/ICustomClient.js"
+import config from "../../config/index.js"
 const module = async (client:Client) => {
-  const guild = client.guilds.cache.get("813538324320092161")
+  const guild = client.guilds.cache.get(config.guilds.main)
   if(!guild) return
-  const channel = await guild.channels.fetch("1024260771326197781")
+  const channel = await guild.channels.fetch(config.channels.panel)
   if(!channel) return
   if(channel instanceof TextChannel != true) return
   channel.send("bot iniciado");
