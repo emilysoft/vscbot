@@ -178,6 +178,13 @@
     }
   },
 
+  "backups": {
+    "emojisStickers": {
+      "enabled": true,
+      "intervalDays": 15
+    }
+  },
+
   "customRoles": {
     "serverRoleLimit": 250,
     "reservedSlots": 2,

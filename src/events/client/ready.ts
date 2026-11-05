@@ -10,6 +10,7 @@ import { initReminderScheduler } from "../../functions/timers/reminderScheduler.
 import { initRssScheduler } from "../../functions/timers/rssScheduler.js";
 import { initNewMemberRestrictionScheduler } from "../../functions/timers/newMemberRestrictionScheduler.js";
 import { initMudaeResetScheduler } from "../../functions/timers/mudaeResetScheduler.js";
+import { initMediaBackupScheduler } from "../../functions/timers/mediaBackupScheduler.js";
 import { clearGulag } from "../../functions/automod/workers/clearChat.js";
 import { deployCommands } from "../../handlers/deploy-commands.js";
 import { startInactiveCustomRoleCleanup } from "../../functions/timers/cleanupInactiveCustomRoles.js";
@@ -31,6 +32,10 @@ const module = {
     await initMudaeResetScheduler(client);
 
     startInactiveCustomRoleCleanup(client);
+
+    initMediaBackupScheduler(client).catch((err) =>
+      client.errorLogger(err, client, "error", `${process.cwd()} events/ready`),
+    );
 
     syncCustomRoleTrackers(client).catch((err) =>
       client.errorLogger(err, client, "error"),
