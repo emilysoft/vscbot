@@ -3,13 +3,13 @@ import Client from "./../../../interfaces/ICustomClient.js"
 import Iautomod from "./../../../interfaces/Iautomod.js"
 import config from "./../../../config/index.js"
 const regex =
-  /(puedo|deja)\s+(pasar|enviar|mandar)\s+(unas\s+|una\s+)?(imagenes|capturas?|imagen|foto|fotos|videos|m(e|o)m(o|e)s)/gim;
+  /(puedo|deja)\s+(pasar|enviar|mandar)\s+(unas\s+|una\s+)?(im[aá]genes|capturas?|imagen|foto|fotos|videos|m(e|o)m(o|e)s)/gim;
 export default {
   name: "attachmentPermissionAdviser",
   scope: "global",
   ignoreBots: true,
   allowEdited: true,
-  execute: async function (message: Message, client: Client) {
+  execute: async function(message: Message, client: Client) {
     try {
       if (!message.member) return
       if (!message.guild) return
