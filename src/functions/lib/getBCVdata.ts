@@ -75,8 +75,16 @@ const getMarketData = async (client: Client): Promise<EmbedBuilder | void> => {
 
     // Helper para limpiar esos ceros horrorosos y formatear bonito
     const formatBCV = (selector: string) => {
-      const raw = $(selector).text().trim().replace(",", ".");
-      const numeric = parseFloat(raw);
+      // El BCV publica en formato venezolano: "1.006,60" (punto de miles, coma decimal).
+      // Si hay coma, los puntos son separadores de miles y deben eliminarse antes de parsear.
+      const raw = $(selector)
+        .text()
+        .trim()
+        .replace(/[^\d,.-]/g, "");
+      const normalized = raw.includes(",")
+        ? raw.replace(/\./g, "").replace(",", ".")
+        : raw;
+      const numeric = parseFloat(normalized);
       if (isNaN(numeric)) return "Error";
       // Formato localizado para Venezuela (puntos para miles, comas para decimales)
       return numeric.toLocaleString("es-VE", {
