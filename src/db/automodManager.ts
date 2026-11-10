@@ -1,7 +1,6 @@
 import { eq, sql } from "drizzle-orm";
 import type { AppDatabase } from "./client.js";
 import { automodSettings } from "./schema.js";
-import { ignoredCategoryIds, ignoredChannelIds } from "../config/index.js";
 
 /** Regla de excepción para un canal o categoría. */
 export interface AutomodOverrideRule {
@@ -21,13 +20,6 @@ export interface AutomodSnapshot {
   disabled: string[];
   overrides: AutomodOverrides;
 }
-
-/**
- * Módulo que consumía las listas `ignoredChannels` / `ignoredCategories` de
- * config.json. Solo se usa para sembrar la primera fila de la DB; se puede
- * borrar cuando esas listas desaparezcan de config.json.
- */
-const LEGACY_IGNORE_MODULE = "antiTextWall";
 
 function emptyOverrides(): AutomodOverrides {
   return { channels: {}, categories: {} };
@@ -80,7 +72,7 @@ export default class AutomodManager {
     if (!row) {
       this.globalEnabled = true;
       this.disabled = new Set();
-      this.overrides = this.bootstrapOverrides();
+      this.overrides = emptyOverrides();
       this.persist();
       return;
     }
@@ -172,27 +164,6 @@ export default class AutomodManager {
   ): boolean {
     if (!rule?.off) return false;
     return rule.off.includes("*") || rule.off.includes(name);
-  }
-
-  /**
-   * Siembra inicial: reproduce en la DB lo que antes se leía de
-   * `ignoredChannels` / `ignoredCategories` en config.json, pero acotado al
-   * único módulo que las consumía.
-   */
-  private bootstrapOverrides(): AutomodOverrides {
-    const overrides = emptyOverrides();
-    const add = (scope: AutomodOverrideScope, id: string) => {
-      const rule = overrides[scope][id] ?? { off: [] };
-      if (!rule.off.includes(LEGACY_IGNORE_MODULE)) {
-        rule.off.push(LEGACY_IGNORE_MODULE);
-      }
-      overrides[scope][id] = rule;
-    };
-
-    for (const id of ignoredChannelIds) add("channels", id);
-    for (const id of ignoredCategoryIds) add("categories", id);
-
-    return overrides;
   }
 
   private persist(): void {

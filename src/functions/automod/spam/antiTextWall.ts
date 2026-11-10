@@ -55,13 +55,6 @@ export default {
       }
       if (message.channel instanceof TextChannel != true) return;
       if (/^\.\s*dl\s+https/i.test(message.content)) return;
-      if (message.channel.parentId === config.categories.administracion) return; //administracion
-      if (message.channel.parentId === config.categories.registroPrincipales) return; // registro principales
-      if (message.channel.parentId === config.categories.registro) return; // registro secundarios
-      if (message.channel.parentId === config.categories.extralaborales) return; //extralaborales
-      if (message.channel.id == config.channels.gaming) return; // gaming-y-anime
-      if (message.channel.id === config.channels.loqTeAmamos) return; //basados
-      if (message.channel.id === config.channels.patas) return; //mudae
       if (message.author.id == config.users.hiraku) return; // hiraku
 
       if (message.channel.name.startsWith("ticket")) return; //evitar canales de tickets

@@ -18,9 +18,6 @@ export default {
   execute: async function (message: Message, client: Client) {
     if (message.channel instanceof TextChannel != true) return;
     if (message.author.id == config.bots.notSoBot) return; // posiblemente es nsb
-    if (message.channel.parentId === config.categories.administracion) return; //administracion
-    if (message.channel.parentId === config.categories.registro) return; // registro
-    if (message.channel.parentId === config.categories.extralaborales) return; //extralaborales
 
     if (isNumberInMessage(message)) {
       try {

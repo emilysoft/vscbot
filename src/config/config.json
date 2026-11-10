@@ -122,35 +122,6 @@
 
   "owners": ["loq", "nit"],
 
-  "ignoredChannels": [
-    "sugerenciasOld",
-    "dibujos",
-    "mudae",
-    "cienciasSociales",
-    "english",
-    "comandos",
-    "confesiones",
-    "fmbot",
-    "iceberg",
-    "juegos",
-    "melomanos",
-    "ia",
-    "bardo",
-    "ultimaConfesion"
-  ],
-
-  "ignoredCategories": [
-    "nsfw",
-    "fijado",
-    "importante",
-    "vsc",
-    "administracion",
-    "extralaborales",
-    "zonaGamer",
-    "registro",
-    "servidoresExclusivos"
-  ],
-
   "allowedChannels": ["panaderia", "general", "cienciasSociales"],
 
   "deleteMessages": {

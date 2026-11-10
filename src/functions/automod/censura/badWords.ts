@@ -11,7 +11,6 @@ export default {
   ignoreBots: true,
   execute: async function(message: Message, client: Client) {
     try {
-      if (message.channel.id == config.channels.panel) return;
       for (const regex of badWordsRegexed) {
         if (message.content.match(regex) != null) {
           sendMessage(message);
