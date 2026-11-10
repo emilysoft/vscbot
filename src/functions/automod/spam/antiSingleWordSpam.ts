@@ -1,7 +1,7 @@
 import { Message, PermissionFlagsBits, TextChannel } from "discord.js";
 import Client from "../../../interfaces/ICustomClient.js";
 import Iautomod from "../../../interfaces/Iautomod.js";
-import config, { allowedChannelIds, isOwner } from "../../../config/index.js";
+import config, { isOwner } from "../../../config/index.js";
 
 const MAX_MESSAGES = 5;
 const WINDOW_MS = 60 * 1000;
@@ -21,7 +21,7 @@ const chains = new Map<string, Chain>();
 
 export default {
   name: "antiSingleWordSpam",
-  scope: "global",
+  scope: "guild",
   ignoreBots: true,
   allowEdited: false,
   execute: async function(message: Message, client: Client) {
@@ -85,8 +85,6 @@ function isExempt(message: Message): boolean {
   }
 
   if (channel.name.toLowerCase().startsWith("ticket")) return true;
-
-  if (!allowedChannelIds.includes(channel.id)) return true;
 
   return false;
 }

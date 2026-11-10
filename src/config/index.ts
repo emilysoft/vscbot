@@ -25,6 +25,3 @@ export const userIds = (keys: readonly UserKey[]): string[] => keys.map(userId);
 export const ownerIds = raw.owners.map((key) => raw.users[key as UserKey]);
 export const isOwner = (id: string): boolean => ownerIds.includes(id);
 
-export const allowedChannelIds = channelIds(
-  raw.allowedChannels as ChannelKey[],
-);
