@@ -120,6 +120,9 @@ function failureEmbed(err: unknown): EmbedBuilder {
 
 async function runBackup(client: Client): Promise<void> {
   if (running) return;
+  // Si el bot no está en el servidor principal (p. ej. en desarrollo), no hay
+  // nada que respaldar; no lo tratamos como error.
+  if (!client.guilds.cache.has(config.guilds.main)) return;
   running = true;
 
   try {
@@ -153,6 +156,13 @@ export async function initMediaBackupScheduler(client: Client): Promise<void> {
   setInterval(async () => {
     if (await isBackupDue()) await runBackup(client);
   }, CHECK_INTERVAL_MS);
+
+  if (!client.guilds.cache.has(config.guilds.main)) {
+    console.log(
+      "[mediaBackupScheduler] El bot no está en el servidor principal; backup omitido.",
+    );
+    return;
+  }
 
   if (await isBackupDue()) {
     console.log(
