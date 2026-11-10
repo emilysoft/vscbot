@@ -1,21 +1,24 @@
 import {
+  ActionRowBuilder,
   AutocompleteInteraction,
+  ButtonBuilder,
+  ButtonStyle,
   ChannelType,
   ChatInputCommandInteraction,
-  ColorResolvable,
-  EmbedBuilder,
   PermissionFlagsBits,
   SlashCommandBuilder,
 } from "discord.js";
 import Client from "../../interfaces/ICustomClient.js";
 import ICommand from "../../interfaces/command.js";
-import config from "../../config/config.json" with { type: "json" };
 import { isOwner } from "../../config/index.js";
+import {
+  ALL_MODULES,
+  ALL_MODULES_LABEL,
+  buildStatusPages,
+} from "../../functions/lib/automodStatus.js";
 import type { AutomodOverrideScope } from "../../db/automodManager.js";
 
-/** Valor de módulo que representa "todos los automods". */
-const ALL_MODULES = "*";
-const ALL_MODULES_LABEL = "todos";
+const STATUS_BUTTON_PREFIX = "automod_status_";
 
 const module: ICommand = {
   name: "automod",
@@ -128,9 +131,52 @@ const module: ICommand = {
     const manager = client.db.automod;
 
     if (subcommand === "estado") {
+      const snapshot = manager.snapshot();
+      const pages = buildStatusPages({
+        globalEnabled: snapshot.globalEnabled,
+        disabled: snapshot.disabled,
+        overrides: snapshot.overrides,
+        modules: [...client.automod.entries()].map(([name, automod]) => ({
+          name,
+          scope: automod.scope,
+        })),
+      });
+
+      if (pages.length === 1) {
+        await interaction.reply({ embeds: pages, ephemeral: true });
+        return;
+      }
+
+      let page = 0;
       await interaction.reply({
-        embeds: [buildStatusEmbed(client)],
+        embeds: [pages[page]],
+        components: [buildStatusRow(page, pages.length)],
         ephemeral: true,
+      });
+
+      const reply = await interaction.fetchReply();
+      const collector = reply.createMessageComponentCollector({
+        filter: (button) =>
+          button.user.id === interaction.user.id &&
+          button.customId.startsWith(STATUS_BUTTON_PREFIX),
+        time: 120_000,
+      });
+
+      collector.on("collect", async (button) => {
+        page =
+          button.customId === `${STATUS_BUTTON_PREFIX}prev`
+            ? Math.max(0, page - 1)
+            : Math.min(pages.length - 1, page + 1);
+        await button.update({
+          embeds: [pages[page]],
+          components: [buildStatusRow(page, pages.length)],
+        });
+      });
+
+      collector.on("end", async () => {
+        await interaction
+          .editReply({ components: [buildStatusRow(page, pages.length, true)] })
+          .catch(() => null);
       });
       return;
     }
@@ -207,61 +253,25 @@ function resolveScope(channel: { type: ChannelType }): AutomodOverrideScope {
   return channel.type === ChannelType.GuildCategory ? "categories" : "channels";
 }
 
-function buildStatusEmbed(client: Client): EmbedBuilder {
-  const snapshot = client.db.automod.snapshot();
-  const names = [...client.automod.keys()].sort();
-
-  const modules = names
-    .map((name) => {
-      const off = snapshot.disabled.includes(name);
-      return `${off ? "❌" : "✅"} \`${name}\` (${client.automod.get(name)?.scope ?? "guild"})`;
-    })
-    .join("\n");
-
-  const overrides = [
-    ...formatOverrides("Canales", snapshot.overrides.channels),
-    ...formatOverrides("Categorías", snapshot.overrides.categories),
-  ];
-
-  const enabledCount = names.filter((n) => !snapshot.disabled.includes(n)).length;
-
-  return new EmbedBuilder()
-    .setColor(config.embedColor as ColorResolvable)
-    .setTitle("🤖 Estado del automod")
-    .setDescription(
-      `**Global:** ${
-        snapshot.globalEnabled
-          ? "🟢 encendido"
-          : "🔴 apagado (ningún automod se ejecuta)"
-      }\n` +
-        `**Módulos:** ${enabledCount}/${names.length} activos individualmente`,
-    )
-    .addFields(
-      { name: "Módulos", value: modules || "Sin módulos cargados." },
-      {
-        name: "Excepciones",
-        value: overrides.join("\n") || "Sin excepciones configuradas.",
-      },
-    )
-    .setTimestamp();
-}
-
-function formatOverrides(
-  title: string,
-  rules: Record<string, { off: string[] }>,
-): string[] {
-  const entries = Object.entries(rules);
-  if (!entries.length) return [];
-
-  return [
-    `**${title}:**`,
-    ...entries.map(([id, rule]) => {
-      const modules = rule.off
-        .map((name) => (name === ALL_MODULES ? ALL_MODULES_LABEL : `\`${name}\``))
-        .join(", ");
-      return `<#${id}> — ${modules}`;
-    }),
-  ];
+function buildStatusRow(
+  page: number,
+  total: number,
+  disabled = false,
+): ActionRowBuilder<ButtonBuilder> {
+  return new ActionRowBuilder<ButtonBuilder>().addComponents(
+    new ButtonBuilder()
+      .setCustomId(`${STATUS_BUTTON_PREFIX}prev`)
+      .setLabel("Anterior")
+      .setEmoji("◀️")
+      .setStyle(ButtonStyle.Secondary)
+      .setDisabled(disabled || page === 0),
+    new ButtonBuilder()
+      .setCustomId(`${STATUS_BUTTON_PREFIX}next`)
+      .setLabel("Siguiente")
+      .setEmoji("▶️")
+      .setStyle(ButtonStyle.Secondary)
+      .setDisabled(disabled || page >= total - 1),
+  );
 }
 
 export default module;
