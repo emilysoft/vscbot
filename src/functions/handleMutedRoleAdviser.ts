@@ -24,7 +24,7 @@ async function handleMutedRoleAdviser(
 
     if (!(channel instanceof TextChannel)) return;
 
-    await channel.send(`@silent 🔇 <@${newM.id}> ha sido muteado.`);
+    await channel.send(`🔇 <@${newM.id}> ha sido muteado.`);
   } catch (err) {
     client.errorLogger(err, client, "error");
   }
