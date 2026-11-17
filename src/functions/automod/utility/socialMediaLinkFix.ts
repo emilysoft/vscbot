@@ -80,6 +80,12 @@ function replaceDomains(url: string): string {
   return url;
 }
 
+/*
+ * SISTEMA DE TRADUCCIÓN DE TWITS DESACTIVADO
+ * La API de fxtwitter/vxtwitter está caída, así que se desactiva la consulta de
+ * idioma y el sufijo /es. Los enlaces de X siguen arreglándose con fixupx.com,
+ * pero sin traducir. Descomentar este bloque cuando la API vuelva a funcionar.
+ *
 const TWITTER_URL_REGEX =
   /https?:\/\/(?:www\.)?\b(x|twitter)\b\.com\/([a-zA-Z0-9_]+)\/status\/(\d+)/im;
 
@@ -202,6 +208,7 @@ async function fixTwitterUrl(url: string): Promise<string> {
   const baseUrl = `https://fixupx.com/${screenName}/status/${info.id}`;
   return needsTranslation ? `${baseUrl}/es` : baseUrl;
 }
+*/
 
 async function suppressEmbedsWithRetry(
   message: Message,
@@ -252,11 +259,7 @@ async function processMessage(message: Message): Promise<void> {
   }
 
   const candidates = urls.filter((url) => !isAlreadyFixed(url));
-  const fixedUrls = await Promise.all(
-    candidates.map((url) =>
-      extractTwitterInfo(url) ? fixTwitterUrl(url) : replaceDomains(url),
-    ),
-  );
+  const fixedUrls = candidates.map((url) => replaceDomains(url));
   const processedUrls = [...new Set(fixedUrls)];
 
   if (processedUrls.length === 0) {
